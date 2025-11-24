@@ -439,9 +439,9 @@ for brewery in filtered["brewery_jp"].unique():
             info_arr = []
             if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
-            vintage = ""  # 初期化
+            vintage = ""
             if pd.notna(b.get('vintage')) and str(b.get('vintage')).strip() != "":
-                vintage = f"Vintage {b.get('vintage')}"
+                vintage = str(b.get('vintage')).strip()
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
