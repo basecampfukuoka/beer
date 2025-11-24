@@ -82,6 +82,8 @@ def load_data(path=EXCEL_PATH):
     for c in str_cols: df[c] = df[c].fillna("").astype(str)
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
 
+    df["yomi"] = df["yomi"].astype(str).str.strip()
+
     print(df.columns.tolist())
     
     return df
@@ -451,10 +453,8 @@ for brewery in filtered["brewery_jp"].unique():
             info_arr = []
             if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
-            vintage_text = ""
-            v = r.get("vintage")
-            if pd.notna(r.get('vintage')) and str(r.get('vintage')).strip() != "":
-                vintage= f"Vintage {str(r.get('vintage')).strip()}"
+            if vintage_text:
+                info_arr.append(f"Vintage {vintage}")
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
