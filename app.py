@@ -81,7 +81,15 @@ def load_data(path=EXCEL_PATH):
     ]
     for c in str_cols: df[c] = df[c].fillna("").astype(str)
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
+
+    print(df.columns.tolist())
+    
     return df
+
+
+
+    df = pd.read_excel(EXCEL_PATH, engine="openpyxl")
+print(df.columns.tolist())
 
 df_all = load_data()
 df = df_all.copy()
