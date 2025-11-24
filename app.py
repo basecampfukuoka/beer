@@ -8,11 +8,6 @@ collator = Collator()
 # ---------- Page config ----------
 st.set_page_config(page_title="Craft Beer List", layout="wide")
 
-vintage = r.get("vintage")
-if pd.notna(vintage):
-    info_arr.append(f"Vintage {int(vintage)}")
-
-
 # ---------- Defaults ----------
 EXCEL_PATH = "beer_data.xlsx"
 DEFAULT_BEER_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-beer-default.png"
@@ -89,7 +84,8 @@ def load_data(path=EXCEL_PATH):
 
     df["yomi"] = df["yomi"].astype(str).str.strip()
 
-   
+    print(df.columns.tolist())
+    
     return df
 
 
@@ -406,6 +402,8 @@ for brewery in filtered["brewery_jp"].unique():
 
             brewery_beers_all = df_all[(df_all["brewery_jp"] == brewery) & (df_all["_in_stock_bool"]==True)]
 
+            st.write(brewery_beers_all[["name_jp", "vintage"]])
+
             cards_html = '<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">'
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
@@ -424,7 +422,7 @@ for brewery in filtered["brewery_jp"].unique():
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_wrapped = '<br>'.join([name_jp[i:i+12] for i in range(0, len(name_jp), 12)])
 
-                specs = " | ".join(filter(None, [abv, vol, vintage_text, price]))
+                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
                 cards_html += (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
@@ -457,8 +455,7 @@ for brewery in filtered["brewery_jp"].unique():
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
             vintage = r.get("vintage")
             if pd.notna(vintage):
-                vintage_text = str(int(vintage))  # floatなら整数化
-                info_arr.append(f"Vintage {vintage_text}")
+                info_arr.append(f"Vintage {int(vintage)}")
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
