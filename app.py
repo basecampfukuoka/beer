@@ -57,16 +57,8 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-# 五十音順マップ（濁音・半濁音は基本文字に統一）
-kana_order = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン"
-kana_dict = {c: i for i, c in enumerate(kana_order)}
 
-def kana_key_first3(x):
-    s = "" if x is None else str(x).strip()
-    # 先頭3文字だけ取得
-    s3 = s[:3]
-    # 文字を五十音順番号に変換、マップにない文字は末尾（1000）
-    return [kana_dict.get(c, 1000) for c in s3]
+
 # ---------- Load data ----------
 @st.cache_data
 def load_data(path=EXCEL_PATH):
@@ -93,6 +85,8 @@ def load_data(path=EXCEL_PATH):
 
 df_all = load_data()
 df = df_all.copy()
+
+df["yomi"] = df["yomi"].astype(str).str.strip()
 
 # ---------- Custom CSS ----------
 st.markdown("""
@@ -332,7 +326,7 @@ if not st.session_state.get("show_out_of_stock", False):
 
 
 # ---------- Sorting ----------
-if sort_option == "名前順": filtered = filtered.sort_values(by="name_jp",key=lambda x: x.map(kana_key_first3),na_position="last")
+if sort_option == "名前順": filtered = filtered.sort_values(by="yomi",na_position="last")
 elif sort_option == "ABV（低）": filtered = filtered.sort_values(by="abv_num", ascending=True, na_position="last")
 elif sort_option == "ABV（高）": filtered = filtered.sort_values(by="abv_num", ascending=False,na_position="last")
 elif sort_option == "価格（低）": filtered = filtered.sort_values(by="price_num", ascending=True, na_position="last")
@@ -403,6 +397,9 @@ for brewery in filtered["brewery_jp"].unique():
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
                 vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
+                vintage = ""if pd.notna(b.get('vintage')) and str(b.get('vintage')).strip() != "":
+                    vintage = f"Vintage {b.get('vintage')}"
+
                 if pd.notna(b.get('price_num')):
                     if b.get('price_num') == 0:
                         price = "ASK"
@@ -443,6 +440,8 @@ for brewery in filtered["brewery_jp"].unique():
             info_arr = []
             if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
+            if pd.notna(r.get("vintage")) and str(r.get("vintage")).strip() != "":
+                info_arr.append(f"Vintage {r.get('vintage')}")
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
