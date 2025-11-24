@@ -417,12 +417,15 @@ for brewery in filtered["brewery_jp"].unique():
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_wrapped = '<br>'.join([name_jp[i:i+12] for i in range(0, len(name_jp), 12)])
+
+                specs = " | ".join(filter(None, [abv, vol, vintage_text, price]))
+
                 cards_html += (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
                     f'<img src="{img}" width="120"><br>'
                     f'<b>{name_local}</b><br>'
                     f'{name_jp_wrapped}<br>'
-                    f'<div class="beer-spec">{abv} | {vol} | {price}</div>'
+                    f'<div class="beer-spec">{specs}</div>'
                     '</div>'
                 )
             cards_html += '</div></div>'
@@ -446,9 +449,8 @@ for brewery in filtered["brewery_jp"].unique():
             info_arr = []
             if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
-            vintage = ""
             if pd.notna(r.get('vintage')) and str(r.get('vintage')).strip() != "":
-                vintage = str(r.get('vintage')).strip()
+                vintage_text = str(b.get('vintage')).strip()
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
