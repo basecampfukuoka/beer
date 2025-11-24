@@ -57,6 +57,21 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
+def safe_display(v):
+    """
+    NaN / None / 空文字を安全に処理して文字列化。
+    floatなら整数は int に変換して表示。
+    """
+    if pd.isna(v) or v is None or str(v).strip() == "":
+        return ""
+    try:
+        f = float(v)
+        if f.is_integer():
+            return str(int(f))
+        return str(f)
+    except:
+        return str(v)
+
 
 
 # ---------- Load data ----------
