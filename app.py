@@ -397,7 +397,7 @@ for brewery in filtered["brewery_jp"].unique():
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
                 vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
-                vintage = ""if pd.notna(b.get('vintage')) and str(b.get('vintage')).strip() != "":
+                vintage = "" if pd.notna(b.get('vintage')) and str(b.get('vintage')).strip() != "":
                     vintage = f"Vintage {b.get('vintage')}"
 
                 if pd.notna(b.get('price_num')):
