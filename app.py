@@ -57,21 +57,6 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-def safe_display(v):
-    """
-    NaN / None / 空文字を安全に処理して文字列化。
-    floatなら整数は int に変換して表示。
-    """
-    if pd.isna(v) or v is None or str(v).strip() == "":
-        return ""
-    try:
-        f = float(v)
-        if f.is_integer():
-            return str(int(f))
-        return str(f)
-    except:
-        return str(v)
-
 
 
 # ---------- Load data ----------
@@ -423,8 +408,11 @@ for brewery in filtered["brewery_jp"].unique():
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
                 vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
-                vintage = f"Vintage {b.get('vintage')}" if pd.notna(b.get('vintage')) and str(b.get('vintage')).strip() != "" else ""
-
+                vintage = b.get('vintage')
+                    vintage_text = ""
+                    if pd.notna(vintage) and str(vintage).strip() != "":
+                        v_str = str(vintage).strip()
+                        vintage_text = f"Vintage {v_str}" if v_str.isdigit() else v_str
                 if pd.notna(b.get('price_num')):
                     if b.get('price_num') == 0:
                         price = "ASK"
@@ -437,7 +425,7 @@ for brewery in filtered["brewery_jp"].unique():
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_wrapped = '<br>'.join([name_jp[i:i+12] for i in range(0, len(name_jp), 12)])
 
-                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
+                specs = " | ".join(filter(None, [abv, vol, vintage_text, price]))
 
                 cards_html += (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
@@ -469,12 +457,12 @@ for brewery in filtered["brewery_jp"].unique():
             if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
             vintage = r.get("vintage")
+            vintage_text = ""
             if pd.notna(vintage) and str(vintage).strip() != "":
-                try:
-                    vintage_str = str(int(float(vintage)))
-                except (ValueError, TypeError):
-                    vintage_str = str(vintage)
-                info_arr.append(f"Vintage {vintage_str}")
+                v_str = str(vintage).strip()
+                vintage_text = f"Vintage {v_str}" if v_str.isdigit() else v_str
+            if vintage_text:
+                info_arr.append(vintage_text)
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
