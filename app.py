@@ -422,7 +422,7 @@ for brewery in filtered["brewery_jp"].unique():
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_wrapped = '<br>'.join([name_jp[i:i+12] for i in range(0, len(name_jp), 12)])
 
-                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
+                specs = " | ".join(filter(None, [abv, vol, vintage_text, price]))
 
                 cards_html += (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
