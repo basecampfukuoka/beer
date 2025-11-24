@@ -339,7 +339,7 @@ if sort_option == "名前順": filtered = filtered.sort_values(by="yomi",na_posi
 elif sort_option == "ABV（低）": filtered = filtered.sort_values(by="abv_num", ascending=True, na_position="last")
 elif sort_option == "ABV（高）": filtered = filtered.sort_values(by="abv_num", ascending=False,na_position="last")
 elif sort_option == "価格（低）": filtered = filtered.sort_values(by="price_num", ascending=True, na_position="last")
-elif sort_option == "醸造所順": filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(kana_key))
+elif sort_option == "醸造所順": filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(local_key))
 elif sort_option == "スタイル順": filtered = filtered.sort_values(by="style_main_jp", key=lambda x: x.map(locale_key))
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
