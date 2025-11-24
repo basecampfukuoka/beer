@@ -409,10 +409,7 @@ for brewery in filtered["brewery_jp"].unique():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
                 vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
                 vintage = b.get('vintage')
-                    vintage_text = ""
-                    if pd.notna(vintage) and str(vintage).strip() != "":
-                        v_str = str(vintage).strip()
-                        vintage_text = f" {v_str}" if v_str.isdigit() else v_str
+                vintage_str = "" if pd.isna(vintage_val) else str(vintage_val).strip()
                 if pd.notna(b.get('price_num')):
                     if b.get('price_num') == 0:
                         price = "ASK"
@@ -425,7 +422,7 @@ for brewery in filtered["brewery_jp"].unique():
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_wrapped = '<br>'.join([name_jp[i:i+12] for i in range(0, len(name_jp), 12)])
 
-                specs = " | ".join(filter(None, [abv, vol, vintage_text, price]))
+                specs = " | ".join(filter(None, [abv, vol, vintage_str, price]))
 
                 cards_html += (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
@@ -456,13 +453,10 @@ for brewery in filtered["brewery_jp"].unique():
             info_arr = []
             if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
-            vintage = r.get("vintage")
-            vintage_text = ""
-            if pd.notna(vintage) and str(vintage).strip() != "":
-                v_str = str(vintage).strip()
-                vintage_text = f" {v_str}" if v_str.isdigit() else v_str
-            if vintage_text:
-                info_arr.append(vintage_text)
+            vintage_val = r.get("vintage")
+            vintage_str = "" if pd.isna(vintage_val) else str(vintage_val).strip()
+            if vintage_str != "":
+                info_arr.append(vintage_str) 
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
