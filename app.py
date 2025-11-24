@@ -456,7 +456,9 @@ for brewery in filtered["brewery_jp"].unique():
             v = r.get("vintage")
             vintage_text = "" 
             if v is not None:
-                vintage_text = str(v) 
+                vintage_text = str(v)
+            else:
+                vintage_text = ""
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
