@@ -64,9 +64,9 @@ def locale_key(x):
 def load_data(path=EXCEL_PATH):
     df = pd.read_excel(path, engine="openpyxl")
     expected = [
-        "id","name_jp","name_local","brewery_local","brewery_jp","country","city",
+        "id","name_jp","name_local","yomi","brewery_local","brewery_jp","country","city",
         "brewery_description","brewery_image_url","style_main","style_main_jp",
-        "style_sub","style_sub_jp","abv","volume","price","comment","detailed_comment",
+        "style_sub","style_sub_jp","abv","volume","vintage","price","comment","detailed_comment",
         "in_stock","untappd_url","jan","beer_image_url"
     ]
     for c in expected:
