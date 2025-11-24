@@ -418,7 +418,7 @@ for brewery in filtered["brewery_jp"].unique():
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_wrapped = '<br>'.join([name_jp[i:i+12] for i in range(0, len(name_jp), 12)])
 
-                specs = " | ".join(filter(None, [abv, vol, vintage_text, price]))
+                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
                 cards_html += (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
@@ -452,7 +452,7 @@ for brewery in filtered["brewery_jp"].unique():
             vintage_text = ""
             v = r.get("vintage")
             if pd.notna(r.get('vintage')) and str(r.get('vintage')).strip() != "":
-                vintage_text = str(r.get('vintage')).strip()
+                vintage= f"Vintage {str(r.get('vintage')).strip()}"
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
