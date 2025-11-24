@@ -8,6 +8,11 @@ collator = Collator()
 # ---------- Page config ----------
 st.set_page_config(page_title="Craft Beer List", layout="wide")
 
+vintage = r.get("vintage")
+if pd.notna(vintage):
+    info_arr.append(f"Vintage {int(vintage)}")
+
+
 # ---------- Defaults ----------
 EXCEL_PATH = "beer_data.xlsx"
 DEFAULT_BEER_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-beer-default.png"
