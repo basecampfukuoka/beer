@@ -84,8 +84,7 @@ def load_data(path=EXCEL_PATH):
 
     df["yomi"] = df["yomi"].astype(str).str.strip()
 
-    print(df.columns.tolist())
-    
+   
     return df
 
 
