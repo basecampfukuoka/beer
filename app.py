@@ -412,7 +412,7 @@ for brewery in filtered["brewery_jp"].unique():
                     vintage_text = ""
                     if pd.notna(vintage) and str(vintage).strip() != "":
                         v_str = str(vintage).strip()
-                        vintage_text = f"VT {v_str}" if v_str.isdigit() else v_str
+                        vintage_text = f" {v_str}" if v_str.isdigit() else v_str
                 if pd.notna(b.get('price_num')):
                     if b.get('price_num') == 0:
                         price = "ASK"
@@ -460,7 +460,7 @@ for brewery in filtered["brewery_jp"].unique():
             vintage_text = ""
             if pd.notna(vintage) and str(vintage).strip() != "":
                 v_str = str(vintage).strip()
-                vintage_text = f"VT {str(v).strip()}" if v_str.isdigit() else v_str
+                vintage_text = f" {v_str}" if v_str.isdigit() else v_str
             if vintage_text:
                 info_arr.append(vintage_text)
             if pd.notna(r.get("price_num")):
