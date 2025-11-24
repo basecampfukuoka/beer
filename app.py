@@ -408,8 +408,8 @@ for brewery in filtered["brewery_jp"].unique():
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
                 vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
-                vintage = b.get('vintage')
-                vintage_str = "" if pd.isna(vintage_val) else str(vintage_val).strip()
+                vintage_val = b.get('vintage')
+                    vintage_str = str(vintage_val).strip() if pd.notna(vintage_val) and str(vintage_val).strip() != "" else ""
                 if pd.notna(b.get('price_num')):
                     if b.get('price_num') == 0:
                         price = "ASK"
@@ -454,9 +454,8 @@ for brewery in filtered["brewery_jp"].unique():
             if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
             if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
             vintage_val = r.get("vintage")
-            vintage_str = "" if pd.isna(vintage_val) else str(vintage_val).strip()
-            if vintage_str != "":
-                info_arr.append(vintage_str) 
+            if pd.notna(vintage_val) and str(vintage_val).strip() != "":
+                info_arr.append(str(vintage_val).strip())
             if pd.notna(r.get("price_num")):
                 if r.get("price_num") == 0:
                     info_arr.append("ASK")
