@@ -406,8 +406,6 @@ for brewery in filtered["brewery_jp"].unique():
 
             brewery_beers_all = df_all[(df_all["brewery_jp"] == brewery) & (df_all["_in_stock_bool"]==True)]
 
-            st.write(brewery_beers_all[["name_jp", "vintage"]])
-
             cards_html = '<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">'
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
