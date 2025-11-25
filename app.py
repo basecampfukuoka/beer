@@ -193,7 +193,7 @@ if st.session_state["show_all"]:
     # 全表示（在庫ありのみ）
     filtered = filtered[filtered["_in_stock_bool"] == True]
 else:
-    # 検索がある場合だけ絞り込み
+    # 検索文字列がある場合は絞り込み
     if search_text and search_text.strip():
         kw = search_text.strip().lower()
         def matches_row(r):
@@ -205,9 +205,11 @@ else:
             return False
         filtered = filtered[filtered.apply(matches_row, axis=1)]
     else:
-        # 検索前は空にする
+        # 検索文字列が空の場合はまだ何も表示しない
         filtered = filtered.iloc[0:0]
 
+# サイズ・ABV・価格・スタイル・国・在庫フィルタは検索文字列ありの場合のみ適用
+if len(filtered) > 0:
     # サイズフィルタ
     if size_choice=="小瓶（≤500ml）":
         filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"].astype(float)<=500.0)]
@@ -237,9 +239,6 @@ else:
     # 在庫なしフィルタ
     if not st.session_state.get("show_out_of_stock", False):
         filtered = filtered[filtered["_in_stock_bool"] == True]
-
-
-
 # ---------- Sorting ----------
 if sort_option=="名前順": filtered=filtered.sort_values(by="yomi_sort",na_position="last")
 elif sort_option=="ABV（低）": filtered=filtered.sort_values(by="abv_num",ascending=True,na_position="last")
