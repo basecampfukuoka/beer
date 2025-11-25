@@ -180,35 +180,37 @@ with st.expander("フィルター / 検索を表示", True):
             if checked: selected_styles.append(s)
 
 # ---------- Filtering ----------
-# 「すべて表示」ボタン用フラグ
-if "show_all" not in st.session_state:
-    st.session_state["show_all"] = False
-
-if st.button("🔎 すべて表示"):
-    st.session_state["show_all"] = True
+# ---------- Filtering ----------
 
 filtered = df_all.copy()
 
-if st.session_state["show_all"]:
-    # 全表示（在庫ありのみ）
-    filtered = filtered[filtered["_in_stock_bool"] == True]
-else:
-    # 検索文字列がある場合は絞り込み
-    if search_text and search_text.strip():
-        kw = search_text.strip().lower()
-        def matches_row(r):
-            for c in ["name_local","name_jp","brewery_local","brewery_jp",
-                      "style_main_jp","style_sub_jp","comment","detailed_comment",
-                      "untappd_url","jan"]:
-                if kw in safe_str(r.get(c,"")).lower():
-                    return True
-            return False
-        filtered = filtered[filtered.apply(matches_row, axis=1)]
-    else:
-        # 検索文字列が空の場合はまだ何も表示しない
-        filtered = filtered.iloc[0:0]
+# 検索文字列取得
+search_text = st.session_state.get("search_text", "").strip()
 
-# サイズ・ABV・価格・スタイル・国・在庫フィルタは検索文字列ありの場合のみ適用
+# 全てを表示ボタン用フラグ
+if "show_all" not in st.session_state:
+    st.session_state["show_all"] = False
+
+# --- フィルタリング ---
+if st.session_state["show_all"]:
+    # 「全てを表示」ボタン押下時は在庫あり全件表示
+    filtered = filtered[filtered["_in_stock_bool"] == True]
+elif search_text:
+    # 検索文字列がある場合のみ絞り込み
+    kw = search_text.lower()
+    def matches_row(r):
+        for c in ["name_local","name_jp","brewery_local","brewery_jp",
+                  "style_main_jp","style_sub_jp","comment","detailed_comment",
+                  "untappd_url","jan"]:
+            if kw in safe_str(r.get(c,"")).lower():
+                return True
+        return False
+    filtered = filtered[filtered.apply(matches_row, axis=1)]
+else:
+    # 検索文字列が空＆全表示ボタン未押下なら非表示
+    filtered = filtered.iloc[0:0]
+
+# --- 検索や全表示後に残りの絞り込みを適用 ---
 if len(filtered) > 0:
     # サイズフィルタ
     if size_choice=="小瓶（≤500ml）":
@@ -239,6 +241,7 @@ if len(filtered) > 0:
     # 在庫なしフィルタ
     if not st.session_state.get("show_out_of_stock", False):
         filtered = filtered[filtered["_in_stock_bool"] == True]
+
 # ---------- Sorting ----------
 if sort_option=="名前順": filtered=filtered.sort_values(by="yomi_sort",na_position="last")
 elif sort_option=="ABV（低）": filtered=filtered.sort_values(by="abv_num",ascending=True,na_position="last")
