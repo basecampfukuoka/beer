@@ -156,32 +156,24 @@ with st.expander("フィルター / 検索を表示", False):
         search_text = st.text_input(
             "検索",
             placeholder="フリー検索",
-            label_visibility="collapsed",
+            label_visibility="collapsed",  # 空ラベルで警告が出ないように
             key="search_text",
-            value=st.session_state.get("search_text", "")
+            value=st.session_state.get("search_text", "")  # 初期は空文字
         )
 
     with c3:
         st.markdown("並び替え", unsafe_allow_html=True)
 
     with c4:
-        sort_options = [
-            "名前順",
-            "ABV（低）",
-            "ABV（高）",
-            "価格（低）",
-            "醸造所順",
-            "スタイル順"
-        ]
-
+        sort_options = ["名前順","ABV（低）","ABV（高）","価格（低）","醸造所順","スタイル順"]
+        # 初期は空文字にして、未選択状態
         sort_option = st.selectbox(
             "並び替え",
             options=sort_options,
-            index=sort_options.index(st.session_state.get("sort_option", "名前順")),
+            index=sort_options.index(st.session_state.get("sort_option","名前順")),
             key="sort_option",
             label_visibility="collapsed"
         )
-
     with c5:
         # ---------- 修正：完全リセット ----------
         if st.button("🔄 リセット", help="すべて初期化"):
@@ -305,13 +297,12 @@ with st.expander("フィルター / 検索を表示", False):
             if checked:
                 selected_styles.append(s)
 
-
 # ---------- Filtering (初期非表示対応) ----------
-filtered = df.copy()  # df_all からコピーでもOK
-has_filter = False    # フィルターが適用されているかのフラグ
+filtered = df.copy()
+has_filter = False  # フィルター未適用なら非表示
 
-# 1. 検索テキスト
-if search_text and search_text.strip():
+# 検索
+if search_text.strip():
     has_filter = True
     kw = search_text.strip().lower()
     filtered = filtered[filtered.apply(
@@ -323,39 +314,43 @@ if search_text and search_text.strip():
         axis=1
     )]
 
-# 2. サイズフィルター
-if size_choice != "すべて":
+# サイズ
+if "size_choice" in st.session_state and st.session_state["size_choice"] != "すべて":
     has_filter = True
-    if size_choice == "小瓶（≤500ml）":
+    if st.session_state["size_choice"] == "小瓶（≤500ml）":
         filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"] <= 500)]
-    else:  # 大瓶（≥500ml）
+    else:
         filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"] >= 500)]
 
-# 3. ABVフィルター
+# ABV
 if abv_min != 0.0 or abv_max != 20.0:
     has_filter = True
-    filtered = filtered[(filtered["abv_num"].fillna(-1) >= abv_min) & 
+    filtered = filtered[(filtered["abv_num"].fillna(-1) >= abv_min) &
                         (filtered["abv_num"].fillna(999) <= abv_max)]
 
-# 4. 価格フィルター
+# 価格
 if price_min != 0 or price_max != 20000:
     has_filter = True
-    filtered = filtered[(filtered["price_num"].fillna(-1) >= price_min) & 
+    filtered = filtered[(filtered["price_num"].fillna(-1) >= price_min) &
                         (filtered["price_num"].fillna(10**9) <= price_max)]
 
-# 5. 国フィルター
+# 国
 if country_choice != "すべて":
     has_filter = True
     filtered = filtered[filtered["country"] == country_choice]
 
-# 6. スタイルフィルター
+# スタイル
 if selected_styles:
     has_filter = True
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
-# 7. 在庫チェック（メイン一覧のみ）
+# 在庫チェック
 if not st.session_state.get("show_out_of_stock", False):
     filtered = filtered[filtered["_in_stock_bool"] == True]
+
+# ----- 初期非表示対応 -----
+if not has_filter:
+    filtered = filtered.iloc[0:0]  # 空にして非表示
 
 # ----- 初期非表示対応 -----
 # フィルターが一つも適用されていなければ DataFrame を空にする
