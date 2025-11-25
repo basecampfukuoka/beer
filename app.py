@@ -76,10 +76,12 @@ def load_data(path_excel=EXCEL_PATH, path_feather=FEATHER_PATH):
             if c not in df.columns:
                 df[c] = pd.NA
 
+        # 数値系
         df["abv_num"] = pd.to_numeric(df["abv"], errors="coerce")
         df["volume_num"] = df["volume"].apply(try_number)
         df["price_num"] = df["price"].apply(try_number)
 
+        # 文字列系はすべて文字列に統一
         str_cols = [
             "name_jp","name_local","brewery_local","brewery_jp","country","city",
             "brewery_description","brewery_image_url","style_main","style_main_jp",
@@ -88,12 +90,22 @@ def load_data(path_excel=EXCEL_PATH, path_feather=FEATHER_PATH):
         for c in str_cols:
             df[c] = df[c].fillna("").astype(str)
 
+        # bool 系
         df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
+
+        # yomi ソート用
         df["yomi"] = df["yomi"].astype(str).str.strip()
         df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
 
-        # Feather に保存して次回の起動を高速化
-        df.to_feather(path_feather)
+        # Feather 書き込み前に object 型列を文字列化
+        for c in df.columns:
+            if df[c].dtype == "object":
+                df[c] = df[c].astype(str)
+
+        try:
+            df.to_feather(path_feather)
+        except Exception as e2:
+            st.warning(f"Feather 書き込み失敗: {e2}\nキャッシュなしで動作します。")
 
     return df
 
