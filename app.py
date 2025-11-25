@@ -57,12 +57,11 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-
-
 # ---------- Load data ----------
 @st.cache_data
 def load_data(path=EXCEL_PATH):
     df = pd.read_excel(path, engine="openpyxl")
+
     expected = [
         "id","name_jp","name_local","yomi","brewery_local","brewery_jp","country","city",
         "brewery_description","brewery_image_url","style_main","style_main_jp",
@@ -70,42 +69,43 @@ def load_data(path=EXCEL_PATH):
         "in_stock","untappd_url","jan","beer_image_url"
     ]
     for c in expected:
-        if c not in df.columns: df[c] = pd.NA
+        if c not in df.columns:
+            df[c] = pd.NA
+
     df["abv_num"] = pd.to_numeric(df["abv"], errors="coerce")
     df["volume_num"] = df["volume"].apply(try_number)
     df["price_num"] = df["price"].apply(try_number)
+
     str_cols = [
         "name_jp","name_local","brewery_local","brewery_jp","country","city",
         "brewery_description","brewery_image_url","style_main","style_main_jp",
         "style_sub","style_sub_jp","comment","detailed_comment","untappd_url","jan","beer_image_url"
     ]
-    for c in str_cols: df[c] = df[c].fillna("").astype(str)
+    for c in str_cols:
+        df[c] = df[c].fillna("").astype(str)
+
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
 
-import unicodedata
-
+    # --- yomi 正規化 ---
     def normalize_yomi(x):
         if x is None:
             return ""
         s = str(x).strip()
-        # 全角・半角・濁点などを正規化
         s = unicodedata.normalize("NFKC", s)
         return s
 
     df["yomi"] = df["yomi"].apply(normalize_yomi)
 
+    # debug print
     print(df.columns.tolist())
-    
+
     return df
 
 
-
-    df = pd.read_excel(EXCEL_PATH, engine="openpyxl")
-
+# --- load_data の外 ---
 df_all = load_data()
 df = df_all.copy()
 
-df["yomi"] = df["yomi"].astype(str).str.strip()
 
 # ---------- Custom CSS ----------
 st.markdown("""
