@@ -151,7 +151,7 @@ st.markdown("""
     background-color: #f0f8ff; 
     border-radius: 8px; 
     padding: 10px; 
-    margin:5px; 
+    margin: 0 auto; 
     display:inline-block; 
     vertical-align:top; 
     width:180px;
@@ -456,7 +456,6 @@ for brewery in breweries_to_show:
             st.session_state[detail_key] = not st.session_state[detail_key]
 
         # 醸造所詳細
-        # 醸造所詳細
         if st.session_state[detail_key]:
             if brewery_data.get("brewery_description"):
                 st.markdown(f"**醸造所説明:** {brewery_data.get('brewery_description')}")
@@ -476,7 +475,7 @@ for brewery in breweries_to_show:
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 # 幅固定で折り返し
-                name_jp_html = f'<div class="beer-name" style="width:180px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; text-align:center;">{name_jp}</div>'
+                name_jp_html = f'<div class="beer-name" style="width:180px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; text-align:center;"margin: 0 auto;"></div>'
                 
                 specs = " | ".join(filter(None, [abv, vol, price]))
 
