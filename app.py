@@ -408,8 +408,13 @@ for brewery in filtered["brewery_jp"].unique():
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
                 vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
-                vintage_val = b.get('vintage')
-                    vintage_str = str(vintage_val).strip() if pd.notna(vintage_val) and str(vintage_val).strip() != "" else ""
+                vintage_val = b.get("vintage")
+                vintage_str = str(vintage_val).strip() if pd.notna(vintage_val) and str(vintage_val).strip() != "" else ""
+
+                # 数字以外（缶、nan、空白など）は全部無視
+                if not vintage_str.isdigit():
+                    vintage_str = ""
+                
                 if pd.notna(b.get('price_num')):
                     if b.get('price_num') == 0:
                         price = "ASK"
