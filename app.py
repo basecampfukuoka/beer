@@ -511,11 +511,15 @@ for brewery in breweries_to_show:
         with col2:
             # lazy-loading image
             beer_img = r.get("beer_image_url") or DEFAULT_BEER_IMG
+            # --- 画像を中央配置 ---
             st.markdown(
-                f'<img src="{beer_img}" width="100" loading="lazy">',
-                unsafe_allow_html=True
+                f"""
+                <div style="text-align: center;">
+                    <img src="{beer_img}" width="100" loading="lazy" style="display: inline-block;">
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
-
             # centered Untappd button-style link
             st.markdown(
                 f"""
