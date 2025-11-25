@@ -138,12 +138,15 @@ else:
 # ---------- Custom CSS ----------
 st.markdown("""
 <style>
-/* ビール名自動折り返し */
-.beer-name {
+/* ビール名自動折り返し、中央揃え */
+.beer-name-jp {
     width: 180px;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    text-align: center;
 }
 
 /* 詳細カードデザイン */
@@ -475,11 +478,8 @@ for brewery in breweries_to_show:
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 # 幅固定で折り返し
-                name_jp_html = (
-                    f'<div style="width:180px; display:block; text-align:center; '
-                    f'white-space: normal; word-wrap: break-word; overflow-wrap: break-word; margin:0 auto;">'
-                    f'{name_jp}</div>'
-        )
+                name_jp_html = f'<div class="beer-name-jp">{name_jp}</div>'
+
                 
                 specs = " | ".join(filter(None, [abv, vol, price]))
 
