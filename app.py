@@ -464,9 +464,6 @@ for brewery in breweries_to_show:
             # Use df_all but filter and then build HTML via join (Step3: join)
             brewery_beers_all = df_all[(df_all["brewery_jp"] == brewery) & (df_all["_in_stock_bool"]==True)]
 
-            # show a simple table as before
-            st.write(brewery_beers_all[["name_jp", "vintage"]])
-
             cards = []
             cards.append('<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">')
             for _, b in brewery_beers_all.iterrows():
