@@ -477,7 +477,6 @@ for brewery in breweries_to_show:
 
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_local_html = f'<div class="beer-name">{name_local}</div>'
-                name_jp_html = f'<div class="beer-name">{name_jp}</div>'
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_html = f'<div class="beer-name">{name_jp}</div>'
 
