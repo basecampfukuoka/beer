@@ -171,22 +171,36 @@ with st.expander("フィルター / 検索を表示", True):
             if checked: selected_styles.append(s)
 
 # ---------- Filtering ----------
-filtered=df.copy()
-if search_text.strip():
-    kw=search_text.strip().lower()
-    def matches_row(r):
-        for c in ["name_local","name_jp","brewery_local","brewery_jp","style_main_jp","style_sub_jp",
-                  "comment","detailed_comment","untappd_url","jan"]:
-            if kw in safe_str(r.get(c,"")).lower(): return True
-        return False
-    filtered=filtered[filtered.apply(matches_row, axis=1)]
-if size_choice=="小瓶（≤500ml）": filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"]<=500)]
-elif size_choice=="大瓶（≥500ml）": filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"]>=500)]
-filtered=filtered[(filtered["abv_num"].fillna(-1)>=abv_min) & (filtered["abv_num"].fillna(999)<=abv_max)]
-filtered=filtered[(filtered["price_num"].fillna(-1)>=price_min) & (filtered["price_num"].fillna(10**9)<=price_max)]
-if selected_styles: filtered=filtered[filtered["style_main_jp"].isin(selected_styles)]
-if country_choice!="すべて": filtered=filtered[filtered["country"]==country_choice]
-if not show_out: filtered=filtered[filtered["_in_stock_bool"]==True]
+filtered = df.copy()
+# 検索・フィルターが何も入力されていない場合は非表示
+filter_active = (
+    search_text.strip() != "" or
+    size_choice != "すべて" or
+    abv_min > 0 or abv_max < 20 or
+    price_min > 0 or price_max < 20000 or
+    selected_styles or
+    country_choice != "すべて" or
+    show_out
+)
+
+if filter_active:
+    
+    filtered=df.copy()
+    if search_text.strip():
+        kw=search_text.strip().lower()
+        def matches_row(r):
+            for c in ["name_local","name_jp","brewery_local","brewery_jp","style_main_jp","style_sub_jp",
+                      "comment","detailed_comment","untappd_url","jan"]:
+                if kw in safe_str(r.get(c,"")).lower(): return True
+            return False
+        filtered=filtered[filtered.apply(matches_row, axis=1)]
+    if size_choice=="小瓶（≤500ml）": filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"]<=500)]
+    elif size_choice=="大瓶（≥500ml）": filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"]>=500)]
+    filtered=filtered[(filtered["abv_num"].fillna(-1)>=abv_min) & (filtered["abv_num"].fillna(999)<=abv_max)]
+    filtered=filtered[(filtered["price_num"].fillna(-1)>=price_min) & (filtered["price_num"].fillna(10**9)<=price_max)]
+    if selected_styles: filtered=filtered[filtered["style_main_jp"].isin(selected_styles)]
+    if country_choice!="すべて": filtered=filtered[filtered["country"]==country_choice]
+    if not show_out: filtered=filtered[filtered["_in_stock_bool"]==True]
 
 # ---------- Sorting ----------
 if sort_option=="名前順": filtered=filtered.sort_values(by="yomi_sort",na_position="last")
