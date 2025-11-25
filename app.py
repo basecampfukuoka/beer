@@ -509,21 +509,18 @@ for brewery in breweries_to_show:
 
         # 中央：ビール画像
         with col2:
-            # lazy-loading image
             beer_img = r.get("beer_image_url") or DEFAULT_BEER_IMG
-            # --- 画像を中央配置 ---
+
             st.markdown(
                 f"""
-                <div style="text-align: center;">
-                    <img src="{beer_img}" width="100" loading="lazy" style="display: inline-block;">
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            # centered Untappd button-style link
-            st.markdown(
-                f"""
-                <div style="text-align: center; margin-top: 6px;">
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;  /* 上下中央寄せ */
+                    align-items: center;      /* 横中央寄せ */
+                    height: 100%;             /* 親コンテナいっぱい */
+                ">
+                    <img src="{beer_img}" width="100" loading="lazy" style="display: block; margin-bottom:6px;">
                     <a href="{r.get("untappd_url")}" target="_blank"
                         style="
                             display: inline-block;
