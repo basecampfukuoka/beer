@@ -59,22 +59,20 @@ def locale_key(x):
 
 # ---------- Load data ----------
 @st.cache_data
-def load_data():
-    # Feather があれば Feather から高速ロード
-    if os.path.exists(FEATHER_PATH):
-        df = pd.read_feather(FEATHER_PATH)
-    else:
-        # Excel から読み込み
-        df = pd.read_excel(EXCEL_PATH, engine="openpyxl")
+def load_data(path_excel=EXCEL_PATH, path_feather=FEATHER_PATH):
+    try:
+        df = pd.read_feather(path_feather)
+    except Exception as e:
+        st.warning(f"Feather 読み込み失敗: {e}\nExcel から再生成します。")
+        df = pd.read_excel(path_excel, engine="openpyxl")
 
-        # 必要な列がなければ作る
-        expected = [
+        expected_cols = [
             "id","name_jp","name_local","yomi","brewery_local","brewery_jp","country","city",
             "brewery_description","brewery_image_url","style_main","style_main_jp",
             "style_sub","style_sub_jp","abv","volume","vintage","price","comment","detailed_comment",
             "in_stock","untappd_url","jan","beer_image_url"
         ]
-        for c in expected:
+        for c in expected_cols:
             if c not in df.columns:
                 df[c] = pd.NA
 
@@ -91,12 +89,11 @@ def load_data():
             df[c] = df[c].fillna("").astype(str)
 
         df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
-
         df["yomi"] = df["yomi"].astype(str).str.strip()
         df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
 
-        # Feather に保存して次回高速化
-        df.to_feather(FEATHER_PATH)
+        # Feather に保存して次回の起動を高速化
+        df.to_feather(path_feather)
 
     return df
 
