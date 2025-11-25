@@ -296,10 +296,27 @@ with st.expander("フィルター / 検索を表示", False):
 
             if checked:
                 selected_styles.append(s)
+# ---------- Filtering ----------
+has_filter = False
 
-# ---------- Filtering (初期非表示対応) ----------
-filtered = df.copy()
-has_filter = False  # フィルター未適用なら非表示
+search_text_value = (search_text and search_text.strip())
+size_selected = st.session_state.get("size_choice","すべて") != "すべて"
+abv_changed = st.session_state.get("abv_slider", (0.0,20.0)) != (0.0,20.0)
+price_changed = st.session_state.get("price_slider", (0,20000)) != (0,20000)
+styles_selected = bool(selected_styles)
+country_selected = country_choice != "すべて"
+show_out = st.session_state.get("show_out_of_stock", False)
+
+if search_text_value or size_selected or abv_changed or price_changed or styles_selected or country_selected or show_out:
+    has_filter = True
+
+if not has_filter:
+    # 初期状態は非表示
+    filtered = pd.DataFrame(columns=df.columns)
+else:
+    # フィルターを適用
+    filtered = df.copy()
+
 
 # 検索
 if search_text.strip():
