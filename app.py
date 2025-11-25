@@ -88,16 +88,9 @@ def load_data(path=EXCEL_PATH):
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
 
     # --- yomi 正規化 ---
-    def normalize_yomi(x):
-        if x is None:
-            return ""
-        s = str(x).strip()
-        s = unicodedata.normalize("NFKC", s)
-        return s
-
     df["yomi"] = df["yomi"].apply(normalize_yomi)
 
-    df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(str(x)))
+    df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x)))
 
     # debug print
     print(df.columns.tolist())
