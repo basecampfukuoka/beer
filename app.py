@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import locale
+import unicodedata
 from pyuca import Collator  # <- import
 
 collator = Collator()  
