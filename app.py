@@ -477,10 +477,9 @@ for brewery in breweries_to_show:
                     price = "ASK" if b.get('price_num') == 0 else f"¥{int(b.get('price_num'))}"
 
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
-                name_local_html = f'<div class="beer-name" style="line-height:1;">{safe_text(name_local)}</div>'
+                name_local_html = f'<div class="beer-name" style="line-height:1;">{safe_str(name_local)}</div>'
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
-                name_jp_html    = f'<div class="beer-name" style="line-height:1;">{safe_text(name_jp)}</div>'
-
+                name_jp_html    = f'<div class="beer-name" style="line-height:1;">{safe_str(name_jp)}</div>'
                 
                 specs = " | ".join(filter(None, [abv, vol, price]))
 
