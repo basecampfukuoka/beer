@@ -510,7 +510,7 @@ for brewery in breweries_to_show:
         # 中央：ビール画像
         with col2:
             beer_img = r.get("beer_image_url") or DEFAULT_BEER_IMG
-
+            untappd_url = r.get("untappd_url")
             st.markdown(
                 f"""
                 <div style="
@@ -520,7 +520,7 @@ for brewery in breweries_to_show:
                     align-items: center;      /* 横中央寄せ */
                     height: 100%;             /* 親コンテナいっぱい */
                 ">
-                    <img src="{beer_img}" width="100" loading="lazy" style="display: block; margin-bottom:6px;">
+                    <img src="{beer_img}" style="height:150px; object-fit: contain;" loading="lazy">
                     <a href="{r.get("untappd_url")}" target="_blank"
                         style="
                             display: inline-block;
@@ -530,8 +530,8 @@ for brewery in breweries_to_show:
                             border-radius: 6px;
                             text-decoration: none;
                             font-weight: 600;
-                        "
-                    >
+                            margin-top: 6px;
+                        ">
                         UNTAPPD
                     </a>
                 </div>
