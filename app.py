@@ -181,59 +181,57 @@ with st.expander("フィルター / 検索を表示", True):
 
 # ---------- Filtering ----------
 # ---------- Filtering ----------
-filtered = df_all.copy()
 search_text = st.session_state.get("search_text", "").strip()
 show_all = st.session_state.get("show_all", False)
 
-# 検索文字列も全表示ボタンも押されていない場合は非表示
-if not search_text and not show_all:
-    filtered = filtered.iloc[0:0]
-else:
-    # 全表示ボタン押下時
-    if show_all:
-        filtered = filtered[filtered["_in_stock_bool"] == True]
+# 初期非表示
+filtered = df_all.iloc[0:0]
+
+if show_all:
+    # 全表示ボタン押下時（在庫あり全件）
+    filtered = df_all[df_all["_in_stock_bool"] == True]
+elif search_text:
     # 検索文字列がある場合
-    elif search_text:
-        kw = search_text.lower()
-        def matches_row(r):
-            for c in ["name_local","name_jp","brewery_local","brewery_jp",
-                      "style_main_jp","style_sub_jp","comment","detailed_comment",
-                      "untappd_url","jan"]:
-                if kw in safe_str(r.get(c,"")).lower():
-                    return True
-            return False
-        filtered = filtered[filtered.apply(matches_row, axis=1)]
+    kw = search_text.lower()
+    def matches_row(r):
+        for c in ["name_local","name_jp","brewery_local","brewery_jp",
+                  "style_main_jp","style_sub_jp","comment","detailed_comment",
+                  "untappd_url","jan"]:
+            if kw in safe_str(r.get(c,"")).lower():
+                return True
+        return False
+    filtered = df_all[df_all.apply(matches_row, axis=1)]
 
-    # --- 共通の絞り込み --- #
-    if len(filtered) > 0:
-        # サイズフィルタ
-        if size_choice=="小瓶（≤500ml）":
-            filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"]<=500)]
-        elif size_choice=="大瓶（≥500ml）":
-            filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"]>=500)]
+# --- 共通の絞り込み（検索 or 全表示の後のみ） ---
+if len(filtered) > 0:
+    # サイズフィルタ
+    if size_choice == "小瓶（≤500ml）":
+        filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"] <= 500)]
+    elif size_choice == "大瓶（≥500ml）":
+        filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"] >= 500)]
 
-        # ABVフィルタ
-        filtered = filtered[
-            (filtered["abv_num"].fillna(-1) >= abv_min) &
-            (filtered["abv_num"].fillna(999) <= abv_max)
-        ]
+    # ABVフィルタ
+    filtered = filtered[
+        (filtered["abv_num"].fillna(-1) >= abv_min) &
+        (filtered["abv_num"].fillna(999) <= abv_max)
+    ]
 
-        # 価格フィルタ
-        filtered = filtered[
-            (filtered["price_num"].fillna(-1) >= price_min) &
-            (filtered["price_num"].fillna(10**9) <= price_max)
-        ]
+    # 価格フィルタ
+    filtered = filtered[
+        (filtered["price_num"].fillna(-1) >= price_min) &
+        (filtered["price_num"].fillna(10**9) <= price_max)
+    ]
 
-        # スタイルフィルタ
-        if selected_styles:
-            filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+    # スタイルフィルタ
+    if selected_styles:
+        filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
-        # 国フィルタ
-        if country_choice != "すべて":
-            filtered = filtered[filtered["country"] == country_choice]
+    # 国フィルタ
+    if country_choice != "すべて":
+        filtered = filtered[filtered["country"] == country_choice]
 
-        # 在庫フィルタ
-        filtered = filtered[filtered["_in_stock_bool"] == True]
+    # 在庫ありフィルタ（検索時も全表示時も共通）
+    filtered = filtered[filtered["_in_stock_bool"] == True]
 
 
 # ---------- Sorting ----------
