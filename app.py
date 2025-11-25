@@ -456,47 +456,36 @@ for brewery in breweries_to_show:
             st.session_state[detail_key] = not st.session_state[detail_key]
 
         # 醸造所詳細
+        # 醸造所詳細
         if st.session_state[detail_key]:
             if brewery_data.get("brewery_description"):
                 st.markdown(f"**醸造所説明:** {brewery_data.get('brewery_description')}")
+
             st.markdown("### この醸造所のビール一覧")
 
-            # Use df_all but filter and then build HTML via join (Step3: join)
             brewery_beers_all = df_all[(df_all["brewery_jp"] == brewery) & (df_all["_in_stock_bool"]==True)]
+            cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
-            cards = []
-            cards.append('<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">')
             for _, b in brewery_beers_all.iterrows():
                 abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
                 vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
-                vintage_val = b.get("vintage")
-                vintage_str = str(vintage_val).strip() if pd.notna(vintage_val) and str(vintage_val).strip() != "" else ""
-
-                # 数字以外（缶、nan、空白など）は全部無視
-                if not vintage_str.isdigit():
-                    vintage_str = ""
-
+                price = ""
                 if pd.notna(b.get('price_num')):
-                    if b.get('price_num') == 0:
-                        price = "ASK"
-                    else:
-                        price = f"¥{int(b.get('price_num'))}"
-                else:
-                    price = ""
-                img = b.get('beer_image_url') or DEFAULT_BEER_IMG
+                    price = "ASK" if b.get('price_num') == 0 else f"¥{int(b.get('price_num'))}"
+
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
-                # use automatic wrapping CSS class instead of manual <br> splitting
+                # 自動折り返しクラス
                 name_jp_html = f'<div class="beer-name">{name_jp}</div>'
 
-                specs = " | ".join(filter(None, [abv, vol, vintage_str, price]))
+                specs = " | ".join(filter(None, [abv, vol, price]))
 
                 card_html = (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
-                    f'<img src="{img}" width="120" loading="lazy"><br>'
+                    f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" width="120" loading="lazy"><br>'
                     f'<b>{name_local}</b><br>'
                     f'{name_jp_html}<br>'
-                    f'<div class="beer-spec">{specs}</div>'
+                    f'<div class="beer-spec" style="text-align:center; width:100%;">{specs}</div>'
                     '</div>'
                 )
                 cards.append(card_html)
