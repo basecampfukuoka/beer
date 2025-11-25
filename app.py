@@ -126,16 +126,23 @@ with st.expander("フィルター / 検索を表示", True):
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
     with c2:
-        search_text = st.text_input("", placeholder="フリー検索",
-                                    key="search_text",
-                                    value=st.session_state.get("search_text",""))
+        search_text = st.text_input(
+            "検索",  # 空文字ではなくラベルを指定
+            placeholder="フリー検索",
+            label_visibility="collapsed",  # UI上は非表示
+            key="search_text",
+            value=st.session_state.get("search_text", "")
+        )
     with c3:
         st.markdown("並び替え", unsafe_allow_html=True)
     with c4:
-        sort_options = ["名前順","ABV（低）","ABV（高）","価格（低）","醸造所順","スタイル順"]
-        sort_option = st.selectbox("", options=sort_options,
-                                   index=sort_options.index(st.session_state.get("sort_option","名前順")),
-                                   key="sort_option")
+        sort_option = st.selectbox(
+            "並び替え",  # 空文字ではなくラベルを指定
+            options=sort_options,
+            index=sort_options.index(st.session_state.get("sort_option", "名前順")),
+            key="sort_option",
+            label_visibility="collapsed"
+        )
     with c5:
         if st.button("🔄 リセット"):
             st.session_state.clear()
