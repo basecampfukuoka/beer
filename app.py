@@ -190,8 +190,8 @@ if st.button("🔎 すべて表示"):
 filtered = df_all.copy()
 
 if st.session_state["show_all"]:
-    # 全表示（フィルターなし）
-    pass
+    # 全表示（在庫ありのみ）
+    filtered = filtered[filtered["_in_stock_bool"] == True]
 else:
     # 検索がある場合だけ絞り込み
     if search_text and search_text.strip():
@@ -237,6 +237,7 @@ else:
     # 在庫なしフィルタ
     if not st.session_state.get("show_out_of_stock", False):
         filtered = filtered[filtered["_in_stock_bool"] == True]
+
 
 
 # ---------- Sorting ----------
