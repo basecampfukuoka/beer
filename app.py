@@ -2,20 +2,18 @@ import streamlit as st
 import pandas as pd
 import unicodedata
 from pyuca import Collator
-import os
 
-collator = Collator()
+collator = Collator()  
 
 # ---------- Page config ----------
 st.set_page_config(page_title="Craft Beer List", layout="wide")
 
 # ---------- Defaults ----------
 EXCEL_PATH = "beer_data.xlsx"
-FEATHER_PATH = "beer_data.feather"
 DEFAULT_BEER_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-beer-default.png"
 DEFAULT_BREWERY_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-brewery-default.png"
 
-# ---------- 国旗 URL マッピング ----------
+# ---------- 国旗 URL ----------
 country_flag_url = {
     "Japan": "https://freesozai.jp/sozai/nation_flag/ntf_131/ntf_131.png",
     "Belgium": "https://freesozai.jp/sozai/nation_flag/ntf_330/ntf_330.png",
@@ -30,6 +28,7 @@ country_flag_url = {
 }
 
 # ---------- Helpers ----------
+
 def safe_str(v):
     if pd.isna(v) or v is None: return ""
     return str(v)
@@ -59,57 +58,35 @@ def locale_key(x):
 
 # ---------- Load data ----------
 @st.cache_data
-def load_data(path_excel=EXCEL_PATH, path_feather=FEATHER_PATH):
-    try:
-        df = pd.read_feather(path_feather)
-    except Exception as e:
-        st.warning(f"Feather 読み込み失敗: {e}\nExcel から再生成します。")
-        df = pd.read_excel(path_excel, engine="openpyxl")
+def load_data(path=EXCEL_PATH):
+    df = pd.read_excel(path, engine="openpyxl")
+    expected = [
+        "id","name_jp","name_local","yomi","brewery_local","brewery_jp","country","city",
+        "brewery_description","brewery_image_url","style_main","style_main_jp",
+        "style_sub","style_sub_jp","abv","volume","vintage","price","comment","detailed_comment",
+        "in_stock","untappd_url","jan","beer_image_url"
+    ]
+    for c in expected:
+        if c not in df.columns:
+            df[c] = pd.NA
 
-        expected_cols = [
-            "id","name_jp","name_local","yomi","brewery_local","brewery_jp","country","city",
-            "brewery_description","brewery_image_url","style_main","style_main_jp",
-            "style_sub","style_sub_jp","abv","volume","vintage","price","comment","detailed_comment",
-            "in_stock","untappd_url","jan","beer_image_url"
-        ]
-        for c in expected_cols:
-            if c not in df.columns:
-                df[c] = pd.NA
+    df["abv_num"] = pd.to_numeric(df["abv"], errors="coerce")
+    df["volume_num"] = df["volume"].apply(try_number)
+    df["price_num"] = df["price"].apply(try_number)
 
-        # 数値系
-        df["abv_num"] = pd.to_numeric(df["abv"], errors="coerce")
-        df["volume_num"] = df["volume"].apply(try_number)
-        df["price_num"] = df["price"].apply(try_number)
+    str_cols = [
+        "name_jp","name_local","brewery_local","brewery_jp","country","city",
+        "brewery_description","brewery_image_url","style_main","style_main_jp",
+        "style_sub","style_sub_jp","comment","detailed_comment","untappd_url","jan","beer_image_url"
+    ]
+    for c in str_cols:
+        df[c] = df[c].fillna("").astype(str)
 
-        # 文字列系はすべて文字列に統一
-        str_cols = [
-            "name_jp","name_local","brewery_local","brewery_jp","country","city",
-            "brewery_description","brewery_image_url","style_main","style_main_jp",
-            "style_sub","style_sub_jp","comment","detailed_comment","untappd_url","jan","beer_image_url"
-        ]
-        for c in str_cols:
-            df[c] = df[c].fillna("").astype(str)
-
-        # bool 系
-        df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
-
-        # yomi ソート用
-        df["yomi"] = df["yomi"].astype(str).str.strip()
-        df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
-
-        # Feather 書き込み前に object 型列を文字列化
-        for c in df.columns:
-            if df[c].dtype == "object":
-                df[c] = df[c].astype(str)
-
-        try:
-            df.to_feather(path_feather)
-        except Exception as e2:
-            st.warning(f"Feather 書き込み失敗: {e2}\nキャッシュなしで動作します。")
-
+    df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
+    df["yomi"] = df["yomi"].astype(str).str.strip()
+    df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
     return df
 
-# --- load_data の外 ---
 df_all = load_data()
 df = df_all.copy()
 
