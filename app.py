@@ -136,13 +136,15 @@ with st.expander("フィルター / 検索を表示", True):
     with c3:
         st.markdown("並び替え", unsafe_allow_html=True)
     with c4:
+        sort_options = ["名前順","ABV（低）","ABV（高）","価格（低）","醸造所順","スタイル順"]
         sort_option = st.selectbox(
-            "並び替え",  # 空文字ではなくラベルを指定
+            "並び替え",  # 内部ラベル
             options=sort_options,
             index=sort_options.index(st.session_state.get("sort_option", "名前順")),
             key="sort_option",
             label_visibility="collapsed"
         )
+
     with c5:
         if st.button("🔄 リセット"):
             st.session_state.clear()
