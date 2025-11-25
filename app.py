@@ -180,59 +180,58 @@ with st.expander("フィルター / 検索を表示", True):
             if checked: selected_styles.append(s)
 
 # ---------- Filtering ----------
-# ---------- Filtering ----------
+# ===== フィルター処理 =====
+
 search_text = st.session_state.get("search_text", "").strip()
 show_all = st.session_state.get("show_all", False)
 
-# 初期非表示
+# 初期状態は非表示
 filtered = df_all.iloc[0:0]
 
+# 「すべてを表示」ボタンが押された場合
 if show_all:
-    # 全表示ボタン押下時（在庫あり全件）
     filtered = df_all[df_all["_in_stock_bool"] == True]
+
+# 検索文字列が入力されている場合
 elif search_text:
-    # 検索文字列がある場合
     kw = search_text.lower()
+
     def matches_row(r):
         for c in ["name_local","name_jp","brewery_local","brewery_jp",
                   "style_main_jp","style_sub_jp","comment","detailed_comment",
                   "untappd_url","jan"]:
-            if kw in safe_str(r.get(c,"")).lower():
+            if kw in safe_str(r.get(c, "")).lower():
                 return True
         return False
+
     filtered = df_all[df_all.apply(matches_row, axis=1)]
 
-# --- 共通の絞り込み（検索 or 全表示の後のみ） ---
+# 絞り込みは filtered が空でない場合のみ適用
 if len(filtered) > 0:
-    # サイズフィルタ
+    # サイズ
     if size_choice == "小瓶（≤500ml）":
         filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"] <= 500)]
     elif size_choice == "大瓶（≥500ml）":
         filtered = filtered[filtered["volume_num"].notna() & (filtered["volume_num"] >= 500)]
 
-    # ABVフィルタ
-    filtered = filtered[
-        (filtered["abv_num"].fillna(-1) >= abv_min) &
-        (filtered["abv_num"].fillna(999) <= abv_max)
-    ]
+    # ABV
+    filtered = filtered[(filtered["abv_num"].fillna(-1) >= abv_min) &
+                        (filtered["abv_num"].fillna(999) <= abv_max)]
 
-    # 価格フィルタ
-    filtered = filtered[
-        (filtered["price_num"].fillna(-1) >= price_min) &
-        (filtered["price_num"].fillna(10**9) <= price_max)
-    ]
+    # 価格
+    filtered = filtered[(filtered["price_num"].fillna(-1) >= price_min) &
+                        (filtered["price_num"].fillna(10**9) <= price_max)]
 
-    # スタイルフィルタ
+    # スタイル
     if selected_styles:
         filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
-    # 国フィルタ
+    # 国
     if country_choice != "すべて":
         filtered = filtered[filtered["country"] == country_choice]
 
-    # 在庫ありフィルタ（検索時も全表示時も共通）
+    # 在庫ありチェック（常に適用）
     filtered = filtered[filtered["_in_stock_bool"] == True]
-
 
 # ---------- Sorting ----------
 if sort_option=="名前順": filtered=filtered.sort_values(by="yomi_sort",na_position="last")
