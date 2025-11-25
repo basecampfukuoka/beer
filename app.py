@@ -138,13 +138,13 @@ else:
 # ---------- Custom CSS ----------
 st.markdown("""
 <style>
-/* ビール名自動折り返し、中央揃え */
-.beer-name-jp {
-    width: 180px;
+/* ビール名統一（英語・日本語） */
+.beer-name {
+    width: 180px;             /* カード幅に合わせる */
     display: block;
     margin: 0 auto;
-    text-align: center;
-    white-space: normal;
+    text-align: center;       /* 中央揃え */
+    white-space: normal;      /* 折り返し有効 */
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
@@ -476,9 +476,10 @@ for brewery in breweries_to_show:
                     price = "ASK" if b.get('price_num') == 0 else f"¥{int(b.get('price_num'))}"
 
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
+                name_local_html = f'<div class="beer-name">{name_local}</div>'
+                name_jp_html = f'<div class="beer-name">{name_jp}</div>'
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
-                # 幅固定で折り返し
-                name_jp_html = f'<div class="beer-name-jp">{name_jp}</div>'
+                name_jp_html = f'<div class="beer-name">{name_jp}</div>'
 
                 
                 specs = " | ".join(filter(None, [abv, vol, price]))
@@ -486,7 +487,7 @@ for brewery in breweries_to_show:
                 card_html = (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
                     f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" width="180" loading="lazy"><br>'
-                    f'<b>{name_local}</b><br>'
+                    f'<b>{name_local_html}</b><br>'
                     f'{name_jp_html}<br>'
                     f'<div class="beer-spec" style="text-align:center; width:100%;">{specs}</div>'
                     '</div>'
