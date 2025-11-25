@@ -140,7 +140,7 @@ st.markdown("""
 <style>
 /* ビール名自動折り返し */
 .beer-name {
-    width: 120px;
+    width: 180px;
     word-wrap: break-word;
     overflow-wrap: break-word;
     text-align: center;
