@@ -82,7 +82,17 @@ def load_data(path=EXCEL_PATH):
     for c in str_cols: df[c] = df[c].fillna("").astype(str)
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
 
-    df["yomi"] = df["yomi"].astype(str).str.strip()
+import unicodedata
+
+    def normalize_yomi(x):
+        if x is None:
+            return ""
+        s = str(x).strip()
+        # 全角・半角・濁点などを正規化
+        s = unicodedata.normalize("NFKC", s)
+        return s
+
+    df["yomi"] = df["yomi"].apply(normalize_yomi)
 
     print(df.columns.tolist())
     
