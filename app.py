@@ -476,13 +476,20 @@ for brewery in breweries_to_show:
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 # 幅固定で折り返し
-                name_jp_html = f'<div class="beer-name" style="width:120px; word-wrap: break-word;">{name_jp}</div>'
-
+                name_jp_html = f'''
+                <div class="beer-name" style="
+                    width:180px; 
+                    word-wrap: break-word; 
+                    overflow-wrap: break-word; 
+                    white-space: normal;  /* 折り返しを有効にする */
+                    text-align:center;
+                ">{name_jp}</div>
+                
                 specs = " | ".join(filter(None, [abv, vol, price]))
 
                 card_html = (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
-                    f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" width="120" loading="lazy"><br>'
+                    f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" width="180" loading="lazy"><br>'
                     f'<b>{name_local}</b><br>'
                     f'{name_jp_html}<br>'
                     f'<div class="beer-spec" style="text-align:center; width:100%;">{specs}</div>'
