@@ -154,7 +154,7 @@ st.markdown("""
     margin:5px; 
     display:inline-block; 
     vertical-align:top; 
-    width:140px;
+    width:180px;
     text-align:center; 
 }
 
