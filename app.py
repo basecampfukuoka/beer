@@ -475,8 +475,8 @@ for brewery in breweries_to_show:
 
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
-                # 自動折り返しクラス
-                name_jp_html = f'<div class="beer-name">{name_jp}</div>'
+                # 幅固定で折り返し
+                name_jp_html = f'<div class="beer-name" style="width:120px; word-wrap: break-word;">{name_jp}</div>'
 
                 specs = " | ".join(filter(None, [abv, vol, price]))
 
