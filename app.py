@@ -97,6 +97,8 @@ def load_data(path=EXCEL_PATH):
 
     df["yomi"] = df["yomi"].apply(normalize_yomi)
 
+    df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(str(x)))
+
     # debug print
     print(df.columns.tolist())
 
@@ -346,7 +348,7 @@ if not st.session_state.get("show_out_of_stock", False):
 
 
 # ---------- Sorting ----------
-if sort_option == "名前順": filtered = filtered.sort_values(by="yomi",na_position="last")
+if sort_option == "名前順": filtered = filtered.sort_values(by="yomi_sort",na_position="last")
 elif sort_option == "ABV（低）": filtered = filtered.sort_values(by="abv_num", ascending=True, na_position="last")
 elif sort_option == "ABV（高）": filtered = filtered.sort_values(by="abv_num", ascending=False,na_position="last")
 elif sort_option == "価格（低）": filtered = filtered.sort_values(by="price_num", ascending=True, na_position="last")
