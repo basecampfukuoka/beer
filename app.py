@@ -283,7 +283,7 @@ with st.expander("フィルター / 検索を表示", False):
     )
 
     # ===== 3行目：サイズ・ABV・価格 =====
-    col_size, col_abv, col_price = st.columns([2, 1.8, 1.8])
+    col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
 
     with col_size:    
         if "size_choice" not in st.session_state :
@@ -509,15 +509,36 @@ for brewery in breweries_to_show:
 
         # 中央：ビール画像
         with col2:
-            # use lazy-loading img tag for speed
+            # lazy-loading image
             beer_img = r.get("beer_image_url") or DEFAULT_BEER_IMG
-            st.markdown(f'<img src="{beer_img}" width="100" loading="lazy">', unsafe_allow_html=True)
             st.markdown(
-                f'<div style="text-align:center; margin-top:3px;">'
-                f'<a href="{r.get("untappd_url")}" target="_blank">Untappd</a>'
-                f'</div>',
+                f'<img src="{beer_img}" width="100" loading="lazy">',
                 unsafe_allow_html=True
             )
+
+            # centered Untappd button-style link
+            st.markdown(
+                f"""
+                <div style="text-align: center; margin-top: 6px;">
+                    <a href="{r.get("untappd_url")}" target="_blank"
+                        style="
+                            display: inline-block;
+                            background-color: #FFD633;
+                            color: #000;
+                            padding: 4px 10px;
+                            border-radius: 6px;
+                            text-decoration: none;
+                            font-weight: 600;
+                        "
+                    >
+                        UNTAPPD
+                    </a>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+
 
         # 右：ビール情報
         with col3:
