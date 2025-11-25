@@ -90,7 +90,7 @@ def load_data(path=EXCEL_PATH):
     # --- yomi 正規化 ---
     df["yomi"] = df["yomi"].apply(normalize_yomi)
 
-    df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x)))
+    df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
 
     # debug print
     print(df.columns.tolist())
