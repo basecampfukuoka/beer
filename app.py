@@ -232,7 +232,13 @@ with st.expander("フィルター / 検索を表示", False):
                 if key in st.session_state:
                     del st.session_state[key]
 
-            # 3. 必要に応じて初期値をセット
+            # 3. 醸造所詳細・ビール詳細のキーも削除
+                for key in list(st.session_state.keys()):
+                    if key.startswith("show_detail_") or key.startswith("brewery_btn_"):
+                        del st.session_state[key]
+
+
+            # 4. 必要に応じて初期値をセット
             st.session_state["search_text"] = ""
             st.session_state["sort_option"] = "名前順"
             st.session_state["size_choice"] = "小瓶（≤500ml）"
