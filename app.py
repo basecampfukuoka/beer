@@ -286,7 +286,7 @@ with st.expander("フィルター / 検索を表示", False):
         country_choice = {v: k for k, v in country_map.items()}.get(country_choice_display, country_choice_display)
 
     # ---- 取り寄せチェックボックス（右側） ----
-    show_out_of_stock = col_stock.checkbox(
+    show_out = col_stock.checkbox(
         "取り寄せ商品を表示",
         key="show_out_of_stock"
     )
@@ -325,16 +325,45 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
-
     # --- 在庫フィルタ ---
     st.markdown("**在庫で絞り込み**")
-    
+
+    stock_option = st.radio(
+        "在庫フィルタ",
+        ["在庫ありのみ", "取り寄せも表示"],
+        horizontal=True,
+        key="stock_filter"
+    )
+
+    # df2 = 在庫フィルタ後のデータ
     if st.session_state.get("show_out_of_stock", False):
-    # 全スタイルを表示（在庫なし含む）
-        df2 = df.copy()
+        df2 = df.copy()  # 取り寄せも表示 → 全てのスタイルを表示
     else:
-        # 在庫ありのスタイルだけ
-        df2 = df[df["_in_stock_bool"] == True]
+        df2 = df[df["_in_stock_bool"] == True]  # 在庫ありのみ
+
+    # styles_available を df2 から作る
+    styles_available = sorted(
+        df2["style_main_jp"].replace("", pd.NA).dropna().unique(),
+        key=locale_key
+    )
+
+
+    if len(styles_available) > 0:
+        ncols = min(6, len(styles_available))
+        style_cols = st.columns(ncols)
+
+        for i, s in enumerate(styles_available):
+            col = style_cols[i % ncols]
+
+            state_key = f"style_{s}"
+
+            checked = col.checkbox(s, key=state_key)
+
+            if checked:
+                selected_styles.append(s)
+
+
+
 
 # ---------- Filtering ----------
 filtered = df.copy()
@@ -368,28 +397,12 @@ filtered = filtered[
     (filtered["price_num"].fillna(10**9) <= int(price_max))
 ]
 
-# --- 在庫フィルタ ---
-st.markdown("**在庫で絞り込み**")
-if st.session_state.get("show_out_of_stock", False):
-    # 全スタイルを表示（在庫なし含む）
-    df2 = df.copy()
-else:
-    # 在庫ありのスタイルだけ
-    df2 = df[df["_in_stock_bool"] == True]
-
-# --- スタイル絞り込み ---
-styles_available = sorted(
-    df2["style_main_jp"].replace("", pd.NA).dropna().unique(),
-    key=locale_key
-)
-
-selected_styles = st.multiselect(
-    "スタイルで絞り込み",
-    options=styles_available,
-    default=st.session_state.get("selected_styles", []),
-    key="selected_styles"
-)
-
+# スタイル絞り込み
+if selected_styles:
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+# 在庫絞り込み
+if stock_option == "在庫ありのみ":
+    filtered = filtered[filtered["in_stock"] == "あり"]
 
 # country
 if country_choice != "すべて":
@@ -412,7 +425,7 @@ elif sort_option == "価格（低）":
 elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
-    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+    filtered = filtered.sort_values(by="style_main_jp", key=lambda x: x.map(locale_key))
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
