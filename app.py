@@ -325,22 +325,6 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
-    # --- 在庫フィルタ ---
-    st.markdown("**在庫で絞り込み**")
-
-    stock_option = st.radio(
-        "在庫フィルタ",
-        ["在庫ありのみ", "取り寄せも表示"],
-        horizontal=True,
-        key="stock_filter"
-    )
-
-    # df2 = 在庫フィルタ後のデータ
-    if st.session_state.get("show_out_of_stock", False):
-        df2 = df.copy()  # 取り寄せも表示 → 全てのスタイルを表示
-    else:
-        df2 = df[df["_in_stock_bool"] == True]  # 在庫ありのみ
-
 # ---------- Filtering ----------
 filtered = df.copy()
 
@@ -373,6 +357,9 @@ filtered = filtered[
     (filtered["price_num"].fillna(10**9) <= int(price_max))
 ]
 
+# スタイル絞り込み
+if selected_styles:
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 # 在庫絞り込み
 if stock_option == "在庫ありのみ":
     filtered = filtered[filtered["in_stock"] == "あり"]
