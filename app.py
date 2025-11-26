@@ -368,10 +368,28 @@ filtered = filtered[
     (filtered["price_num"].fillna(10**9) <= int(price_max))
 ]
 
-# 在庫絞り込み
-if not show_out_of_stock:
-    # 在庫ありのみ
-    filtered = filtered[filtered["_in_stock_bool"] == True]
+# --- 在庫フィルタ ---
+st.markdown("**在庫で絞り込み**")
+if st.session_state.get("show_out_of_stock", False):
+    # 全スタイルを表示（在庫なし含む）
+    df2 = df.copy()
+else:
+    # 在庫ありのスタイルだけ
+    df2 = df[df["_in_stock_bool"] == True]
+
+# --- スタイル絞り込み ---
+styles_available = sorted(
+    df2["style_main_jp"].replace("", pd.NA).dropna().unique(),
+    key=locale_key
+)
+
+selected_styles = st.multiselect(
+    "スタイルで絞り込み",
+    options=styles_available,
+    default=st.session_state.get("selected_styles", []),
+    key="selected_styles"
+)
+
 
 # country
 if country_choice != "すべて":
@@ -394,7 +412,7 @@ elif sort_option == "価格（低）":
 elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
-    filtered = filtered.sort_values(by="style_main_jp", key=lambda x: x.map(locale_key))
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
