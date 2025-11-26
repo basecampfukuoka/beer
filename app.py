@@ -325,6 +325,29 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
+    st.markdown("**スタイル（メイン）で絞り込み**")
+    styles_available = sorted(
+        df["style_main_jp"].replace("", pd.NA).dropna().unique(),
+        key=locale_key
+    )
+
+    selected_styles = []
+
+    if len(styles_available) > 0:
+        ncols = min(6, len(styles_available))
+        style_cols = st.columns(ncols)
+
+        for i, s in enumerate(styles_available):
+            col = style_cols[i % ncols]
+
+            state_key = f"style_{s}"
+
+            checked = col.checkbox(s, key=state_key)
+
+            if checked:
+                selected_styles.append(s)
+
+
 # ---------- Filtering ----------
 filtered = df.copy()
 
@@ -357,12 +380,8 @@ filtered = filtered[
     (filtered["price_num"].fillna(10**9) <= int(price_max))
 ]
 
-# スタイル絞り込み
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
-# 在庫絞り込み
-if stock_option == "在庫ありのみ":
-    filtered = filtered[filtered["in_stock"] == "あり"]
 
 # country
 if country_choice != "すべて":
