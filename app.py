@@ -286,7 +286,7 @@ with st.expander("フィルター / 検索を表示", False):
         country_choice = {v: k for k, v in country_map.items()}.get(country_choice_display, country_choice_display)
 
     # ---- 取り寄せチェックボックス（右側） ----
-    show_out = col_stock.checkbox(
+    show_out_of_stock = col_stock.checkbox(
         "取り寄せ商品を表示",
         key="show_out_of_stock"
     )
