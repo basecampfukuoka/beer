@@ -345,11 +345,6 @@ with st.expander("フィルター / 検索を表示", False):
         key=locale_key
     )
 
-            if checked:
-                selected_styles.append(s)
-
-
-
 
 # ---------- Filtering ----------
 filtered = df.copy()
