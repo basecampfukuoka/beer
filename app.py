@@ -341,30 +341,6 @@ with st.expander("フィルター / 検索を表示", False):
     else:
         df2 = df[df["_in_stock_bool"] == True]  # 在庫ありのみ
 
-    # styles_available を df2 から作る
-    styles_available = sorted(
-        df2["style_main_jp"].replace("", pd.NA).dropna().unique(),
-        key=locale_key
-    )
-
-
-    if len(styles_available) > 0:
-        ncols = min(6, len(styles_available))
-        style_cols = st.columns(ncols)
-
-        for i, s in enumerate(styles_available):
-            col = style_cols[i % ncols]
-
-            state_key = f"style_{s}"
-
-            checked = col.checkbox(s, key=state_key)
-
-            if checked:
-                selected_styles.append(s)
-
-
-
-
 # ---------- Filtering ----------
 filtered = df.copy()
 
