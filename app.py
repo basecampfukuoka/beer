@@ -325,39 +325,25 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
+
     # --- 在庫フィルタ ---
     st.markdown("**在庫で絞り込み**")
 
-    stock_option = st.radio(
-        "在庫フィルタ",
-        ["在庫ありのみ", "取り寄せも表示"],
-        horizontal=True,
-        key="stock_filter"
-    )
+    # 取り寄せ表示チェック
+    show_out_of_stock = st.checkbox("取り寄せ商品を表示", key="show_out_of_stock")
 
-    # df2 = 在庫フィルタ後のデータ
-    if st.session_state.get("show_out_of_stock", False):
-        df2 = df.copy()  # 取り寄せも表示 → 全てのスタイルを表示
+    # styles_available を作る
+    if show_out_of_stock:
+    # 全スタイルを表示（在庫なし含む）
+        df2 = df.copy()
     else:
-        df2 = df[df["_in_stock_bool"] == True]  # 在庫ありのみ
+        # 在庫ありのスタイルだけ
+        df2 = df[df["_in_stock_bool"] == True]
 
-    # styles_available を df2 から作る
     styles_available = sorted(
         df2["style_main_jp"].replace("", pd.NA).dropna().unique(),
         key=locale_key
     )
-
-
-    if len(styles_available) > 0:
-        ncols = min(6, len(styles_available))
-        style_cols = st.columns(ncols)
-
-        for i, s in enumerate(styles_available):
-            col = style_cols[i % ncols]
-
-            state_key = f"style_{s}"
-
-            checked = col.checkbox(s, key=state_key)
 
             if checked:
                 selected_styles.append(s)
@@ -400,9 +386,11 @@ filtered = filtered[
 # スタイル絞り込み
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+
 # 在庫絞り込み
-if stock_option == "在庫ありのみ":
-    filtered = filtered[filtered["in_stock"] == "あり"]
+if not show_out_of_stock:
+    # 在庫ありのみ
+    filtered = filtered[filtered["_in_stock_bool"] == True]
 
 # country
 if country_choice != "すべて":
