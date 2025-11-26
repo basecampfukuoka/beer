@@ -373,9 +373,6 @@ filtered = filtered[
     (filtered["price_num"].fillna(10**9) <= int(price_max))
 ]
 
-# スタイル絞り込み
-if selected_styles:
-    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 # 在庫絞り込み
 if stock_option == "在庫ありのみ":
     filtered = filtered[filtered["in_stock"] == "あり"]
