@@ -328,23 +328,13 @@ with st.expander("フィルター / 検索を表示", False):
 
     # --- 在庫フィルタ ---
     st.markdown("**在庫で絞り込み**")
-
-    # 取り寄せ表示チェック
-    show_out_of_stock = st.checkbox("取り寄せ商品を表示", key="show_out_of_stock")
-
-    # styles_available を作る
-    if show_out_of_stock:
+    
+    if st.session_state.get("show_out_of_stock", False):
     # 全スタイルを表示（在庫なし含む）
         df2 = df.copy()
     else:
         # 在庫ありのスタイルだけ
         df2 = df[df["_in_stock_bool"] == True]
-
-    styles_available = sorted(
-        df2["style_main_jp"].replace("", pd.NA).dropna().unique(),
-        key=locale_key
-    )
-
 
 # ---------- Filtering ----------
 filtered = df.copy()
