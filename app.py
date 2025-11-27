@@ -578,12 +578,11 @@ for brewery in breweries_to_show:
             if st.button("❌", key=button_key):
                 remove_beer(beer_id_safe)
 
-
-# 「トップへ戻る」ボタン
-st.markdown(
-    '<a href="#search_bar">🔝 トップへ戻る</a>',
-    unsafe_allow_html=True
-)
+# ---------- トップへ戻るボタン ----------
+with st.container():
+    if st.button("🔝 トップへ戻る 🔝", use_container_width=True):
+        # ページ上部に戻したい場合は rerun
+        st.experimental_rerun()
 
 # ---------- "もっと見る" ボタン (Step1 continuation) ----------
 # Show button below the list; if clicked, increase limit by 20
