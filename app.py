@@ -88,6 +88,8 @@ def load_data(path=EXCEL_PATH):
 
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
 
+    df_instock = df[df["_in_stock_bool"]]
+
     # --- yomi 正規化 ---
     df["yomi"] = df["yomi"].astype(str).str.strip()
     df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
@@ -291,6 +293,12 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_out_of_stock"
     )
 
+    # ---- 在庫切り替えによってスタイル用データを変更 ----
+    if show_out:
+        df_style_source = df          # 全てのビール
+    else:
+        df_style_source = df_instock  # 在庫ありのみ
+
     # ===== 3行目：サイズ・ABV・価格 =====
     col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
 
@@ -325,28 +333,28 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
+    # スタイル一覧
     st.markdown("**スタイル（メイン）で絞り込み**")
     styles_available = sorted(
-        df["style_main_jp"].replace("", pd.NA).dropna().unique(),
+        df_style_source["style_main_jp"].replace("", pd.NA).dropna().unique(),
         key=locale_key
     )
 
     selected_styles = []
 
+    # チェックボックス描画
     if len(styles_available) > 0:
         ncols = min(6, len(styles_available))
         style_cols = st.columns(ncols)
 
         for i, s in enumerate(styles_available):
             col = style_cols[i % ncols]
-
             state_key = f"style_{s}"
 
             checked = col.checkbox(s, key=state_key)
 
             if checked:
                 selected_styles.append(s)
-
 
 # ---------- Filtering ----------
 filtered = df.copy()
