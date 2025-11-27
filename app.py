@@ -585,9 +585,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-for i in range(50):
-    st.write(f"コンテンツ {i+1}") 
-
 # ---------- "もっと見る" ボタン (Step1 continuation) ----------
 # Show button below the list; if clicked, increase limit by 20
 if st.session_state.show_limit < len(filtered):
