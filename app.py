@@ -188,6 +188,7 @@ details summary { cursor: pointer; font-weight:600; margin-bottom:4px; }
 
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
+    st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
     c1, c2, c3, c4, c5 = st.columns([0.2, 4, 0.5, 1,0.8])
 
     with c1:
@@ -577,6 +578,16 @@ for brewery in breweries_to_show:
             if st.button("❌", key=button_key):
                 remove_beer(beer_id_safe)
 
+
+# 「トップへ戻る」ボタン
+st.markdown(
+    '<a href="#search_bar">🔝 トップへ戻る</a>',
+    unsafe_allow_html=True
+)
+
+for i in range(50):
+    st.write(f"コンテンツ {i+1}") 
+
 # ---------- "もっと見る" ボタン (Step1 continuation) ----------
 # Show button below the list; if clicked, increase limit by 20
 if st.session_state.show_limit < len(filtered):
@@ -588,4 +599,5 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
