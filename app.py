@@ -187,7 +187,7 @@ details summary { cursor: pointer; font-weight:600; margin-bottom:4px; }
 """, unsafe_allow_html=True)
 
 # ---------- Filters UI ----------
-with st.expander("フィルター / 検索を表示", False):
+with st.sidebar:st.header("フィルター / 検索")
     c1, c2, c3, c4, c5 = st.columns([0.2, 4, 0.5, 1,0.8])
 
     with c1:
