@@ -444,7 +444,7 @@ for brewery in breweries_to_show:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        col1, col2, col3, col4 = st.columns([3,3,6,1], vertical_alignment="center")
+        col1, col2, col3, col4 = st.columns([3,2,5,1], vertical_alignment="center")
 
         # 左：醸造所情報
         with col1:
@@ -591,7 +591,7 @@ st.markdown(
                 border: 1px solid #ccc;
                 border-radius: 4px;
                 cursor: pointer;
-            ">🔝 トップへ戻る 🔝</button>
+            ">🔝 検索に戻る 🔝</button>
         </a>
     </div>
     """,
