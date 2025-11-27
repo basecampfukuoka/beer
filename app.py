@@ -88,7 +88,7 @@ def load_data(path=EXCEL_PATH):
 
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
 
-    df_instock = df[df["_in_stock_bool"]]
+
 
     # --- yomi 正規化 ---
     df["yomi"] = df["yomi"].astype(str).str.strip()
@@ -103,6 +103,8 @@ def load_data(path=EXCEL_PATH):
 # --- load_data の外 ---
 df_all = load_data()
 df = df_all.copy()
+
+df_instock = df[df["_in_stock_bool"]]
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
