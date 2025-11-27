@@ -580,7 +580,7 @@ for brewery in breweries_to_show:
 
 # ---------- トップへ戻るボタン ----------
 with st.container():
-    if st.button("🔝 トップへ戻る 🔝", use_container_width=True):
+    if st.button("🔼 トップへ戻る 🔼", use_container_width=True):
         # ページ上部に戻したい場合は rerun
         st.experimental_rerun()
 
@@ -589,7 +589,7 @@ with st.container():
 if st.session_state.show_limit < len(filtered):
     # use container to place button nicely
     with st.container():
-        if st.button("もっと見る", use_container_width=True):
+        if st.button("🔽もっと見る🔽", use_container_width=True):
             st.session_state.show_limit += 20
             st.rerun()
 else:
