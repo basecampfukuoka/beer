@@ -591,7 +591,7 @@ st.markdown(
                 border: 1px solid #ccc;
                 border-radius: 4px;
                 cursor: pointer;
-            ">🔝 トップへ戻る 🔝</button>
+            ">🔼 トップへ戻る 🔼</button>
         </a>
     </div>
     """,
