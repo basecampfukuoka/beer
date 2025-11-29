@@ -161,7 +161,7 @@ st.markdown("""
     margin:5px; 
     display:inline-block; 
     vertical-align:top; 
-    width:180px;
+    min-width: 150px;  /* 任意で最小幅を設定 */
     text-align:center !important; 
 }
 .detail-card img {
@@ -626,6 +626,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
