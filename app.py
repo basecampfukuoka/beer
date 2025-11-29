@@ -183,20 +183,6 @@ st.markdown("""
 
 /* details summary style */
 details summary { cursor: pointer; font-weight:600; margin-bottom:4px; }
-
-/* 醸造所情報・ビール画像を中央寄せ */
-    div[data-testid="stVerticalBlock"] img,
-    div[data-testid="stVerticalBlock"] b,
-    div[data-testid="stVerticalBlock"] span {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        text-align: center;
-    }
-
-    /* ビール詳細は中央揃いにしないので変更なし */
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -623,7 +609,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
 
 
 
