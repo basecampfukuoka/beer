@@ -162,7 +162,7 @@ st.markdown("""
     display:inline-block; 
     vertical-align:top; 
     min-width: 150px;  /* 任意で最小幅を設定 */
-    max-width: 220px;       /* 任意で最大幅 */
+    max-width: 450px;       /* 任意で最大幅 */
     text-align:center !important; 
 }
 /* ビール画像を固定幅にして横スクロール可能に */
@@ -633,6 +633,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
