@@ -506,7 +506,7 @@ for brewery in breweries_to_show:
                 vintage_val = b.get("vintage")
                 vintage = ""
                 if pd.notna(vintage_val) and str(vintage_val).strip() != "":
-                    vintage = f"ヴィンテージ {str(vintage_val).strip()}"
+                    vintage = str(vintage_val).strip()  # Excel の値だけ表示
               
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_local_html = f'<div class="beer-name">{name_local}</div>'
@@ -514,7 +514,7 @@ for brewery in breweries_to_show:
                 name_jp_html = f'<div class="beer-name">{name_jp}</div>'
 
                 
-                specs = " | ".join(filter(None, [abv, vol, price, vintage]))
+                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
                 card_html = (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
@@ -626,6 +626,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
