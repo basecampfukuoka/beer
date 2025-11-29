@@ -458,7 +458,7 @@ for brewery in breweries_to_show:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        col1, col2, col3, col4 = st.columns([1.5,1.5,3.5,0.5], vertical_alignment="center")
+        col1, col2, col3, col4 = st.columns([1.5,1,3,0.5], vertical_alignment="center")
 
         # 左：醸造所情報
         with col1:
@@ -623,6 +623,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
