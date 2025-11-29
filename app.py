@@ -482,7 +482,14 @@ for brewery in breweries_to_show:
 
             st.markdown("### この醸造所のビール一覧")
 
-            brewery_beers_all = df_all[(df_all["brewery_jp"] == brewery) & (df_all["_in_stock_bool"]==True)]
+            # 「取り寄せ商品を表示」チェックを反映
+            if st.session_state.get("show_out_of_stock", False):
+            # 全てのビールを表示
+                brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
+            else:
+            # 在庫ありのみ
+                brewery_beers_all = df_all[(df_all["brewery_jp"] == brewery) & (df_all["_in_stock_bool"] == True)]
+
             cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
             for _, b in brewery_beers_all.iterrows():
@@ -609,6 +616,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
