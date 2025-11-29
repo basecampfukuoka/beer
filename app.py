@@ -183,7 +183,6 @@ st.markdown("""
 
 /* details summary style */
 details summary { cursor: pointer; font-weight:600; margin-bottom:4px; }
-</style>
 
 /* ここにスマホ対応追加 */
 @media (max-width: 768px) {
@@ -624,6 +623,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
