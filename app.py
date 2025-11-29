@@ -183,18 +183,6 @@ st.markdown("""
 
 /* details summary style */
 details summary { cursor: pointer; font-weight:600; margin-bottom:4px; }
-
-/* 醸造所情報・ビール画像を中央寄せ */
-    div[data-testid="stVerticalBlock"] img,
-    div[data-testid="stVerticalBlock"] b,
-    div[data-testid="stVerticalBlock"] span,
-    div[data-testid="stVerticalBlock"] p {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        text-align: center;
-    }
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -456,7 +444,7 @@ for brewery in breweries_to_show:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        col1, col2, col3, col4 = st.columns([1.5,1.5,3.5,0.5], vertical_alignment="center")
+        col1, col2, col3, col4 = st.columns([1.5,2,4,0.5], vertical_alignment="center")
 
         # 左：醸造所情報
         with col1:
@@ -621,13 +609,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
-
-
-
-
-
-
 
 
 
