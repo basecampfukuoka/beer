@@ -517,8 +517,8 @@ for brewery in breweries_to_show:
                 specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
                 card_html = (
-                    '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
-                    f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" width="180" loading="lazy"><br>'
+                    '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
+                    f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" loading="lazy"><br>'
                     f'<b>{name_local_html}</b><br>'
                     f'{name_jp_html}<br>'
                     f'<div class="beer-spec" style="text-align:center; width:100%;">{specs}</div>'
@@ -626,6 +626,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
