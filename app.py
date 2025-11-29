@@ -162,8 +162,14 @@ st.markdown("""
     display:inline-block; 
     vertical-align:top; 
     width:180px;
-    text-align:center; 
+    text-align:center !important; 
 }
+.detail-card img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 
 /* brewery-beer-list 横スクロール */
 .brewery-beer-list { margin-top:10px; }
@@ -181,8 +187,6 @@ st.markdown("""
     height: 100%;
 }
 
-/* details summary style */
-details summary { cursor: pointer; font-weight:600; margin-bottom:4px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -498,14 +502,19 @@ for brewery in breweries_to_show:
                 price = ""
                 if pd.notna(b.get('price_num')):
                     price = "ASK" if b.get('price_num') == 0 else f"¥{int(b.get('price_num'))}"
-
+                # ★★ vintage 追加 ★★
+                vintage_val = b.get("vintage")
+                vintage = ""
+                if pd.notna(vintage_val) and str(vintage_val).strip() != "":
+                    vintage = f"ヴィンテージ {str(vintage_val).strip()}"
+              
                 name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
                 name_local_html = f'<div class="beer-name">{name_local}</div>'
                 name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
                 name_jp_html = f'<div class="beer-name">{name_jp}</div>'
 
                 
-                specs = " | ".join(filter(None, [abv, vol, price]))
+                specs = " | ".join(filter(None, [abv, vol, price, vintage]))
 
                 card_html = (
                     '<div class="detail-card" style="display:inline-block; margin-right:10px;">'
@@ -523,6 +532,7 @@ for brewery in breweries_to_show:
         # 中央：ビール画像
         with col2:
             beer_img = r.get("beer_image_url") or DEFAULT_BEER_IMG
+            
             untappd_url = r.get("untappd_url")
             st.markdown(
                 f"""
@@ -616,6 +626,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
