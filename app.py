@@ -184,17 +184,15 @@ st.markdown("""
 /* details summary style */
 details summary { cursor: pointer; font-weight:600; margin-bottom:4px; }
 
-/* ここにスマホ対応追加 */
-@media (max-width: 768px) {
-    div[data-testid="stVerticalBlock"] > div[role="list"] {
-        flex-direction: column !important;
-    }
-    div[data-testid="stVerticalBlock"] > div[role="list"] > div {
-        width: 100% !important;
-        margin-bottom: 10px;
-    }
-    div[data-testid="stVerticalBlock"] > div[role="list"] > div > div {
-        width: 100% !important;
+/* 醸造所情報・ビール画像を中央寄せ */
+    div[data-testid="stVerticalBlock"] img,
+    div[data-testid="stVerticalBlock"] b,
+    div[data-testid="stVerticalBlock"] span,
+    div[data-testid="stVerticalBlock"] p {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
     }
 }
 </style>
@@ -623,6 +621,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
