@@ -437,9 +437,9 @@ elif sort_option == "国順":
     }
     df_display = df_display.sort_values(
         by="country",
-        key=lambda col: col.map(country_priority)
+        key=lambda col: col.fillna("").map(lambda x: country_priority.get(str(x).strip(), 999))
     )
-
+    
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
@@ -645,6 +645,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
