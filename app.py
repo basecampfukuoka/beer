@@ -224,7 +224,8 @@ with st.expander("フィルター / 検索を表示", False):
             "ABV（高）",
             "価格（低）",
             "醸造所順",
-            "スタイル順"
+            "スタイル順",
+            "国順"
         ]
 
         sort_option = st.selectbox(
@@ -427,6 +428,17 @@ elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
     filtered = filtered.sort_values(by="style_main_jp", key=lambda x: x.map(locale_key))
+elif sort_option == "国順":
+    # 国の優先度マップ（あなたが指定した順）
+    country_priority = {
+        "チェコ": 1,
+        "ドイツ": 2,
+        "ベルギー": 3
+    }
+    df_display = df_display.sort_values(
+        by="country",
+        key=lambda col: col.map(country_priority)
+    )
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
@@ -633,6 +645,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
