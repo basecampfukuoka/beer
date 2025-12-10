@@ -224,7 +224,8 @@ with st.expander("フィルター / 検索を表示", False):
             "ABV（高）",
             "価格（低）",
             "醸造所順",
-            "スタイル順"
+            "スタイル順",
+            "ランダム順"
         ]
 
         sort_option = st.selectbox(
@@ -427,7 +428,10 @@ elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
     filtered = filtered.sort_values(by="style_main_jp", key=lambda x: x.map(locale_key))
-   
+elif sort_option == "ランダム順":
+    # ★ ランダム順を追加：毎リロードで完全ランダムに ★
+    filtered = filtered.sample(frac=1, random_state=None)
+
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
@@ -633,6 +637,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
