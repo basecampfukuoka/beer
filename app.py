@@ -428,9 +428,12 @@ elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
     filtered = filtered.sort_values(by="style_main_jp", key=lambda x: x.map(locale_key))
-elif sort_option == "ランダム順":
-    # ★ ランダム順を追加：毎リロードで完全ランダムに ★
-    filtered = filtered.sample(frac=1, random_state=None)
+if sort_option == "ランダム順":
+    import numpy as np
+    # ID列に対してランダムな数を割り当ててソート
+    filtered = filtered.assign(
+        _rand=np.random.rand(len(filtered))
+    ).sort_values('_rand').drop('_rand', axis=1)
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
@@ -637,6 +640,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
