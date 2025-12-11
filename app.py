@@ -641,17 +641,3 @@ else:
     # optional: show nothing or a small message
     pass
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
