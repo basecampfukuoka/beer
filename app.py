@@ -457,6 +457,7 @@ if is_random_sort:
     display_df = display_df.assign(_rand=np.random.rand(len(display_df))).sort_values('_rand').drop('_rand', axis=1)
 
 # --- カード描画 ---
+def render_beer_card(r, beer_id_safe):
 if is_random_sort:
     # 完全ランダム表示：醸造所でまとめず、display_dfをそのままループ
     for _, r in display_df.iterrows():
