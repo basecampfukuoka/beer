@@ -454,8 +454,7 @@ is_random_sort = st.session_state.get("sort_option") == "ランダム順"
 
 # --- カード描画関数（1件分） ---
 def render_beer_card(r, beer_id_safe):
-    # ここにカード描画の中身を書く
-    pass
+    st.write(f"🍺 {r['beer_name_jp']}（ID: {beer_id_safe}）")
 
 
 # --- ランダム順の処理 ---
