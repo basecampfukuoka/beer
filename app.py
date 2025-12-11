@@ -277,8 +277,15 @@ with st.expander("フィルター / 検索を表示", False):
         "Italy": "イタリア", 
     }
 
-    # Excel から国リスト取得
-    countries = sorted(df["country"].replace("", pd.NA).dropna().unique())
+    # 国リスト生成（取り寄せ表示OFFの場合は在庫商品の国だけに絞る）
+    df_country_source = df.copy()
+
+    if not show_out:  # 「取り寄せ商品を表示」がOFF
+        df_country_source = df_country_source[df_country_source["_in_stock_bool"]]
+
+    countries = sorted(
+        df_country_source["country"].replace("", pd.NA).dropna().unique()
+    )
 
     # 日本語表示用に変換
     countries_display = ["すべて"] +[country_map.get(c, c) for c in countries]
