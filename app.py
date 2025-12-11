@@ -277,7 +277,7 @@ with st.expander("フィルター / 検索を表示", False):
         "Italy": "イタリア", 
     }
 
-    # 取り寄せチェック
+    # ---- 取り寄せチェックボックス（右側） ----
     show_out = col_stock.checkbox(
         "取り寄せ商品を表示",
         key="show_out_of_stock"
@@ -315,11 +315,6 @@ with st.expander("フィルター / 検索を表示", False):
         # 日本語 → 英語
         country_choice = {v: k for k, v in country_map.items()}.get(country_choice_display, country_choice_display)
 
-    # ---- 取り寄せチェックボックス（右側） ----
-    show_out = col_stock.checkbox(
-        "取り寄せ商品を表示",
-        key="show_out_of_stock"
-    )
 
     # ---- 在庫切り替えによってスタイル用データを変更 ----
     if show_out:
