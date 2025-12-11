@@ -277,6 +277,12 @@ with st.expander("フィルター / 検索を表示", False):
         "Italy": "イタリア", 
     }
 
+    # 取り寄せチェック
+    show_out = col_stock.checkbox(
+        "取り寄せ商品を表示",
+        key="show_out_of_stock"
+    )
+
     # 国リスト生成（取り寄せ表示OFFの場合は在庫商品の国だけに絞る）
     df_country_source = df.copy()
 
