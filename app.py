@@ -450,35 +450,47 @@ def remove_beer(beer_id):
 
 # Step1: 並び替えがランダム順かどうか
 is_random_sort = st.session_state.get("sort_option") == "ランダム順"
+
+
+# --- カード描画関数（1件分） ---
 def render_beer_card(r, beer_id_safe):
+    # ここにカード描画の中身を書く
+    pass
 
+
+# --- ランダム順の処理 ---
 if is_random_sort:
-    # ランダム順の場合、完全シャッフル
+    # 完全ランダム表示：display_df をシャッフル
     import numpy as np
-    display_df = display_df.assign(_rand=np.random.rand(len(display_df))).sort_values('_rand').drop('_rand', axis=1)
+    display_df = (
+        display_df
+        .assign(_rand=np.random.rand(len(display_df)))
+        .sort_values('_rand')
+        .drop('_rand', axis=1)
+    )
 
-# --- カード描画 ---
-
-if is_random_sort:
-    # 完全ランダム表示：醸造所でまとめず、display_dfをそのままループ
+    # ランダム順は醸造所でまとめない
     for _, r in display_df.iterrows():
         try:
             beer_id_safe = int(float(r["id"]))
         except (ValueError, TypeError):
             continue
 
+        # 削除リストに入っていればスキップ
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        # --- カード描画関数化 ---
+        # カード描画
         render_beer_card(r, beer_id_safe)
+
+# --- 通常（醸造所ごと）の処理 ---
 else:
-    # 従来通り醸造所ごとにまとめる
     breweries_to_show = display_df["brewery_jp"].unique()
+
     for brewery in breweries_to_show:
         brewery_beers = display_df[display_df["brewery_jp"] == brewery]
-        brewery_data = brewery_beers.iloc[0]
 
+        # カード描画
         for _, r in brewery_beers.iterrows():
             try:
                 beer_id_safe = int(float(r["id"]))
