@@ -445,11 +445,12 @@ def remove_beer(beer_id):
     beer_id_int = int(float(beer_id))
     st.session_state["removed_ids"].add(beer_id_int)
 
-# ---------- Render Cards ----------
+
 # ---------- Render Cards ----------
 
 # Step1: 並び替えがランダム順かどうか
 is_random_sort = st.session_state.get("sort_option") == "ランダム順"
+def render_beer_card(r, beer_id_safe):
 
 if is_random_sort:
     # ランダム順の場合、完全シャッフル
@@ -457,7 +458,7 @@ if is_random_sort:
     display_df = display_df.assign(_rand=np.random.rand(len(display_df))).sort_values('_rand').drop('_rand', axis=1)
 
 # --- カード描画 ---
-def render_beer_card(r, beer_id_safe):
+
 if is_random_sort:
     # 完全ランダム表示：醸造所でまとめず、display_dfをそのままループ
     for _, r in display_df.iterrows():
