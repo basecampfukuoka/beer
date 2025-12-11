@@ -348,16 +348,53 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
-    # スタイル一覧
+    # スタイル一覧（他のフィルターを反映した候補を出す）
     st.markdown("**スタイル（メイン）で絞り込み**")
+
+    # ベースデータ（在庫表示設定に応じて切替）
+    df_style_candidates = df if show_out else df_instock
+
+    # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
+    # 1) 検索テキスト（フリー検索）を反映
+    if search_text and search_text.strip():
+        kw = search_text.strip().lower()
+        text_cols = ["name_local","name_jp","brewery_local","brewery_jp","style_main_jp","style_sub_jp",
+                     "comment","detailed_comment","untappd_url","jan"]
+        temp = df_style_candidates[text_cols].fillna("").astype(str).apply(lambda col: col.str.lower())
+        mask = False
+        for c in temp.columns:
+            mask = mask | temp[c].str.contains(kw, na=False)
+        df_style_candidates = df_style_candidates[mask]
+
+    # 2) サイズフィルター（radio）を反映
+    if size_choice == "小瓶（≤500ml）":
+        df_style_candidates = df_style_candidates[df_style_candidates["volume_num"].notna() & (df_style_candidates["volume_num"].astype(float) <= 500.0)]
+    elif size_choice == "大瓶（≥500ml）":
+        df_style_candidates = df_style_candidates[df_style_candidates["volume_num"].notna() & (df_style_candidates["volume_num"].astype(float) >= 500.0)]
+
+    # 3) ABV / 価格フィルターを反映
+    df_style_candidates = df_style_candidates[
+        (df_style_candidates["abv_num"].fillna(-1) >= float(abv_min)) &
+        (df_style_candidates["abv_num"].fillna(999) <= float(abv_max))
+    ]
+    df_style_candidates = df_style_candidates[
+        (df_style_candidates["price_num"].fillna(-1) >= int(price_min)) &
+        (df_style_candidates["price_num"].fillna(10**9) <= int(price_max))
+    ]
+
+    # 4) 国フィルターを反映
+    if country_choice != "すべて":
+        df_style_candidates = df_style_candidates[df_style_candidates["country"] == country_choice]
+
+    # ここまでで style 候補を決定（空文字を除去してソート）
     styles_available = sorted(
-        df_style_source["style_main_jp"].replace("", pd.NA).dropna().unique(),
+        df_style_candidates["style_main_jp"].replace("", pd.NA).dropna().unique(),
         key=locale_key
     )
 
     selected_styles = []
 
-    # チェックボックス描画
+    # チェックボックス描画（既存ロジックそのまま）
     if len(styles_available) > 0:
         ncols = min(6, len(styles_available))
         style_cols = st.columns(ncols)
@@ -366,10 +403,15 @@ with st.expander("フィルター / 検索を表示", False):
             col = style_cols[i % ncols]
             state_key = f"style_{s}"
 
+            # キーが存在しない場合は False に初期化しておく（既存の挙動を維持）
+            if state_key not in st.session_state:
+                st.session_state[state_key] = False
+
             checked = col.checkbox(s, key=state_key)
 
             if checked:
                 selected_styles.append(s)
+
 
 # ---------- Filtering ----------
 filtered = df.copy()
