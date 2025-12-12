@@ -310,9 +310,9 @@ with st.expander("フィルター / 検索を表示", False):
     # ×（在庫なし）は show_no_stock が True の時だけ表示
 
     filtered = filtered[
-        (filtered["stock_status"] == "○") |
-        (show_take_order and (filtered["stock_status"] == "△")) |
-        (show_no_stock and (filtered["stock_status"] == "×"))
+        (filtered["stock_status"] == "○")
+        | (show_take_order & (filtered["stock_status"] == "△"))
+        | (show_no_stock & (filtered["stock_status"] == "×"))
     ]
 
     countries = sorted(
