@@ -308,6 +308,7 @@ with st.expander("フィルター / 検索を表示", False):
     # ○（在庫あり）を常に表示
     # △（取り寄せ）は show_take_order が True の時だけ表示
     # ×（在庫なし）は show_no_stock が True の時だけ表示
+    filtered = df.copy()
 
     filtered = filtered[
         (filtered["stock_status"] == "○")
