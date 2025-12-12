@@ -100,7 +100,6 @@ def load_data(path=EXCEL_PATH):
     for c in str_cols:
         df[c] = df[c].fillna("").astype(str)
 
-    df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
     df["stock_status"] = df["in_stock"].apply(stock_status)
 
 
@@ -294,12 +293,12 @@ with st.expander("フィルター / 検索を表示", False):
 
     # ---- 取り寄せ・在庫なし表示 ----
     show_take_order = col_stock1.checkbox(
-        "取り寄せ（△）を表示",
+        "取り寄せを表示",
         key="show_take_order"
     )
 
     show_no_stock = col_stock2.checkbox(
-        "在庫なし（×）を表示",
+        "在庫なしを表示",
         key="show_no_stock"
     )
 
