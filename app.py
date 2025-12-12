@@ -384,7 +384,7 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("**スタイル（メイン）で絞り込み**")
 
     # ベースデータ（在庫表示設定に応じて切替）
-    df_style_candidates = df if show_out else df_instock
+    df_style_candidates = filtered.copy()
 
     # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
     # 1) 検索テキスト（フリー検索）を反映
