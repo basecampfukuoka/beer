@@ -348,6 +348,9 @@ with st.expander("フィルター / 検索を表示", False):
         # 日本語 → 英語
         country_choice = {v: k for k, v in country_map.items()}.get(country_choice_display, country_choice_display)
 
+    # ===== 国フィルタ =====
+    if country_choice != "すべて":
+        filtered = filtered[filtered["country"] == country_choice]
 
     # ===== 3行目：サイズ・ABV・価格 =====
     col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
