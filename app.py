@@ -305,8 +305,15 @@ with st.expander("フィルター / 検索を表示", False):
     # 国リスト生成（取り寄せ表示OFFの場合は在庫商品の国だけに絞る）
     df_country_source = df.copy()
 
-    if not show_out:  # 「取り寄せ商品を表示」がOFF
-        df_country_source = df_country_source[df_country_source["_in_stock_bool"]]
+    # ○（在庫あり）を常に表示
+    # △（取り寄せ）は show_take_order が True の時だけ表示
+    # ×（在庫なし）は show_no_stock が True の時だけ表示
+
+    filtered = filtered[
+        (filtered["stock_status"] == "○") |
+        (show_take_order and (filtered["stock_status"] == "△")) |
+        (show_no_stock and (filtered["stock_status"] == "×"))
+    ]
 
     countries = sorted(
         df_country_source["country"].replace("", pd.NA).dropna().unique()
