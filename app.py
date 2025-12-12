@@ -118,7 +118,7 @@ def load_data(path=EXCEL_PATH):
 df_all = load_data()
 df = df_all.copy()
 
-df_instock = df[df["_in_stock_bool"]]
+df_instock = df[df["stock_status"] == "○"]
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
