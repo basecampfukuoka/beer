@@ -322,6 +322,9 @@ with st.expander("フィルター / 検索を表示", False):
         df_country_source["country"].replace("", pd.NA).dropna().unique()
         )
 
+    # ---- スタイルフィルタ用----
+    df_style_source = stock_filtered.copy()
+
 
     # 日本語表示用に変換
     countries_display = ["すべて"] +[country_map.get(c, c) for c in countries]
