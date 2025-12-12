@@ -344,10 +344,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 
     # ---- 在庫切り替えによってスタイル用データを変更 ----
-    if show_out:
-        df_style_source = df          # 全てのビール
-    else:
-        df_style_source = df_instock  # 在庫ありのみ
+    df_style_source = filtered.copy()
 
     # ===== 3行目：サイズ・ABV・価格 =====
     col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
