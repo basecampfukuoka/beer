@@ -308,22 +308,20 @@ with st.expander("フィルター / 検索を表示", False):
     # ×（在庫なし）は show_no_stock が True の時だけ表示
     filtered = df.copy()
 
-    filtered = filtered[
-        (filtered["stock_status"] == "○")
-        | (show_take_order & (filtered["stock_status"] == "△"))
-        | (show_no_stock & (filtered["stock_status"] == "×"))
+    # ===== 在庫フィルタ =====
+    stock_filtered = df[
+        (df["stock_status"] == "○")
+        | (show_take_order & (df["stock_status"] == "△"))
+        | (show_no_stock & (df["stock_status"] == "×"))
     ]
 
-    countries = sorted(
-        df_country_source["country"].replace("", pd.NA).dropna().unique()
-    )
-
-    # 国リスト生成（取り寄せ表示OFFの場合は在庫商品の国だけに絞る）
-    df_country_source = filtered.copy()
+    # ===== 国フィルタ用のソース =====
+    df_country_source = stock_filtered.copy()
 
     countries = sorted(
         df_country_source["country"].replace("", pd.NA).dropna().unique()
-    )
+        )
+
 
     # 日本語表示用に変換
     countries_display = ["すべて"] +[country_map.get(c, c) for c in countries]
