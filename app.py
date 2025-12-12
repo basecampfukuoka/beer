@@ -349,9 +349,6 @@ with st.expander("フィルター / 検索を表示", False):
         country_choice = {v: k for k, v in country_map.items()}.get(country_choice_display, country_choice_display)
 
 
-    # ---- 在庫切り替えによってスタイル用データを変更 ----
-    df_style_source = filtered.copy()
-
     # ===== 3行目：サイズ・ABV・価格 =====
     col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
 
