@@ -26,7 +26,8 @@ country_flag_url = {
     "Czech Republic": "https://freesozai.jp/sozai/nation_flag/ntf_320/ntf_320.png",
     "France": "https://freesozai.jp/sozai/nation_flag/ntf_327/ntf_327.png",
     "Canada": "https://freesozai.jp/sozai/nation_flag/ntf_404/ntf_404.png",
-    "Italy": "https://freesozai.jp/sozai/nation_flag/ntf_306/ntf_306.png"
+    "Italy": "https://freesozai.jp/sozai/nation_flag/ntf_306/ntf_306.png",
+    "Sweden": "https://freesozai.jp/sozai/nation_flag/ntf_315/ntf_315.svg"
 }
 
 
@@ -734,4 +735,3 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
