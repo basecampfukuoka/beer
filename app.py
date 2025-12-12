@@ -481,12 +481,16 @@ filtered = filtered[
     (filtered["price_num"].fillna(10**9) <= int(price_max))
 ]
 
-if selected_styles:
-    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+filtered = stock_filtered.copy()
+
+
 
 # country
 if country_choice != "すべて":
     filtered = filtered[filtered["country"] == country_choice]
+
+if selected_styles:
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
 # 在庫なしチェックの適用はメイン一覧のみ
 filtered = filtered[
