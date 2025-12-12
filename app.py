@@ -37,13 +37,26 @@ def safe_str(v):
     if pd.isna(v) or v is None: return ""
     return str(v)
 
-def is_in_stock(val):
-    if pd.isna(val): return False
-    if isinstance(val,(int,float)):
-        try: return int(val)!=0
-        except: return False
-    s = str(val).strip().lower()
-    return s in ("1","true","あり","yes","y")
+def stock_status(val):
+    """
+    Excel の in_stock を ○ / △ / × で扱う
+    ○ = 在庫あり
+    △ = 取り寄せ
+    × = 在庫なし
+    """
+    if pd.isna(val):
+        return "×"  # デフォルト
+
+    v = str(val).strip()
+
+    if v in ["○", "◯", "o", "O", "あり", "yes", "1", "true"]:
+        return "○"
+
+    if v in ["△", "取り寄せ"]:
+        return "△"
+
+    return "×"
+
 
 def try_number(v):
     if pd.isna(v): return None
@@ -88,6 +101,7 @@ def load_data(path=EXCEL_PATH):
         df[c] = df[c].fillna("").astype(str)
 
     df["_in_stock_bool"] = df["in_stock"].apply(is_in_stock)
+    df["stock_status"] = df["in_stock"].apply(stock_status)
 
 
 
@@ -269,7 +283,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country, col_stock = st.columns([4,1])
+    col_country, col_stock1, col_stock2 = st.columns([4,1,1])
 
     country_map = {
         "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ", "United States": "アメリカ",
@@ -278,10 +292,15 @@ with st.expander("フィルター / 検索を表示", False):
         "Italy": "イタリア", "Sweden": "スウェーデン",
     }
 
-    # ---- 取り寄せチェックボックス（右側） ----
-    show_out = col_stock.checkbox(
-        "取り寄せ商品を表示",
-        key="show_out_of_stock"
+    # ---- 取り寄せ・在庫なし表示 ----
+    show_take_order = col_stock1.checkbox(
+        "取り寄せ（△）を表示",
+        key="show_take_order"
+    )
+
+    show_no_stock = col_stock2.checkbox(
+        "在庫なし（×）を表示",
+        key="show_no_stock"
     )
 
     # 国リスト生成（取り寄せ表示OFFの場合は在庫商品の国だけに絞る）
@@ -462,9 +481,11 @@ if country_choice != "すべて":
     filtered = filtered[filtered["country"] == country_choice]
 
 # 在庫なしチェックの適用はメイン一覧のみ
-if not st.session_state.get("show_out_of_stock", False):
-    filtered = filtered[filtered["_in_stock_bool"] == True]
-
+filtered = filtered[
+    (filtered["stock_status"] == "○") |
+    (show_take_order & (filtered["stock_status"] == "△")) |
+    (show_no_stock & (filtered["stock_status"] == "×"))
+]
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
@@ -541,13 +562,16 @@ def render_beer_card(r, beer_id_safe, brewery):
 
         st.markdown("### この醸造所のビール一覧")
 
-        # 「取り寄せ商品を表示」チェックを反映
-        if st.session_state.get("show_out_of_stock", False):
-        # 全てのビールを表示
-            brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
-        else:
-        # 在庫ありのみ
-            brewery_beers_all = df_all[(df_all["brewery_jp"] == brewery) & (df_all["_in_stock_bool"] == True)]
+        # 「○/△/×」チェックを反映
+
+        brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
+
+        brewery_beers_all = brewery_beers_all[
+            (brewery_beers_all["stock_status"] == "○") |
+            (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
+            (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
+        ]
+
 
         cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
