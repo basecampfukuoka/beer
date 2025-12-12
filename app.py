@@ -481,8 +481,6 @@ filtered = filtered[
     (filtered["price_num"].fillna(10**9) <= int(price_max))
 ]
 
-filtered = stock_filtered.copy()
-
 
 
 # country
