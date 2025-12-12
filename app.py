@@ -452,8 +452,6 @@ with st.expander("フィルター / 検索を表示", False):
 
 
 # ---------- Filtering ----------
-filtered = df.copy()
-
 # ▼ Step2: vectorized search (apply を避ける)
 if search_text and search_text.strip():
     kw = search_text.strip().lower()
