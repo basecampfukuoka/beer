@@ -275,7 +275,7 @@ with st.expander("フィルター / 検索を表示", False):
         "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ", "United States": "アメリカ",
         "United Kingdom": "イギリス", "Netherlands": "オランダ", "Czech Republic": "チェコ",
         "France": "フランス", "Canada": "カナダ", "Australia": "オーストラリア",
-        "Italy": "イタリア", 
+        "Italy": "イタリア", "Sweden": "スウェーデン",
     }
 
     # ---- 取り寄せチェックボックス（右側） ----
@@ -735,3 +735,5 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
+
