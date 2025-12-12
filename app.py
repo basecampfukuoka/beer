@@ -306,7 +306,8 @@ with st.expander("フィルター / 検索を表示", False):
     # ○（在庫あり）を常に表示
     # △（取り寄せ）は show_take_order が True の時だけ表示
     # ×（在庫なし）は show_no_stock が True の時だけ表示
-    
+    filtered = df.copy()
+
     # ===== 在庫フィルタ =====
     stock_filtered = df[
         (df["stock_status"] == "○")
@@ -389,7 +390,7 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("**スタイル（メイン）で絞り込み**")
 
     # ベースデータ（在庫表示設定に応じて切替）
-    df_style_candidates = filtered.copy()
+    df_style_candidates = stock_filtered.copy()
 
     # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
     # 1) 検索テキスト（フリー検索）を反映
