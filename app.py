@@ -275,7 +275,8 @@ with st.expander("フィルター / 検索を表示", False):
             st.session_state["size_choice"] = "小瓶（≤500ml）"
             st.session_state["abv_slider"] = (0.0, 20.0)
             st.session_state["price_slider"] = (0, 20000)
-            st.session_state["show_out_of_stock"] = False
+            st.session_state["show_take_order"] = False
+            st.session_state["show_no_stock"] = False
 
             st.rerun()
 
