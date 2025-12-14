@@ -726,7 +726,7 @@ is_abv_sort = sort_option == "ABV（低）"
 is_abv_high_sort = sort_option == "ABV（高）"
 is_random_sort = sort_option == "ランダム"
 
-if is_price_sort or is_abv_sort or is_random_sort:
+if is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort:
     # 並び順を最優先
     for _, r in display_df.iterrows():
         beer_id_safe = int(float(r["id"]))
@@ -782,6 +782,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
