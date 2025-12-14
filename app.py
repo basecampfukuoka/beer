@@ -727,9 +727,12 @@ is_abv_high_sort = sort_option == "ABV（高）"
 is_random_sort = sort_option == "ランダム"
 
 if is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort:
-    # 並び順を最優先
+    # 並び順を最優先（醸造所でまとめない）
     for _, r in display_df.iterrows():
-        beer_id_safe = int(float(r["id"]))
+        try:
+            beer_id_safe = int(float(r["id"]))
+        except (ValueError, TypeError):
+            continue
 
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
@@ -737,17 +740,22 @@ if is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort:
         render_beer_card(r, beer_id_safe, r["brewery_jp"])
 
 else:
-    # 醸造所ごとにまとめる通常表示
+    # 通常表示（醸造所ごとにまとめる）
     breweries_to_show = display_df["brewery_jp"].unique()
 
     for brewery in breweries_to_show:
         brewery_beers = display_df[display_df["brewery_jp"] == brewery]
 
         for _, r in brewery_beers.iterrows():
-            beer_id_safe = int(float(r["id"]))
+            try:
+                beer_id_safe = int(float(r["id"]))
+            except (ValueError, TypeError):
+                continue
 
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
+
+            render_beer_card(r, beer_id_safe, brewery)
 
             render_beer_card(r, beer_id_safe, brewery)
 
@@ -782,6 +790,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
