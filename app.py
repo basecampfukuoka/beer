@@ -518,6 +518,13 @@ if sort_option == "ランダム順":
         _rand=np.random.rand(len(filtered))
     ).sort_values('_rand').drop('_rand', axis=1)
 
+# ===== 表示処理 =====
+is_price_sort = sort_option == "価格（低）"
+is_abv_sort = sort_option == "ABV（低）"
+is_abv_high_sort = sort_option == "ABV（高）"
+is_random_sort = sort_option == "ランダム"
+
+
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
@@ -720,11 +727,6 @@ if is_random_sort:
         # カード描画
         render_beer_card(r, beer_id_safe, r["brewery_jp"])
 
-# ===== 表示処理 =====
-is_price_sort = sort_option == "価格（低）"
-is_abv_sort = sort_option == "ABV（低）"
-is_abv_high_sort = sort_option == "ABV（高）"
-is_random_sort = sort_option == "ランダム"
 
 if is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort:
     # 並び順を最優先（醸造所でまとめない）
@@ -790,6 +792,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
