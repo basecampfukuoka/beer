@@ -723,6 +723,20 @@ if is_random_sort:
         # カード描画
         render_beer_card(r, beer_id_safe, r["brewery_jp"])
 
+# ===== 表示処理 =====
+is_price_sort = sort_option == "価格（低）"
+is_random_sort = sort_option == "ランダム"
+
+if is_price_sort or is_random_sort:
+    # 価格順・ランダム順 → 並び順を最優先（醸造所でまとめない）
+    for _, r in display_df.iterrows():
+        beer_id_safe = int(float(r["id"]))
+
+        if beer_id_safe in st.session_state["removed_ids"]:
+            continue
+
+        render_beer_card(r, beer_id_safe, r["brewery_jp"])
+
 # --- 通常（醸造所ごと）の処理 ---
 else:
     breweries_to_show = display_df["brewery_jp"].unique()
@@ -773,6 +787,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
