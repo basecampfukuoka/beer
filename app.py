@@ -499,9 +499,6 @@ filtered = filtered[
 ]
 
 # ---------- Sorting ----------
-
-st.write("price_num dtype:", filtered["price_num"].dtype)
-
 if sort_option == "名前順":
     filtered = filtered.sort_values(by="yomi_sort", na_position="last")
 elif sort_option == "ABV（低）":
@@ -725,10 +722,11 @@ if is_random_sort:
 
 # ===== 表示処理 =====
 is_price_sort = sort_option == "価格（低）"
+is_abv_sort = sort_option == "ABV（低）"
 is_random_sort = sort_option == "ランダム"
 
-if is_price_sort or is_random_sort:
-    # 価格順・ランダム順 → 並び順を最優先（醸造所でまとめない）
+if is_price_sort or is_abv_sort or is_random_sort:
+    # 並び順を最優先
     for _, r in display_df.iterrows():
         beer_id_safe = int(float(r["id"]))
 
@@ -737,19 +735,15 @@ if is_price_sort or is_random_sort:
 
         render_beer_card(r, beer_id_safe, r["brewery_jp"])
 
-# --- 通常（醸造所ごと）の処理 ---
 else:
+    # 醸造所ごとにまとめる通常表示
     breweries_to_show = display_df["brewery_jp"].unique()
 
     for brewery in breweries_to_show:
         brewery_beers = display_df[display_df["brewery_jp"] == brewery]
 
-        # カード描画
         for _, r in brewery_beers.iterrows():
-            try:
-                beer_id_safe = int(float(r["id"]))
-            except (ValueError, TypeError):
-                continue
+            beer_id_safe = int(float(r["id"]))
 
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
@@ -787,6 +781,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
