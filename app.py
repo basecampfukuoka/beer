@@ -499,6 +499,9 @@ filtered = filtered[
 ]
 
 # ---------- Sorting ----------
+
+st.write("price_num dtype:", filtered["price_num"].dtype)
+
 if sort_option == "名前順":
     filtered = filtered.sort_values(by="yomi_sort", na_position="last")
 elif sort_option == "ABV（低）":
@@ -770,6 +773,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
