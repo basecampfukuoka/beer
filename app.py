@@ -386,7 +386,15 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("**スタイル（メイン）で絞り込み**")
 
     # ベースデータ（在庫表示設定に応じて切替）
-    df_style_candidates = stock_filtered.copy()
+    df_style_candidates = apply_base_filters(
+        df,
+        search_text=search_text,
+        size_choice=size_choice,
+        abv_range=(abv_min, abv_max),
+        price_range=(price_min, price_max),
+        country_choice=country_choice,
+        show_take_order=show_take_order,
+    )
 
     # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
     # 1) 検索テキスト（フリー検索）を反映
@@ -448,49 +456,19 @@ with st.expander("フィルター / 検索を表示", False):
 
 
 # ---------- Filtering ----------
-# ▼ Step2: vectorized search (apply を避ける)
-if search_text and search_text.strip():
-    kw = search_text.strip().lower()
-    # select columns to search
-    text_cols = ["name_local","name_jp","brewery_local","brewery_jp","style_main_jp","style_sub_jp",
-                 "comment","detailed_comment","untappd_url","jan"]
-    # prepare a DataFrame of lower-cased strings
-    temp = filtered[text_cols].fillna("").astype(str).apply(lambda col: col.str.lower())
-    mask = False
-    for c in temp.columns:
-        mask = mask | temp[c].str.contains(kw, na=False)
-    filtered = filtered[mask]
+filtered = apply_base_filters(
+    df,
+    search_text=search_text,
+    size_choice=size_choice,
+    abv_range=(abv_min, abv_max),
+    price_range=(price_min, price_max),
+    country_choice=country_choice,
+    show_take_order=show_take_order,
+)
 
-# size
-if size_choice=="小瓶（≤500ml）":
-    filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"].astype(float)<=500.0)]
-elif size_choice=="大瓶（≥500ml）":
-    filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"].astype(float)>=500.0)]
-
-# abv / price
-filtered = filtered[
-    (filtered["abv_num"].fillna(-1) >= float(abv_min)) & 
-    (filtered["abv_num"].fillna(999) <= float(abv_max))
-]
-filtered = filtered[
-    (filtered["price_num"].fillna(-1) >= int(price_min)) & 
-    (filtered["price_num"].fillna(10**9) <= int(price_max))
-]
-
-
-
-# country
-if country_choice != "すべて":
-    filtered = filtered[filtered["country"] == country_choice]
-
+# スタイルだけ後段で適用
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
-
-# 在庫なしチェックの適用はメイン一覧のみ
-filtered = filtered[
-    (filtered["stock_status"] == "○") |
-    (show_take_order & (filtered["stock_status"] == "△")) 
-]
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
