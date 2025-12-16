@@ -519,11 +519,14 @@ if sort_option == "ランダム順":
     ).sort_values('_rand').drop('_rand', axis=1)
 
 # ===== 表示処理用 sort flags =====
-is_price_sort     = sort_option == "価格（低）"
-is_abv_low_sort   = sort_option == "ABV（低）"
-is_abv_high_sort  = sort_option == "ABV（高）"
-is_random_sort    = sort_option == "ランダム順"
+is_price_sort = sort_option == "価格（低）"
+is_abv_low_sort = sort_option == "ABV（低）"
+is_abv_high_sort = sort_option == "ABV（高）"
+is_random_sort = sort_option == "ランダム順"
 
+disable_grouping = (
+    is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort
+)
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
@@ -743,22 +746,22 @@ if is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort:
 
 else:
     # 通常表示（醸造所ごとにまとめる）
+if disable_grouping:
+    # 並び順を優先（1件ずつ描画）
+    for _, r in display_df.iterrows():
+        beer_id_safe = int(float(r["id"]))
+        if beer_id_safe in st.session_state["removed_ids"]:
+            continue
+        render_beer_card(r, beer_id_safe, r["brewery_jp"])
+else:
+    # 醸造所ごとにまとめる（従来どおり）
     breweries_to_show = display_df["brewery_jp"].unique()
-
     for brewery in breweries_to_show:
         brewery_beers = display_df[display_df["brewery_jp"] == brewery]
-
         for _, r in brewery_beers.iterrows():
-            try:
-                beer_id_safe = int(float(r["id"]))
-            except (ValueError, TypeError):
-                continue
-
+            beer_id_safe = int(float(r["id"]))
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
-
-            render_beer_card(r, beer_id_safe, brewery)
-
             render_beer_card(r, beer_id_safe, brewery)
 
 # ---------- トップへ戻るボタン ----------
@@ -792,6 +795,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
