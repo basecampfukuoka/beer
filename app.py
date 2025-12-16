@@ -276,14 +276,14 @@ with st.expander("フィルター / 検索を表示", False):
             st.session_state["abv_slider"] = (0.0, 20.0)
             st.session_state["price_slider"] = (0, 20000)
             st.session_state["show_take_order"] = False
-            st.session_state["show_no_stock"] = False
+            
 
             st.rerun()
 
 
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country, col_stock1, col_stock2 = st.columns([4,1,1])
+    col_country, col_stock1, col_stock2 = st.columns([4,1])
 
     country_map = {
         "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ", "United States": "アメリカ",
@@ -298,22 +298,17 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_take_order"
     )
 
-    show_no_stock = col_stock2.checkbox(
-        "在庫なしを表示",
-        key="show_no_stock"
-    )
+    show_no_stock = False
 
     
     # ○（在庫あり）を常に表示
     # △（取り寄せ）は show_take_order が True の時だけ表示
-    # ×（在庫なし）は show_no_stock が True の時だけ表示
     filtered = df.copy()
 
     # ===== 在庫フィルタ =====
     stock_filtered = df[
         (df["stock_status"] == "○")
         | (show_take_order & (df["stock_status"] == "△"))
-        | (show_no_stock & (df["stock_status"] == "×"))
     ]
 
     # ===== 国フィルタ用のソース =====
@@ -495,7 +490,6 @@ if selected_styles:
 filtered = filtered[
     (filtered["stock_status"] == "○") |
     (show_take_order & (filtered["stock_status"] == "△")) |
-    (show_no_stock & (filtered["stock_status"] == "×"))
 ]
 
 # ---------- Sorting ----------
@@ -609,7 +603,6 @@ def render_beer_card(r, beer_id_safe, brewery):
         brewery_beers_all = brewery_beers_all[
             (brewery_beers_all["stock_status"] == "○") |
             (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
-            (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
         ]
 
 
@@ -799,6 +792,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
