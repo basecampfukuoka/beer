@@ -478,9 +478,11 @@ if styles_available:
     ncols = min(6, len(styles_available))
     style_cols = st.columns(ncols)
 
-    for i, s in enumerate(styles_available):
-        col = style_cols[i % ncols]
-        state_key = f"style_{s}"
+    for idx, s in enumerate(styles_available):
+        col = style_cols[idx % ncols]
+
+        # 🔑 key は必ず一意にする
+        state_key = f"style_{idx}_{hash(s)}"
 
         if state_key not in st.session_state:
             st.session_state[state_key] = False
