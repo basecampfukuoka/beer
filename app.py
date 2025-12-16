@@ -444,39 +444,6 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
-    # スタイル一覧（他のフィルターを反映した候補を出す）
-    st.markdown("**スタイル（メイン）で絞り込み**")
-
-
-
-
-    # ここまでで style 候補を決定（空文字を除去してソート）
-    styles_available = sorted(
-        df_style_candidates["style_main_jp"].replace("", pd.NA).dropna().unique(),
-        key=locale_key
-    )
-
-    selected_styles = []
-
-    # チェックボックス描画（既存ロジックそのまま）
-    if len(styles_available) > 0:
-        ncols = min(6, len(styles_available))
-        style_cols = st.columns(ncols)
-
-        for i, s in enumerate(styles_available):
-            col = style_cols[i % ncols]
-            state_key = f"style_{s}"
-
-            # キーが存在しない場合は False に初期化しておく（既存の挙動を維持）
-            if state_key not in st.session_state:
-                st.session_state[state_key] = False
-
-            checked = col.checkbox(s, key=state_key)
-
-            if checked:
-                selected_styles.append(s)
-
-
 # ---------- Filtering ----------
 filtered = apply_base_filters(
     df,
@@ -493,6 +460,38 @@ if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
 df_style_candidates = filtered.copy()
+
+# ---------- Style UI ----------
+st.markdown("**スタイル（メイン）で絞り込み**")
+
+# ここまでで style 候補を決定（空文字を除去してソート）
+styles_available = sorted(
+    df_style_candidates["style_main_jp"]
+        .replace("", pd.NA)
+        .dropna()
+        .unique(),
+    key=locale_key
+)
+
+selected_styles = []
+
+# チェックボックス描画（既存ロジックそのまま）
+if len(styles_available) > 0:
+    ncols = min(6, len(styles_available))
+    style_cols = st.columns(ncols)
+
+    for i, s in enumerate(styles_available):
+        col = style_cols[i % ncols]
+        state_key = f"style_{s}"
+
+        if state_key not in st.session_state:
+            st.session_state[state_key] = False
+
+        checked = col.checkbox(s, key=state_key)
+
+        if checked:
+            selected_styles.append(s)
+
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
