@@ -510,13 +510,20 @@ elif sort_option == "価格（低）":
 elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
-    filtered = filtered.sort_values(by="style_main_jp", key=lambda x: x.map(locale_key))
-if sort_option == "ランダム順":
+    filtered = filtered.sort_values(
+        by="style_main_jp",
+        key=lambda x: x.map(locale_key)
+    )
+
+elif sort_option == "ランダム順":
     import numpy as np
-    # ID列に対してランダムな数を割り当ててソート
-    filtered = filtered.assign(
-        _rand=np.random.rand(len(filtered))
-    ).sort_values('_rand').drop('_rand', axis=1)
+    filtered = (
+        filtered
+        .assign(_rand=np.random.rand(len(filtered)))
+        .sort_values("_rand")
+        .drop("_rand", axis=1)
+    )
+
 
 # ===== 表示処理用 sort flags =====
 is_price_sort = sort_option == "価格（低）"
@@ -701,68 +708,53 @@ def remove_beer(beer_id):
     st.session_state["removed_ids"].add(beer_id_int)
 
 
-# Step1: 並び替えがランダム順かどうか
-is_random_sort = st.session_state.get("sort_option") == "ランダム順"
+# ---------- 表示モード判定 ----------
+is_price_sort     = sort_option == "価格（低）"
+is_abv_low_sort   = sort_option == "ABV（低）"
+is_abv_high_sort  = sort_option == "ABV（高）"
+is_random_sort    = sort_option == "ランダム順"
+
+# 並び順を最優先する条件
+disable_grouping = (
+    is_price_sort
+    or is_abv_low_sort
+    or is_abv_high_sort
+    or is_random_sort
+)
 
 
-# --- ランダム順の処理 ---
-if is_random_sort:
-    # 完全ランダム表示：display_df をシャッフル
-    import numpy as np
-    display_df = (
-        display_df
-        .assign(_rand=np.random.rand(len(display_df)))
-        .sort_values('_rand')
-        .drop('_rand', axis=1)
-    )
-
-    # ランダム順は醸造所でまとめない
-    for _, r in display_df.iterrows():
-        try:
-            beer_id_safe = int(float(r["id"]))
-        except (ValueError, TypeError):
-            continue
-
-        # 削除リストに入っていればスキップ
-        if beer_id_safe in st.session_state["removed_ids"]:
-            continue
-
-        # カード描画
-        render_beer_card(r, beer_id_safe, r["brewery_jp"])
-
-
-if is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort:
-    # 並び順を最優先（醸造所でまとめない）
-    for _, r in display_df.iterrows():
-        try:
-            beer_id_safe = int(float(r["id"]))
-        except (ValueError, TypeError):
-            continue
-
-        if beer_id_safe in st.session_state["removed_ids"]:
-            continue
-
-        render_beer_card(r, beer_id_safe, r["brewery_jp"])
-
-else:
-    # 通常表示（醸造所ごとにまとめる）
+# ---------- Render ----------
 if disable_grouping:
-    # 並び順を優先（1件ずつ描画）
+    # 🔹 並び順をそのまま表示（醸造所でまとめない）
     for _, r in display_df.iterrows():
-        beer_id_safe = int(float(r["id"]))
+        try:
+            beer_id_safe = int(float(r["id"]))
+        except (ValueError, TypeError):
+            continue
+
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
+
         render_beer_card(r, beer_id_safe, r["brewery_jp"])
+
 else:
-    # 醸造所ごとにまとめる（従来どおり）
+    # 🔹 通常表示（醸造所ごとにまとめる）
     breweries_to_show = display_df["brewery_jp"].unique()
+
     for brewery in breweries_to_show:
         brewery_beers = display_df[display_df["brewery_jp"] == brewery]
+
         for _, r in brewery_beers.iterrows():
-            beer_id_safe = int(float(r["id"]))
+            try:
+                beer_id_safe = int(float(r["id"]))
+            except (ValueError, TypeError):
+                continue
+
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
+
             render_beer_card(r, beer_id_safe, brewery)
+
 
 # ---------- トップへ戻るボタン ----------
 st.markdown(
