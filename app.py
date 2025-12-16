@@ -489,7 +489,7 @@ if selected_styles:
 # 在庫なしチェックの適用はメイン一覧のみ
 filtered = filtered[
     (filtered["stock_status"] == "○") |
-    (show_take_order & (filtered["stock_status"] == "△")) |
+    (show_take_order & (filtered["stock_status"] == "△")) 
 ]
 
 # ---------- Sorting ----------
@@ -596,13 +596,13 @@ def render_beer_card(r, beer_id_safe, brewery):
 
         st.markdown("### この醸造所のビール一覧")
 
-        # 「○/△/×」チェックを反映
+        # 「○/△」チェックを反映
 
         brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
 
         brewery_beers_all = brewery_beers_all[
             (brewery_beers_all["stock_status"] == "○") |
-            (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
+            (show_take_order & (brewery_beers_all["stock_status"] == "△")) 
         ]
 
 
