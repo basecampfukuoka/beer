@@ -73,6 +73,17 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
+    # ベースデータ（在庫表示設定に応じて切替）
+df_style_candidates = apply_base_filters(
+    df,
+    search_text=search_text,
+    size_choice=size_choice,
+    abv_range=(abv_min, abv_max),
+    price_range=(price_min, price_max),
+    country_choice=country_choice,
+    show_take_order=show_take_order,
+)
+
 # ---------- Load data ----------
 @st.cache_data
 def load_data(path=EXCEL_PATH):
@@ -385,16 +396,7 @@ with st.expander("フィルター / 検索を表示", False):
     # スタイル一覧（他のフィルターを反映した候補を出す）
     st.markdown("**スタイル（メイン）で絞り込み**")
 
-    # ベースデータ（在庫表示設定に応じて切替）
-    df_style_candidates = apply_base_filters(
-        df,
-        search_text=search_text,
-        size_choice=size_choice,
-        abv_range=(abv_min, abv_max),
-        price_range=(price_min, price_max),
-        country_choice=country_choice,
-        show_take_order=show_take_order,
-    )
+
 
     # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
     # 1) 検索テキスト（フリー検索）を反映
