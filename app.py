@@ -449,37 +449,6 @@ with st.expander("フィルター / 検索を表示", False):
 
 
 
-    # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
-    # 1) 検索テキスト（フリー検索）を反映
-    if search_text and search_text.strip():
-        kw = search_text.strip().lower()
-        text_cols = ["name_local","name_jp","brewery_local","brewery_jp","style_main_jp","style_sub_jp",
-                     "comment","detailed_comment","untappd_url","jan"]
-        temp = df_style_candidates[text_cols].fillna("").astype(str).apply(lambda col: col.str.lower())
-        mask = False
-        for c in temp.columns:
-            mask = mask | temp[c].str.contains(kw, na=False)
-        df_style_candidates = df_style_candidates[mask]
-
-    # 2) サイズフィルター（radio）を反映
-    if size_choice == "小瓶（≤500ml）":
-        df_style_candidates = df_style_candidates[df_style_candidates["volume_num"].notna() & (df_style_candidates["volume_num"].astype(float) <= 500.0)]
-    elif size_choice == "大瓶（≥500ml）":
-        df_style_candidates = df_style_candidates[df_style_candidates["volume_num"].notna() & (df_style_candidates["volume_num"].astype(float) >= 500.0)]
-
-    # 3) ABV / 価格フィルターを反映
-    df_style_candidates = df_style_candidates[
-        (df_style_candidates["abv_num"].fillna(-1) >= float(abv_min)) &
-        (df_style_candidates["abv_num"].fillna(999) <= float(abv_max))
-    ]
-    df_style_candidates = df_style_candidates[
-        (df_style_candidates["price_num"].fillna(-1) >= int(price_min)) &
-        (df_style_candidates["price_num"].fillna(10**9) <= int(price_max))
-    ]
-
-    # 4) 国フィルターを反映
-    if country_choice != "すべて":
-        df_style_candidates = df_style_candidates[df_style_candidates["country"] == country_choice]
 
     # ここまでで style 候補を決定（空文字を除去してソート）
     styles_available = sorted(
