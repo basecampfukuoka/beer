@@ -73,16 +73,6 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-    # ベースデータ（在庫表示設定に応じて切替）
-df_style_candidates = apply_base_filters(
-    df,
-    search_text=search_text,
-    size_choice=size_choice,
-    abv_range=(abv_min, abv_max),
-    price_range=(price_min, price_max),
-    country_choice=country_choice,
-    show_take_order=show_take_order,
-)
 
 def apply_base_filters(
     df_src,
