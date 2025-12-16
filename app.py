@@ -283,7 +283,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country, col_stock1, col_stock2 = st.columns([4,1])
+    col_country, col_stock1 = st.columns([4,1])
 
     country_map = {
         "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ", "United States": "アメリカ",
