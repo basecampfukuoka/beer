@@ -444,8 +444,10 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
-# ---------- Filtering ----------
-filtered = apply_base_filters(
+# =========================================================
+# Base Filtering（スタイル以外）
+# =========================================================
+filtered_base = apply_base_filters(
     df,
     search_text=search_text,
     size_choice=size_choice,
@@ -455,16 +457,13 @@ filtered = apply_base_filters(
     show_take_order=show_take_order,
 )
 
-# スタイルだけ後段で適用
-if selected_styles:
-    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+# =========================================================
+# Style UI
+# =========================================================
+df_style_candidates = filtered_base.copy()
 
-df_style_candidates = filtered.copy()
-
-# ---------- Style UI ----------
 st.markdown("**スタイル（メイン）で絞り込み**")
 
-# ここまでで style 候補を決定（空文字を除去してソート）
 styles_available = sorted(
     df_style_candidates["style_main_jp"]
         .replace("", pd.NA)
@@ -474,6 +473,28 @@ styles_available = sorted(
 )
 
 selected_styles = []
+
+if styles_available:
+    ncols = min(6, len(styles_available))
+    style_cols = st.columns(ncols)
+
+    for i, s in enumerate(styles_available):
+        col = style_cols[i % ncols]
+        state_key = f"style_{s}"
+
+        if state_key not in st.session_state:
+            st.session_state[state_key] = False
+
+        if col.checkbox(s, key=state_key):
+            selected_styles.append(s)
+
+# =========================================================
+# Apply Style Filter（ここが唯一の適用箇所）
+# =========================================================
+filtered = filtered_base.copy()
+
+if selected_styles:
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
 # チェックボックス描画（既存ロジックそのまま）
 if len(styles_available) > 0:
