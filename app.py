@@ -84,6 +84,67 @@ df_style_candidates = apply_base_filters(
     show_take_order=show_take_order,
 )
 
+def apply_base_filters(
+    df_src,
+    *,
+    search_text=None,
+    size_choice=None,
+    abv_range=None,
+    price_range=None,
+    country_choice=None,
+    show_take_order=False,
+):
+    df = df_src
+
+    # 在庫（×は存在しない前提）
+    df = df[
+        (df["stock_status"] == "○") |
+        (show_take_order & (df["stock_status"] == "△"))
+    ]
+
+    # 検索
+    if search_text and search_text.strip():
+        kw = search_text.strip().lower()
+        text_cols = [
+            "name_local","name_jp","brewery_local","brewery_jp",
+            "style_main_jp","style_sub_jp",
+            "comment","detailed_comment","untappd_url","jan"
+        ]
+        temp = df[text_cols].fillna("").astype(str).apply(lambda c: c.str.lower())
+        mask = False
+        for c in temp.columns:
+            mask |= temp[c].str.contains(kw, na=False)
+        df = df[mask]
+
+    # サイズ
+    if size_choice == "小瓶（≤500ml）":
+        df = df[df["volume_num"].notna() & (df["volume_num"] <= 500)]
+    elif size_choice == "大瓶（≥500ml）":
+        df = df[df["volume_num"].notna() & (df["volume_num"] >= 500)]
+
+    # ABV
+    if abv_range:
+        abv_min, abv_max = abv_range
+        df = df[
+            (df["abv_num"].fillna(-1) >= abv_min) &
+            (df["abv_num"].fillna(999) <= abv_max)
+        ]
+
+    # 価格
+    if price_range:
+        p_min, p_max = price_range
+        df = df[
+            (df["price_num"].fillna(-1) >= p_min) &
+            (df["price_num"].fillna(10**9) <= p_max)
+        ]
+
+    # 国
+    if country_choice and country_choice != "すべて":
+        df = df[df["country"] == country_choice]
+
+    return df
+
+
 # ---------- Load data ----------
 @st.cache_data
 def load_data(path=EXCEL_PATH):
@@ -471,6 +532,8 @@ filtered = apply_base_filters(
 # スタイルだけ後段で適用
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+
+df_style_candidates = filtered.copy()
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
