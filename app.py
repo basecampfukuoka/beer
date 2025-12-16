@@ -498,24 +498,6 @@ filtered = filtered_base.copy()
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
-# チェックボックス描画（既存ロジックそのまま）
-if len(styles_available) > 0:
-    ncols = min(6, len(styles_available))
-    style_cols = st.columns(ncols)
-
-    for i, s in enumerate(styles_available):
-        col = style_cols[i % ncols]
-        state_key = f"style_{s}"
-
-        if state_key not in st.session_state:
-            st.session_state[state_key] = False
-
-        checked = col.checkbox(s, key=state_key)
-
-        if checked:
-            selected_styles.append(s)
-
-
 # ---------- Sorting ----------
 if sort_option == "名前順":
     filtered = filtered.sort_values(by="yomi_sort", na_position="last")
