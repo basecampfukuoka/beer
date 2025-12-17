@@ -116,7 +116,8 @@ def load_data(path=EXCEL_PATH):
 
 # --- load_data の外 ---
 df_all = load_data()
-df = df_all.copy()
+df = df_all
+
 
 df_instock = df[df["stock_status"] == "○"]
 
@@ -391,7 +392,7 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("**スタイル（メイン）で絞り込み**")
 
     # ベースデータ（在庫表示設定に応じて切替）
-    df_style_candidates = stock_filtered.copy()
+    df_style_candidates = stock_filtered
 
     # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
     # 1) 検索テキスト（フリー検索）を反映
@@ -799,6 +800,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
