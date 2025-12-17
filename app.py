@@ -574,18 +574,9 @@ def remove_beer(beer_id):
 # ---------- Render Cards ----------
 
 # --- カード描画関数 ---
-def render_beer_card(r, beer_id_safe, brewery):
+def render_beer_card(b, beer_id_safe, brewery):
 
-    # ★ brewery_dict が無い前提で安全に処理
-    brewery_data = {}
-
-    if "brewery_dict" in globals():
-        brewery_data = brewery_dict.get(brewery, {})
-
-    col1, col2, col3, col4 = st.columns(
-        [1.5, 2, 4, 0.5],
-        vertical_alignment="center"
-    )
+    col1, col2, col3, col4 = st.columns([1.5, 2, 4, 0.5], vertical_alignment="center")
 
     if brewery_data.get("brewery_description"):
         st.caption(brewery_data["brewery_description"])
