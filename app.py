@@ -73,7 +73,7 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-# style候補生成のキャッシュ化
+#style候補生成のキャッシュ化
 @st.cache_data
 def compute_style_candidates(
     df,
@@ -446,6 +446,15 @@ with st.expander("フィルター / 検索を表示", False):
     # スタイル一覧（他のフィルターを反映した候補を出す）
     st.markdown("**スタイル（メイン）で絞り込み**")
 
+    # style候補を compute_style_candidates() で取得
+    styles_available = compute_style_candidates(
+        stock_filtered,
+        search_text,
+        size_choice,
+        abv_min, abv_max,
+        price_min, price_max,
+        country_choice
+    )
 
     selected_styles = []
 
