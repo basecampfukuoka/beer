@@ -622,20 +622,18 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 醸造所詳細
     if st.session_state[detail_key]:
-        if brewery_data.get("brewery_description"):
-            st.markdown(f"**醸造所説明:** {brewery_data.get('brewery_description')}")
-
-        st.markdown("### この醸造所のビール一覧")
-
-        # 「○/△/×」チェックを反映
-
         brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
-
+    
+        # ○/△/× フィルタ
         brewery_beers_all = brewery_beers_all[
             (brewery_beers_all["stock_status"] == "○") |
             (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
             (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
         ]
+    
+        # ここでカード描画
+        for _, b in brewery_beers_all.iterrows():
+            render_beer_card(b, b["id"], brewery)
 
 
         cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
