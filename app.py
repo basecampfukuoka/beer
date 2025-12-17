@@ -444,6 +444,202 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
+
+
+
+    # =========================================================
+    # Style UI
+    # =========================================================
+    df_style_candidates = filtered_base.copy()
+
+    st.markdown("**スタイル（メイン）で絞り込み**")
+
+    styles_available = sorted(
+        df_style_candidates["style_main_jp"]
+            .replace("", pd.NA)
+            .dropna()
+            .unique(),
+        key=locale_key
+    )
+
+    selected_styles = []
+
+    if styles_available:
+        ncols = min(6, len(styles_available))
+        style_cols = st.columns(ncols)
+
+        for idx, s in enumerate(styles_available):
+            col = style_cols[idx % ncols]
+
+            # 🔑 key は必ず一意にする
+            state_key = f"style_{idx}_{hash(s)}"
+
+            if state_key not in st.session_state:
+                st.session_state[state_key] = False
+
+            if col.checkbox(s, key=state_key):
+                selected_styles.append(s)
+# ---------- Filters UI ----------
+with st.expander("フィルター / 検索を表示", False):
+    st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
+    c1, c2, c3, c4, c5 = st.columns([0.2, 4, 0.5, 1, 0.8])
+
+    with c1:
+        st.markdown("🔎", unsafe_allow_html=True)
+
+    with c2:
+        search_text = st.text_input(
+            "検索",
+            placeholder="フリー検索",
+            label_visibility="collapsed",
+            key="search_text",
+            value=st.session_state.get("search_text", "")
+        )
+
+    with c3:
+        st.markdown("並び替え", unsafe_allow_html=True)
+
+    with c4:
+        sort_options = [
+            "名前順",
+            "ABV（低）",
+            "ABV（高）",
+            "価格（低）",
+            "醸造所順",
+            "スタイル順",
+            "ランダム順"
+        ]
+
+        sort_option = st.selectbox(
+            "並び替え",
+            options=sort_options,
+            index=sort_options.index(st.session_state.get("sort_option", "名前順")),
+            key="sort_option",
+            label_visibility="collapsed"
+        )
+
+    with c5:
+        if st.button("🔄 リセット", help="すべて初期化"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+
+    # ===== 2行目：国・在庫 =====
+    col_country, col_stock1 = st.columns([4, 1])
+
+    country_map = {
+        "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ",
+        "United States": "アメリカ", "United Kingdom": "イギリス",
+        "Netherlands": "オランダ", "Czech Republic": "チェコ",
+        "France": "フランス", "Canada": "カナダ",
+        "Australia": "オーストラリア", "Italy": "イタリア",
+        "Sweden": "スウェーデン",
+    }
+
+    show_take_order = col_stock1.checkbox(
+        "取り寄せを表示",
+        key="show_take_order"
+    )
+
+    # ★変更点①：UI 用の在庫フィルタ元を明示
+    stock_filtered = df[
+        (df["stock_status"] == "○")
+        | (show_take_order & (df["stock_status"] == "△"))
+    ]
+
+    countries = sorted(
+        stock_filtered["country"].replace("", pd.NA).dropna().unique()
+    )
+
+    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
+
+    if "country_radio" not in st.session_state:
+        st.session_state["country_radio"] = "すべて"
+
+    country_choice_display = col_country.radio(
+        "国",
+        countries_display,
+        index=0,
+        horizontal=True,
+        key="country_radio"
+    )
+
+    if country_choice_display == "すべて":
+        country_choice = "すべて"
+    else:
+        country_choice = {v: k for k, v in country_map.items()}.get(
+            country_choice_display, country_choice_display
+        )
+
+    # ===== 3行目：サイズ・ABV・価格 =====
+    col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
+
+    with col_size:
+        if "size_choice" not in st.session_state:
+            st.session_state["size_choice"] = "小瓶（≤500ml）"
+
+        size_choice = st.radio(
+            "サイズ",
+            ("すべて", "小瓶（≤500ml）", "大瓶（≥500ml）"),
+            horizontal=True,
+            key="size_choice"
+        )
+
+    with col_abv:
+        if "abv_slider" not in st.session_state:
+            st.session_state["abv_slider"] = (0.0, 20.0)
+
+        abv_min, abv_max = st.slider(
+            "ABV（%）",
+            0.0, 20.0,
+            step=0.5,
+            key="abv_slider"
+        )
+
+    with col_price:
+        if "price_slider" not in st.session_state:
+            st.session_state["price_slider"] = (0, 20000)
+
+        price_min, price_max = st.slider(
+            "価格（円）",
+            0, 20000,
+            step=100,
+            key="price_slider"
+        )
+
+    # =========================================================
+    # Style UI
+    # =========================================================
+    # ★変更点②：filtered_base を使わない
+    df_style_candidates = stock_filtered.copy()
+
+    st.markdown("**スタイル（メイン）で絞り込み**")
+
+    styles_available = sorted(
+        df_style_candidates["style_main_jp"]
+            .replace("", pd.NA)
+            .dropna()
+            .unique(),
+        key=locale_key
+    )
+
+    selected_styles = []
+
+    if styles_available:
+        ncols = min(6, len(styles_available))
+        style_cols = st.columns(ncols)
+
+        for idx, s in enumerate(styles_available):
+            col = style_cols[idx % ncols]
+            state_key = f"style_{idx}_{hash(s)}"
+
+            if state_key not in st.session_state:
+                st.session_state[state_key] = False
+
+            if col.checkbox(s, key=state_key):
+                selected_styles.append(s)
+
+
 # =========================================================
 # Base Filtering（スタイル以外）
 # =========================================================
@@ -458,45 +654,13 @@ filtered_base = apply_base_filters(
 )
 
 # =========================================================
-# Style UI
-# =========================================================
-df_style_candidates = filtered_base.copy()
-
-st.markdown("**スタイル（メイン）で絞り込み**")
-
-styles_available = sorted(
-    df_style_candidates["style_main_jp"]
-        .replace("", pd.NA)
-        .dropna()
-        .unique(),
-    key=locale_key
-)
-
-selected_styles = []
-
-if styles_available:
-    ncols = min(6, len(styles_available))
-    style_cols = st.columns(ncols)
-
-    for idx, s in enumerate(styles_available):
-        col = style_cols[idx % ncols]
-
-        # 🔑 key は必ず一意にする
-        state_key = f"style_{idx}_{hash(s)}"
-
-        if state_key not in st.session_state:
-            st.session_state[state_key] = False
-
-        if col.checkbox(s, key=state_key):
-            selected_styles.append(s)
-
-# =========================================================
 # Apply Style Filter（ここが唯一の適用箇所）
 # =========================================================
 filtered = filtered_base.copy()
 
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
