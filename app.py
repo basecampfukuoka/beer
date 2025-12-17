@@ -168,6 +168,23 @@ def load_data(path=EXCEL_PATH):
 
     return df
 
+# ===== ★ここに追加（③）=====
+@st.cache_data
+def get_brewery_beers(
+    df_all,
+    brewery_jp,
+    show_take_order,
+    show_no_stock
+):
+    d = df_all[df_all["brewery_jp"] == brewery_jp]
+
+    d = d[
+        (d["stock_status"] == "○") |
+        (show_take_order & (d["stock_status"] == "△")) |
+        (show_no_stock & (d["stock_status"] == "×"))
+    ]
+
+    return d
 
 # --- load_data の外 ---
 df_all = load_data()
@@ -629,14 +646,12 @@ def render_beer_card(r, beer_id_safe, brewery):
 
         # 「○/△/×」チェックを反映
 
-        brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
-
-        brewery_beers_all = brewery_beers_all[
-            (brewery_beers_all["stock_status"] == "○") |
-            (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
-            (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
-        ]
-
+        brewery_beers_all = get_brewery_beers(
+            df_all,
+            brewery,
+            show_take_order,
+            show_no_stock
+        )
 
         cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
