@@ -616,7 +616,7 @@ def render_beer_card(r, beer_id_safe, brewery):
         detail_key = f"show_detail_{brewery}_{beer_id_safe}"
         if detail_key not in st.session_state:
             st.session_state[detail_key] = False
-        show_key = f"brewery_btn_{brewery}_{beer_id_safe}_{row_index}"
+        show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
         if st.button("醸造所詳細を見る", key=show_key):
             st.session_state[detail_key] = not st.session_state[detail_key]
 
