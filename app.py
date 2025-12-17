@@ -73,68 +73,6 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-
-def apply_base_filters(
-    df_src,
-    *,
-    search_text=None,
-    size_choice=None,
-    abv_range=None,
-    price_range=None,
-    country_choice=None,
-    show_take_order=False,
-):
-    df = df_src
-
-    # 在庫（×は存在しない前提）
-    df = df[
-        (df["stock_status"] == "○") |
-        (show_take_order & (df["stock_status"] == "△"))
-    ]
-
-    # 検索
-    if search_text and search_text.strip():
-        kw = search_text.strip().lower()
-        text_cols = [
-            "name_local","name_jp","brewery_local","brewery_jp",
-            "style_main_jp","style_sub_jp",
-            "comment","detailed_comment","untappd_url","jan"
-        ]
-        temp = df[text_cols].fillna("").astype(str).apply(lambda c: c.str.lower())
-        mask = False
-        for c in temp.columns:
-            mask |= temp[c].str.contains(kw, na=False)
-        df = df[mask]
-
-    # サイズ
-    if size_choice == "小瓶（≤500ml）":
-        df = df[df["volume_num"].notna() & (df["volume_num"] <= 500)]
-    elif size_choice == "大瓶（≥500ml）":
-        df = df[df["volume_num"].notna() & (df["volume_num"] >= 500)]
-
-    # ABV
-    if abv_range:
-        abv_min, abv_max = abv_range
-        df = df[
-            (df["abv_num"].fillna(-1) >= abv_min) &
-            (df["abv_num"].fillna(999) <= abv_max)
-        ]
-
-    # 価格
-    if price_range:
-        p_min, p_max = price_range
-        df = df[
-            (df["price_num"].fillna(-1) >= p_min) &
-            (df["price_num"].fillna(10**9) <= p_max)
-        ]
-
-    # 国
-    if country_choice and country_choice != "すべて":
-        df = df[df["country"] == country_choice]
-
-    return df
-
-
 # ---------- Load data ----------
 @st.cache_data
 def load_data(path=EXCEL_PATH):
@@ -338,14 +276,14 @@ with st.expander("フィルター / 検索を表示", False):
             st.session_state["abv_slider"] = (0.0, 20.0)
             st.session_state["price_slider"] = (0, 20000)
             st.session_state["show_take_order"] = False
-            
+            st.session_state["show_no_stock"] = False
 
             st.rerun()
 
 
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country, col_stock1 = st.columns([4,1])
+    col_country, col_stock1, col_stock2 = st.columns([4,1,1])
 
     country_map = {
         "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ", "United States": "アメリカ",
@@ -360,17 +298,22 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_take_order"
     )
 
-    show_no_stock = False
+    show_no_stock = col_stock2.checkbox(
+        "在庫なしを表示",
+        key="show_no_stock"
+    )
 
     
     # ○（在庫あり）を常に表示
     # △（取り寄せ）は show_take_order が True の時だけ表示
+    # ×（在庫なし）は show_no_stock が True の時だけ表示
     filtered = df.copy()
 
     # ===== 在庫フィルタ =====
     stock_filtered = df[
         (df["stock_status"] == "○")
         | (show_take_order & (df["stock_status"] == "△"))
+        | (show_no_stock & (df["stock_status"] == "×"))
     ]
 
     # ===== 国フィルタ用のソース =====
@@ -444,225 +387,116 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
-
-
-
-    # =========================================================
-    # Style UI
-    # =========================================================
-    df_style_candidates = filtered_base.copy()
-
+    # スタイル一覧（他のフィルターを反映した候補を出す）
     st.markdown("**スタイル（メイン）で絞り込み**")
 
-    styles_available = sorted(
-        df_style_candidates["style_main_jp"]
-            .replace("", pd.NA)
-            .dropna()
-            .unique(),
-        key=locale_key
-    )
+    # ベースデータ（在庫表示設定に応じて切替）
+    df_style_candidates = stock_filtered.copy()
 
-    selected_styles = []
+    # --- 他フィルターを反映（ただし「スタイルの選択」はここでは適用しない） ---
+    # 1) 検索テキスト（フリー検索）を反映
+    if search_text and search_text.strip():
+        kw = search_text.strip().lower()
+        text_cols = ["name_local","name_jp","brewery_local","brewery_jp","style_main_jp","style_sub_jp",
+                     "comment","detailed_comment","untappd_url","jan"]
+        temp = df_style_candidates[text_cols].fillna("").astype(str).apply(lambda col: col.str.lower())
+        mask = False
+        for c in temp.columns:
+            mask = mask | temp[c].str.contains(kw, na=False)
+        df_style_candidates = df_style_candidates[mask]
 
-    if styles_available:
-        ncols = min(6, len(styles_available))
-        style_cols = st.columns(ncols)
+    # 2) サイズフィルター（radio）を反映
+    if size_choice == "小瓶（≤500ml）":
+        df_style_candidates = df_style_candidates[df_style_candidates["volume_num"].notna() & (df_style_candidates["volume_num"].astype(float) <= 500.0)]
+    elif size_choice == "大瓶（≥500ml）":
+        df_style_candidates = df_style_candidates[df_style_candidates["volume_num"].notna() & (df_style_candidates["volume_num"].astype(float) >= 500.0)]
 
-        for idx, s in enumerate(styles_available):
-            col = style_cols[idx % ncols]
-
-            # 🔑 key は必ず一意にする
-            state_key = f"style_{idx}_{hash(s)}"
-
-            if state_key not in st.session_state:
-                st.session_state[state_key] = False
-
-            if col.checkbox(s, key=state_key):
-                selected_styles.append(s)
-
-# ---------- Filters UI ----------
-with st.expander("フィルター / 検索を表示", False):
-    st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5 = st.columns([0.2, 4, 0.5, 1, 0.8])
-
-    with c1:
-        st.markdown("🔎", unsafe_allow_html=True)
-
-    with c2:
-        search_text = st.text_input(
-            "検索",
-            placeholder="フリー検索",
-            label_visibility="collapsed",
-            key="search_text",
-            value=st.session_state.get("search_text", "")
-        )
-
-    with c3:
-        st.markdown("並び替え", unsafe_allow_html=True)
-
-    with c4:
-        sort_options = [
-            "名前順",
-            "ABV（低）",
-            "ABV（高）",
-            "価格（低）",
-            "醸造所順",
-            "スタイル順",
-            "ランダム順"
-        ]
-
-        sort_option = st.selectbox(
-            "並び替え",
-            options=sort_options,
-            index=sort_options.index(st.session_state.get("sort_option", "名前順")),
-            key="sort_option",
-            label_visibility="collapsed"
-        )
-
-    with c5:
-        if st.button("🔄 リセット", help="すべて初期化"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
-
-    # ===== 2行目：国・在庫 =====
-    col_country, col_stock1 = st.columns([4, 1])
-
-    country_map = {
-        "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ",
-        "United States": "アメリカ", "United Kingdom": "イギリス",
-        "Netherlands": "オランダ", "Czech Republic": "チェコ",
-        "France": "フランス", "Canada": "カナダ",
-        "Australia": "オーストラリア", "Italy": "イタリア",
-        "Sweden": "スウェーデン",
-    }
-
-    show_take_order = col_stock1.checkbox(
-        "取り寄せを表示",
-        key="show_take_order"
-    )
-
-    # ★変更点①：UI 用の在庫フィルタ元を明示
-    stock_filtered = df[
-        (df["stock_status"] == "○")
-        | (show_take_order & (df["stock_status"] == "△"))
+    # 3) ABV / 価格フィルターを反映
+    df_style_candidates = df_style_candidates[
+        (df_style_candidates["abv_num"].fillna(-1) >= float(abv_min)) &
+        (df_style_candidates["abv_num"].fillna(999) <= float(abv_max))
+    ]
+    df_style_candidates = df_style_candidates[
+        (df_style_candidates["price_num"].fillna(-1) >= int(price_min)) &
+        (df_style_candidates["price_num"].fillna(10**9) <= int(price_max))
     ]
 
-    countries = sorted(
-        stock_filtered["country"].replace("", pd.NA).dropna().unique()
-    )
+    # 4) 国フィルターを反映
+    if country_choice != "すべて":
+        df_style_candidates = df_style_candidates[df_style_candidates["country"] == country_choice]
 
-    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
-
-    if "country_radio" not in st.session_state:
-        st.session_state["country_radio"] = "すべて"
-
-    country_choice_display = col_country.radio(
-        "国",
-        countries_display,
-        index=0,
-        horizontal=True,
-        key="country_radio"
-    )
-
-    if country_choice_display == "すべて":
-        country_choice = "すべて"
-    else:
-        country_choice = {v: k for k, v in country_map.items()}.get(
-            country_choice_display, country_choice_display
-        )
-
-    # ===== 3行目：サイズ・ABV・価格 =====
-    col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
-
-    with col_size:
-        if "size_choice" not in st.session_state:
-            st.session_state["size_choice"] = "小瓶（≤500ml）"
-
-        size_choice = st.radio(
-            "サイズ",
-            ("すべて", "小瓶（≤500ml）", "大瓶（≥500ml）"),
-            horizontal=True,
-            key="size_choice"
-        )
-
-    with col_abv:
-        if "abv_slider" not in st.session_state:
-            st.session_state["abv_slider"] = (0.0, 20.0)
-
-        abv_min, abv_max = st.slider(
-            "ABV（%）",
-            0.0, 20.0,
-            step=0.5,
-            key="abv_slider"
-        )
-
-    with col_price:
-        if "price_slider" not in st.session_state:
-            st.session_state["price_slider"] = (0, 20000)
-
-        price_min, price_max = st.slider(
-            "価格（円）",
-            0, 20000,
-            step=100,
-            key="price_slider"
-        )
-
-    # =========================================================
-    # Base Filtering（スタイル以外）
-    # =========================================================
-    filtered_base = apply_base_filters(
-        df,
-        search_text=search_text,
-        size_choice=size_choice,
-        abv_range=(abv_min, abv_max),
-        price_range=(price_min, price_max),
-        country_choice=country_choice,
-        show_take_order=show_take_order,
-    )
-
-    # =========================================================
-    # Style UI
-    # =========================================================
-    
-
-    st.markdown("**スタイル（メイン）で絞り込み**")
-
+    # ここまでで style 候補を決定（空文字を除去してソート）
     styles_available = sorted(
-        df_style_candidates["style_main_jp"]
-            .replace("", pd.NA)
-            .dropna()
-            .unique(),
+        df_style_candidates["style_main_jp"].replace("", pd.NA).dropna().unique(),
         key=locale_key
     )
 
     selected_styles = []
 
-    if styles_available:
+    # チェックボックス描画（既存ロジックそのまま）
+    if len(styles_available) > 0:
         ncols = min(6, len(styles_available))
         style_cols = st.columns(ncols)
 
-        for idx, s in enumerate(styles_available):
-            col = style_cols[idx % ncols]
-            state_key = f"style_{idx}_{hash(s)}"
+        for i, s in enumerate(styles_available):
+            col = style_cols[i % ncols]
+            state_key = f"style_{s}"
 
+            # キーが存在しない場合は False に初期化しておく（既存の挙動を維持）
             if state_key not in st.session_state:
                 st.session_state[state_key] = False
 
-            if col.checkbox(s, key=state_key):
+            checked = col.checkbox(s, key=state_key)
+
+            if checked:
                 selected_styles.append(s)
 
 
+# ---------- Filtering ----------
+# ▼ Step2: vectorized search (apply を避ける)
+if search_text and search_text.strip():
+    kw = search_text.strip().lower()
+    # select columns to search
+    text_cols = ["name_local","name_jp","brewery_local","brewery_jp","style_main_jp","style_sub_jp",
+                 "comment","detailed_comment","untappd_url","jan"]
+    # prepare a DataFrame of lower-cased strings
+    temp = filtered[text_cols].fillna("").astype(str).apply(lambda col: col.str.lower())
+    mask = False
+    for c in temp.columns:
+        mask = mask | temp[c].str.contains(kw, na=False)
+    filtered = filtered[mask]
+
+# size
+if size_choice=="小瓶（≤500ml）":
+    filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"].astype(float)<=500.0)]
+elif size_choice=="大瓶（≥500ml）":
+    filtered=filtered[filtered["volume_num"].notna() & (filtered["volume_num"].astype(float)>=500.0)]
+
+# abv / price
+filtered = filtered[
+    (filtered["abv_num"].fillna(-1) >= float(abv_min)) & 
+    (filtered["abv_num"].fillna(999) <= float(abv_max))
+]
+filtered = filtered[
+    (filtered["price_num"].fillna(-1) >= int(price_min)) & 
+    (filtered["price_num"].fillna(10**9) <= int(price_max))
+]
 
 
-# =========================================================
-# Apply Style Filter（ここが唯一の適用箇所）
-# =========================================================
-filtered = filtered_base.copy()
+
+# country
+if country_choice != "すべて":
+    filtered = filtered[filtered["country"] == country_choice]
 
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
+# 在庫なしチェックの適用はメイン一覧のみ
+filtered = filtered[
+    (filtered["stock_status"] == "○") |
+    (show_take_order & (filtered["stock_status"] == "△")) |
+    (show_no_stock & (filtered["stock_status"] == "×"))
+]
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
@@ -768,13 +602,14 @@ def render_beer_card(r, beer_id_safe, brewery):
 
         st.markdown("### この醸造所のビール一覧")
 
-        # 「○/△」チェックを反映
+        # 「○/△/×」チェックを反映
 
         brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
 
         brewery_beers_all = brewery_beers_all[
             (brewery_beers_all["stock_status"] == "○") |
-            (show_take_order & (brewery_beers_all["stock_status"] == "△")) 
+            (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
+            (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
         ]
 
 
