@@ -308,7 +308,7 @@ with st.expander("フィルター / 検索を表示", False):
     # ○（在庫あり）を常に表示
     # △（取り寄せ）は show_take_order が True の時だけ表示
     # ×（在庫なし）は show_no_stock が True の時だけ表示
-    filtered = df.copy()
+    filtered = df
 
     # ===== 在庫フィルタ =====
     stock_filtered = df[
@@ -318,14 +318,14 @@ with st.expander("フィルター / 検索を表示", False):
     ]
 
     # ===== 国フィルタ用のソース =====
-    df_country_source = stock_filtered.copy()
+    df_country_source = stock_filtered
 
     countries = sorted(
         df_country_source["country"].replace("", pd.NA).dropna().unique()
         )
 
     # ---- スタイルフィルタ用----
-    df_style_source = stock_filtered.copy()
+    df_style_source = stock_filtered
 
 
     # 日本語表示用に変換
