@@ -479,6 +479,7 @@ with st.expander("フィルター / 検索を表示", False):
 
             if col.checkbox(s, key=state_key):
                 selected_styles.append(s)
+
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
@@ -608,10 +609,22 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     # =========================================================
+    # Base Filtering（スタイル以外）
+    # =========================================================
+    filtered_base = apply_base_filters(
+        df,
+        search_text=search_text,
+        size_choice=size_choice,
+        abv_range=(abv_min, abv_max),
+        price_range=(price_min, price_max),
+        country_choice=country_choice,
+        show_take_order=show_take_order,
+    )
+
+    # =========================================================
     # Style UI
     # =========================================================
-    # ★変更点②：filtered_base を使わない
-    df_style_candidates = stock_filtered.copy()
+    
 
     st.markdown("**スタイル（メイン）で絞り込み**")
 
@@ -640,18 +653,7 @@ with st.expander("フィルター / 検索を表示", False):
                 selected_styles.append(s)
 
 
-# =========================================================
-# Base Filtering（スタイル以外）
-# =========================================================
-filtered_base = apply_base_filters(
-    df,
-    search_text=search_text,
-    size_choice=size_choice,
-    abv_range=(abv_min, abv_max),
-    price_range=(price_min, price_max),
-    country_choice=country_choice,
-    show_take_order=show_take_order,
-)
+
 
 # =========================================================
 # Apply Style Filter（ここが唯一の適用箇所）
