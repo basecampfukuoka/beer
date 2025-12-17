@@ -607,9 +607,6 @@ def render_beer_card(r, beer_id_safe, brewery):
             )
         else:
             st.markdown(f"{brewery_city}<br>{brewery_country}", unsafe_allow_html=True)
-
-    # brewery_beers_all は醸造所の全ビールの DataFrame
-    def render_beer_card(r, beer_id_safe, brewery):
     
 
         # 醸造所詳細ボタン
