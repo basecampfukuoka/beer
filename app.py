@@ -611,65 +611,70 @@ def render_beer_card(r, beer_id_safe, brewery):
         else:
             st.markdown(f"{brewery_city}<br>{brewery_country}", unsafe_allow_html=True)
 
+    # brewery_beers_all は醸造所の全ビールの DataFrame
+    for row_index, r in brewery_beers_all.iterrows():
+        beer_id_safe = r["id"]
+        brewery = r["brewery_jp"]
 
-    # 醸造所詳細ボタン
-    detail_key = f"show_detail_{brewery}_{beer_id_safe}"
-    if detail_key not in st.session_state:
-        st.session_state[detail_key] = False
-    show_key = f"brewery_btn_{brewery}_{beer_id_safe}_{id(r)}"
-    if st.button("醸造所詳細を見る", key=show_key):
-        st.session_state[detail_key] = not st.session_state[detail_key]
 
-    # 醸造所詳細
-    if st.session_state[detail_key]:
-        brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
+        # 醸造所詳細ボタン
+        detail_key = f"show_detail_{brewery}_{beer_id_safe}"
+        if detail_key not in st.session_state:
+            st.session_state[detail_key] = False
+        show_key = f"brewery_btn_{brewery}_{beer_id_safe}_{row_index}"
+        if st.button("醸造所詳細を見る", key=show_key):
+            st.session_state[detail_key] = not st.session_state[detail_key]
+
+
+        # 醸造所詳細
+        if st.session_state[detail_key]:
+            brewery_beers_all = df_all[df_all["brewery_jp"] == brewery]
     
-        # ○/△/× フィルタ
-        brewery_beers_all = brewery_beers_all[
-            (brewery_beers_all["stock_status"] == "○") |
-            (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
-            (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
-        ]
+            # ○/△/× フィルタ
+            brewery_beers_all = brewery_beers_all[
+                (brewery_beers_all["stock_status"] == "○") |
+                (show_take_order & (brewery_beers_all["stock_status"] == "△")) |
+                (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
+            ]
     
-        # ここでカード描画
-        for _, b in brewery_beers_all.iterrows():
-            render_beer_card(b, b["id"], brewery)
+            # ここでカード描画
+            for _, b in brewery_beers_all.iterrows():
+                render_beer_card(b, b["id"], brewery)
 
 
-        cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
+            cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
-        for _, b in brewery_beers_all.iterrows():
-            abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
-            vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
-            price = ""
-            if pd.notna(b.get('price_num')):
-                price = "ASK" if b.get('price_num') == 0 else f"¥{int(b.get('price_num'))}"
-            # ★★ vintage 追加 ★★
-            vintage_val = b.get("vintage")
-            vintage = ""
-            if pd.notna(vintage_val) and str(vintage_val).strip() != "":
-                vintage = str(vintage_val).strip()  # Excel の値だけ表示
+            for _, b in brewery_beers_all.iterrows():
+                abv = f"ABV {b.get('abv_num')}%" if pd.notna(b.get('abv_num')) else ""
+                vol = f"{int(b.get('volume_num'))}ml" if pd.notna(b.get('volume_num')) else ""
+                price = ""
+                if pd.notna(b.get('price_num')):
+                    price = "ASK" if b.get('price_num') == 0 else f"¥{int(b.get('price_num'))}"
+                # ★★ vintage 追加 ★★
+                vintage_val = b.get("vintage")
+                vintage = ""
+                if pd.notna(vintage_val) and str(vintage_val).strip() != "":
+                    vintage = str(vintage_val).strip()  # Excel の値だけ表示
               
-            name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
-            name_local_html = f'<div class="beer-name">{name_local}</div>'
-            name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
-            name_jp_html = f'<div class="beer-name">{name_jp}</div>'
-
+                name_local = (b.get('name_local') or "").split('/', 1)[-1].strip()
+                name_local_html = f'<div class="beer-name">{name_local}</div>'
+                name_jp = (b.get('name_jp') or "").split('/', 1)[-1].strip()
+                name_jp_html = f'<div class="beer-name">{name_jp}</div>'
                 
-            specs = " | ".join(filter(None, [abv, vol, vintage, price]))
+                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
-            card_html = (
-                '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
-                f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" loading="lazy"><br>'
-                f'<b>{name_local_html}</b><br>'
-                f'{name_jp_html}<br>'
-                f'<div class="beer-spec" style="text-align:center; width:100%;">{specs}</div>'
-                '</div>'
-            )
-            cards.append(card_html)
-        cards.append('</div></div>')
-        cards_html = "".join(cards)
-        st.markdown(cards_html, unsafe_allow_html=True)
+                card_html = (
+                    '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
+                    f'<img src="{b.get("beer_image_url") or DEFAULT_BEER_IMG}" loading="lazy"><br>'
+                    f'<b>{name_local_html}</b><br>'
+                    f'{name_jp_html}<br>'
+                    f'<div class="beer-spec" style="text-align:center; width:100%;">{specs}</div>'
+                    '</div>'
+                )
+                cards.append(card_html)
+            cards.append('</div></div>')
+            cards_html = "".join(cards)
+            st.markdown(cards_html, unsafe_allow_html=True)
 
     # 中央：ビール画像
     with col2:
