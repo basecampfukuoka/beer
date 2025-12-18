@@ -587,7 +587,7 @@ def render_beer_card(r, beer_id_safe, brewery):
         # use img tag here to allow lazy loading; Streamlit's st.image always loads immediately
         brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
         st.markdown(f'<img src="{brewery_img}" width="100" loading="lazy">', unsafe_allow_html=True)
-        st.markdown(f"<b>{r.('brewery_local')}</b><br>{r.('brewery_jp')}", unsafe_allow_html=True)
+        st.markdown(f"<b>{r.brewery_local}</b><br>{r.brewery_jp}",unsafe_allow_html=True)
 
         brewery_city = safe_str(r.('city'))
         brewery_country = safe_str(r.('country'))
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
