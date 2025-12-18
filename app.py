@@ -610,6 +610,15 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 醸造所詳細
     if st.session_state[detail_key]:
+
+    # ★ ここで必ず定義する ★
+        brewery_beers_all = get_brewery_beers(
+            df_all,          # ← 必ず df_all
+            brewery,
+            show_take_order,
+            show_no_stock
+        )
+        
         if brewery_data.get("brewery_description"):
             st.markdown(f"**醸造所説明:** {brewery_data.get('brewery_description')}")
 
