@@ -666,9 +666,9 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 中央：ビール画像
     with col2:
-        beer_img = r.beer_image_url or DEFAULT_BEER_IMG
+        beer_img = r["beer_image_url"] or DEFAULT_BEER_IMG
           
-        untappd_url = r.untappd_url
+        untappd_url = r["untappd_url"]
         st.markdown(
             f"""
             <div style="
@@ -701,7 +701,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 右：ビール情報
     with col3:
-        st.markdown(f"<b>{r.name_local}</b><br>{r.name_jp}",unsafe_allow_html=True)
+        st.markdown(f"<b>{r["name_local"]}</b><br>{r.name_jp}",unsafe_allow_html=True)
         style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
         st.markdown(style_line, unsafe_allow_html=True)
         info_arr = []
