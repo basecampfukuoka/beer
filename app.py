@@ -470,7 +470,7 @@ filtered = build_filtered_df(
     price_max=price_max,
     show_take_order=show_take_order,
     show_no_stock=show_no_stock,
-    removed_ids=st.session_state.get("removed_ids", set()),
+    removed_ids=tuple(sorted(st.session_state.get("removed_ids", set()))),
 )
 
 # ---------- Style Filter UI（★ここが新設） ----------
