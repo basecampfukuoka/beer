@@ -573,8 +573,6 @@ def render_beer_card(r, beer_id_safe, brewery):
     )
 
     if brewery_data.get("brewery_description"):
-        st.caption(brewery_data["brewery_description"])
-
 
     # 左：醸造所情報
     with col1:
@@ -618,7 +616,7 @@ def render_beer_card(r, beer_id_safe, brewery):
             show_no_stock
         )
         
-        if brewery_data.get("brewery_description"):
+        
             st.markdown(f"**醸造所説明:** {brewery_data.get('brewery_description')}")
 
         st.markdown("### この醸造所のビール一覧")
