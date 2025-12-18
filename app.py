@@ -567,12 +567,6 @@ def remove_beer(beer_id):
 # --- カード描画関数 ---
 def render_beer_card(r, beer_id_safe, brewery):
 
-    # ★ brewery_dict が無い前提で安全に処理
-    brewery_data = {}
-
-    if "brewery_dict" in globals():
-        brewery_data = brewery_dict.get(brewery, {})
-
     col1, col2, col3, col4 = st.columns(
         [1.5, 2, 4, 0.5],
         vertical_alignment="center"
@@ -666,9 +660,9 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 中央：ビール画像
     with col2:
-        beer_img = r["beer_image_url"] or DEFAULT_BEER_IMG
+        beer_img = r['beer_image_url'] or DEFAULT_BEER_IMG
           
-        untappd_url = r["untappd_url"]
+        untappd_url = r['untappd_url']
         st.markdown(
             f"""
             <div style="
@@ -701,7 +695,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 右：ビール情報
     with col3:
-        st.markdown(f"<b>{r["name_local"]}</b><br>{r.name_jp}",unsafe_allow_html=True)
+        st.markdown(f"<b>{r['name_local']}</b><br>{r['name_jp']}",unsafe_allow_html=True)
         style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
         st.markdown(style_line, unsafe_allow_html=True)
         info_arr = []
@@ -730,12 +724,6 @@ def render_beer_card(r, beer_id_safe, brewery):
         if st.button("❌", key=button_key):
             remove_beer(beer_id_safe)
 
-# ---------- Removed beers tracking ----------
-def remove_beer(beer_id):
-    beer_id_int = int(float(beer_id))
-    st.session_state["removed_ids"].add(beer_id_int)
-
-
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
 is_abv_low_sort   = sort_option == "ABV（低）"
@@ -754,16 +742,16 @@ disable_grouping = (
 # ---------- Render ----------
 if disable_grouping:
     # 🔹 並び順をそのまま表示（醸造所でまとめない）
-    for r in display_df.itertuples(index=False):
+    for _, r in display_df.iterrows():
         try:
-            beer_id_safe = int(float(r["id"]))
+            beer_id_safe = int(float(r['id']))
         except (ValueError, TypeError):
             continue
 
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        render_beer_card(r, beer_id_safe, r["brewery_jp"])
+        render_beer_card(r, beer_id_safe, r['brewery_jp'])
 
 else:
     # 🔹 通常表示（醸造所ごとにまとめる）
@@ -774,7 +762,7 @@ else:
 
         for _, r in brewery_beers.iterrows():
             try:
-                beer_id_safe = int(float(r["id"]))
+                beer_id_safe = int(float(r['id']))
             except (ValueError, TypeError):
                 continue
 
