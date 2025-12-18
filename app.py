@@ -498,7 +498,12 @@ with st.expander("フィルター / 検索を表示", False):
 
 
 # ---------- Filtering ----------
-# ▼ Step2: vectorized search (apply を避ける)
+
+if st.session_state.get("removed_ids"):
+    filtered = filtered[
+        ~filtered["id"].astype(int).isin(st.session_state["removed_ids"])
+    ]
+
 if search_text and search_text.strip():
     kw = search_text.strip().lower()
     # select columns to search
