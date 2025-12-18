@@ -572,8 +572,6 @@ def render_beer_card(r, beer_id_safe, brewery):
         vertical_alignment="center"
     )
 
-    if brewery_data.get("brewery_description"):
-
     # 左：醸造所情報
     with col1:
         # use img tag here to allow lazy loading; Streamlit's st.image always loads immediately
