@@ -138,6 +138,10 @@ def build_filtered_df(
         (d["price_num"].fillna(10**9) <= price_max)
     ]
 
+    # --- 国フィルタ（ここだけ） ---
+    if country_choice != "すべて":
+        d = d[d["country"] == country_choice]
+
     # --- 削除済み ---
     if removed_ids:
         d = d[~d["id"].astype(int).isin(removed_ids)]
