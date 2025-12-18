@@ -700,7 +700,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 右：ビール情報
     with col3:
-        st.markdown(f"<b>{r.get('name_local')}</b><br>{r.get('name_jp')}", unsafe_allow_html=True)
+        st.markdown(f"<b>{r.name_local}</b><br>{r.name_jp}",unsafe_allow_html=True)
         style_line = " / ".join(filter(None, [r.get("style_main_jp"), r.get("style_sub_jp")]))
         st.markdown(style_line, unsafe_allow_html=True)
         info_arr = []
