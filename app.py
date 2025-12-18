@@ -665,7 +665,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 中央：ビール画像
     with col2:
-        beer_img = r.get("beer_image_url") or DEFAULT_BEER_IMG
+        beer_img = r.beer_image_url or DEFAULT_BEER_IMG
           
         untappd_url = r.get("untappd_url")
         st.markdown(
