@@ -420,7 +420,7 @@ with st.expander("フィルター / 検索を表示", False):
 
     # 選択された日本語名を元の英語名に変換してフィルター用に格納
     if country_choice_display == "すべて":
-        country_choice = "すべて"
+        d = d[d["country"] == country_choice]
     else:
         # 日本語 → 英語
         country_choice = {v: k for k, v in country_map.items()}.get(country_choice_display, country_choice_display)
@@ -473,6 +473,7 @@ filtered = build_filtered_df(
     show_take_order=show_take_order,
     show_no_stock=show_no_stock,
     removed_ids=tuple(sorted(st.session_state.get("removed_ids", set()))),
+    country_choice=country_choice,
 )
 
 # ---------- Style Filter UI（★ここが新設） ----------
