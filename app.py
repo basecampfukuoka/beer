@@ -701,7 +701,7 @@ def render_beer_card(r, beer_id_safe, brewery):
     # 右：ビール情報
     with col3:
         st.markdown(f"<b>{r.name_local}</b><br>{r.name_jp}",unsafe_allow_html=True)
-        style_line = " / ".join(filter(None, [r."style_main_jp", r."style_sub_jp"]))
+        style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
         st.markdown(style_line, unsafe_allow_html=True)
         info_arr = []
         if pd.notna(r."abv_num"): info_arr.append(f"ABV {r.abv_num}%")
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
