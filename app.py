@@ -407,8 +407,6 @@ with st.expander("フィルター / 検索を表示", False):
     )
 
 
-    # 日本語表示用に変換
-    countries_display = ["すべて"] +[country_map.get(c, c) for c in countries]
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
@@ -422,12 +420,22 @@ with st.expander("フィルター / 検索を表示", False):
         key="country_radio"
     )
 
-    # 選択された日本語名を元の英語名に変換してフィルター用に格納
+    # 日本語表示用に変換
+    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
+
+    country_choice_display = st.selectbox(
+        "国",
+        countries_display
+    )
+
+    # 表示用（日本語） → 内部用（英語）
     if country_choice_display == "すべて":
-        d = d[d["country"] == country_choice]
+        country_choice = "すべて"
     else:
-        # 日本語 → 英語
-        country_choice = {v: k for k, v in country_map.items()}.get(country_choice_display, country_choice_display)
+        country_choice = {
+            v: k for k, v in country_map.items()
+        }.get(country_choice_display, country_choice_display)
+
 
 
     # ===== 3行目：サイズ・ABV・価格 =====
