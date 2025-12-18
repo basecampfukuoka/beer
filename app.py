@@ -82,7 +82,9 @@ def compute_style_candidates(filtered_df):
         key=locale_key
     )
 
-@st.cache_data
+@st.cache_data(
+    hash_funcs={pd.DataFrame: lambda _: None}
+)
 def build_filtered_df(
     df,
     search_text,
