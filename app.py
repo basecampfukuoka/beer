@@ -488,26 +488,21 @@ filtered_base = build_filtered_df(
     country_choice=country_choice,
 )
 
-# ---------- Style Filter UI（★ここが新設） ----------
-st.markdown("### スタイル（メイン）で絞り込み")
+# ---------- Style UI（差し込み） ----------
+with style_ui_placeholder:
+    styles_available = compute_style_candidates(filtered_base)
 
-styles_available = compute_style_candidates(filtered)
+    selected_styles = []
 
-selected_styles = []
+    if styles_available:
+        cols = st.columns(min(6, len(styles_available)))
+        for i, s in enumerate(styles_available):
+            key = f"style_{s}"
+            if key not in st.session_state:
+                st.session_state[key] = False
 
-if styles_available:
-    ncols = min(6, len(styles_available))
-    style_cols = st.columns(ncols)
-
-    for i, s in enumerate(styles_available):
-        col = style_cols[i % ncols]
-        key = f"style_{s}"
-
-        if key not in st.session_state:
-            st.session_state[key] = False
-
-        if col.checkbox(s, key=key):
-            selected_styles.append(s)
+            if cols[i % len(cols)].checkbox(s, key=key):
+                selected_styles.append(s)
 
 # ---------- Step4: style 選択を filtered に適用 ----------
 filtered = filtered_base
