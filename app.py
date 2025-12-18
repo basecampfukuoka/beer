@@ -474,7 +474,7 @@ with st.expander("フィルター / 検索を表示", False):
     style_ui_placeholder = st.container()
 
 # ---------- Filtering（★1回だけ） ----------
-filtered = build_filtered_df(
+filtered_base = build_filtered_df(
     df_all,
     search_text=search_text,
     size_choice=size_choice,
