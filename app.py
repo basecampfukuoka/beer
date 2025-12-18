@@ -715,7 +715,7 @@ def render_beer_card(r, beer_id_safe, brewery):
             else:
                 info_arr.append(f"¥{int(r.price_num)}")
         st.markdown(" | ".join(info_arr), unsafe_allow_html=True)
-        if r."comment":
+        if r.comment:
             st.markdown(r.comment, unsafe_allow_html=True)
         if r."detailed_comment":
             st.markdown(
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
