@@ -614,9 +614,6 @@ def render_beer_card(r, beer_id_safe, brewery):
             show_no_stock
         )
         
-        
-            st.markdown(f"**醸造所説明:** {brewery_data.get('brewery_description')}")
-
         st.markdown("### この醸造所のビール一覧")
 
         cards = [
