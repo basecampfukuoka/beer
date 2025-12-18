@@ -73,14 +73,17 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-def compute_style_candidates(filtered_df):
+# ---------- Style candidates (cached) ----------
+@st.cache_data
+def get_style_candidates(df):
     return sorted(
-        filtered_df["style_main_jp"]
+        df["style_main_jp"]
         .replace("", pd.NA)
         .dropna()
         .unique(),
         key=locale_key
     )
+
 
 @st.cache_data(
     hash_funcs={pd.DataFrame: lambda _: None}
@@ -811,6 +814,20 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
