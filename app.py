@@ -652,14 +652,10 @@ def render_beer_card(r, beer_id_safe, brewery):
 
         st.markdown("### この醸造所のビール一覧")
 
-        # 「○/△/×」チェックを反映
-
-        brewery_beers_all = get_brewery_beers(
-            df_all,
-            brewery,
-            show_take_order,
-            show_no_stock
-        )
+     # ★ filtered から取得（removed / 在庫 / 国 / ABV 全反映）
+        brewery_beers_all = filtered[
+            filtered["brewery_jp"] == brewery
+        ]
 
         cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
