@@ -678,7 +678,7 @@ def render_beer_card(r, beer_id_safe, brewery):
                 height: 100%;             /* 親コンテナいっぱい */
             ">
                 <img src="{beer_img}" style="height:150px; object-fit: contain;" loading="lazy">
-                <a href="{untappd_url}" target="_blank">
+                <a href="{untappd_url}" target="_blank"
                     style="
                         display: inline-block;
                         background-color: #FFD633;
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
