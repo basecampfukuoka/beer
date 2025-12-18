@@ -590,7 +590,7 @@ def render_beer_card(r, beer_id_safe, brewery):
         st.markdown(f"<b>{r.brewery_local}</b><br>{r.brewery_jp}",unsafe_allow_html=True)
 
         brewery_city = safe_str(r.city)
-        brewery_country = safe_str (r.'country')
+        brewery_country = safe_str (r.country)
         flag_img = country_flag_url.get(brewery_country, "")
 
         # 国旗付きで city / country を表示
@@ -704,22 +704,22 @@ def render_beer_card(r, beer_id_safe, brewery):
         style_line = " / ".join(filter(None, [r."style_main_jp", r."style_sub_jp"]))
         st.markdown(style_line, unsafe_allow_html=True)
         info_arr = []
-        if pd.notna(r."abv_num"): info_arr.append(f"ABV {r.'abv_num'}%")
-        if pd.notna(r."volume_num"): info_arr.append(f"{int(r.'volume_num')}ml")
+        if pd.notna(r."abv_num"): info_arr.append(f"ABV {r.abv_num}%")
+        if pd.notna(r."volume_num"): info_arr.append(f"{int(r.volume_num)}ml")
         vintage_val = r."vintage"
         if pd.notna(vintage_val) and str(vintage_val).strip() != "":
             info_arr.append(str(vintage_val).strip())
         if pd.notna(r."price_num"):
-            if r."price_num" == 0:
+            if r."price_num") == 0:
                 info_arr.append("ASK")
             else:
-                info_arr.append(f"¥{int(r.'price_num')}")
+                info_arr.append(f"¥{int(r.price_num)}")
         st.markdown(" | ".join(info_arr), unsafe_allow_html=True)
         if r."comment":
             st.markdown(r."comment", unsafe_allow_html=True)
         if r."detailed_comment":
             st.markdown(
-                f"<details><summary>詳細コメント</summary>{r.'detailed_comment'}</details>",
+                f"<details><summary>詳細コメント</summary>{r.detailed_comment}</details>",
                 unsafe_allow_html=True
             )
 
@@ -814,7 +814,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
 
 
 
