@@ -469,6 +469,27 @@ with st.expander("フィルター / 検索を表示", False):
             key="price_slider"
         )
 
+    # ---------- Style Filter UI（★ここが新設） ----------
+    st.markdown("### スタイル（メイン）で絞り込み")
+
+    styles_available = compute_style_candidates(filtered)
+
+    selected_styles = []
+
+    if styles_available:
+        ncols = min(6, len(styles_available))
+        style_cols = st.columns(ncols)
+
+        for i, s in enumerate(styles_available):
+            col = style_cols[i % ncols]
+            key = f"style_{s}"
+
+            if key not in st.session_state:
+                st.session_state[key] = False
+
+            if col.checkbox(s, key=key):
+                selected_styles.append(s)
+
 
 # ---------- Filtering（★1回だけ） ----------
 filtered = build_filtered_df(
