@@ -605,8 +605,9 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 醸造所詳細ボタン
     detail_key = f"show_detail_{brewery}_{beer_id_safe}"
-    for r in display_df.itertuples(index=False):
-        key = f"show_detail_{r.brewery_jp}_{int(r.id)}"
+ 
+    # 初期化は1回だけ
+    if detail_key not in st.session_state:
         st.session_state[detail_key] = False
     show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
     if st.button("醸造所詳細を見る", key=show_key):
