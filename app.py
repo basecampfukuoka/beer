@@ -709,14 +709,14 @@ def render_beer_card(r, beer_id_safe, brewery):
         vintage_val = r.vintage
         if pd.notna(vintage_val) and str(vintage_val).strip() != "":
             info_arr.append(str(vintage_val).strip())
-        if pd.notna(r."price_num"):
+        if pd.notna(r.price_num):
             if r.price_num == 0:
                 info_arr.append("ASK")
             else:
                 info_arr.append(f"¥{int(r.price_num)}")
         st.markdown(" | ".join(info_arr), unsafe_allow_html=True)
         if r."comment":
-            st.markdown(r."comment", unsafe_allow_html=True)
+            st.markdown(r.comment, unsafe_allow_html=True)
         if r."detailed_comment":
             st.markdown(
                 f"<details><summary>詳細コメント</summary>{r.detailed_comment}</details>",
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
