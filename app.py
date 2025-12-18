@@ -393,6 +393,13 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_no_stock"
     )
 
+    countries = sorted(
+        df_all["country"]
+        .replace("", pd.NA)
+        .dropna()
+        .unique()
+    )
+
 
     # 日本語表示用に変換
     countries_display = ["すべて"] +[country_map.get(c, c) for c in countries]
@@ -783,5 +790,21 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
