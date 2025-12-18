@@ -704,9 +704,9 @@ def render_beer_card(r, beer_id_safe, brewery):
         style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
         st.markdown(style_line, unsafe_allow_html=True)
         info_arr = []
-        if pd.notna(r."abv_num"): info_arr.append(f"ABV {r.abv_num}%")
-        if pd.notna(r."volume_num"): info_arr.append(f"{int(r.volume_num)}ml")
-        vintage_val = r."vintage"
+        if pd.notna(r.abv_num): info_arr.append(f"ABV {r.abv_num}%")
+        if pd.notna(r.volume_num): info_arr.append(f"{int(r.volume_num)}ml")
+        vintage_val = r.vintage
         if pd.notna(vintage_val) and str(vintage_val).strip() != "":
             info_arr.append(str(vintage_val).strip())
         if pd.notna(r."price_num"):
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
