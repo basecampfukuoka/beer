@@ -399,6 +399,7 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_no_stock"
     )
 
+    # ---- 国一覧（英語）----
     countries = sorted(
         df_all["country"]
         .replace("", pd.NA)
@@ -407,26 +408,22 @@ with st.expander("フィルター / 検索を表示", False):
     )
 
 
+    # 日本語表示用に変換
+    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
+
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
         st.session_state["country_radio"] = "すべて"
 
+    # ---- UI（radio）----
     country_choice_display = col_country.radio(
         "国",
         countries_display,
-        index=0,
         horizontal=True,
         key="country_radio"
     )
 
-    # 日本語表示用に変換
-    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
-
-    country_choice_display = st.selectbox(
-        "国",
-        countries_display
-    )
 
     # 表示用（日本語） → 内部用（英語）
     if country_choice_display == "すべて":
