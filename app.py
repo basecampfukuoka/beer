@@ -585,12 +585,12 @@ def render_beer_card(r, beer_id_safe, brewery):
     # 左：醸造所情報
     with col1:
         # use img tag here to allow lazy loading; Streamlit's st.image always loads immediately
-        brewery_img = r.get("brewery_image_url") or DEFAULT_BREWERY_IMG
+        brewery_img = r.("brewery_image_url") or DEFAULT_BREWERY_IMG
         st.markdown(f'<img src="{brewery_img}" width="100" loading="lazy">', unsafe_allow_html=True)
-        st.markdown(f"<b>{r.get('brewery_local')}</b><br>{r.get('brewery_jp')}", unsafe_allow_html=True)
+        st.markdown(f"<b>{r.('brewery_local')}</b><br>{r.('brewery_jp')}", unsafe_allow_html=True)
 
-        brewery_city = safe_str(r.get('city'))
-        brewery_country = safe_str(r.get('country'))
+        brewery_city = safe_str(r.('city'))
+        brewery_country = safe_str(r.('country'))
         flag_img = country_flag_url.get(brewery_country, "")
 
         # 国旗付きで city / country を表示
@@ -701,25 +701,25 @@ def render_beer_card(r, beer_id_safe, brewery):
     # 右：ビール情報
     with col3:
         st.markdown(f"<b>{r.name_local}</b><br>{r.name_jp}",unsafe_allow_html=True)
-        style_line = " / ".join(filter(None, [r.get("style_main_jp"), r.get("style_sub_jp")]))
+        style_line = " / ".join(filter(None, [r.("style_main_jp"), r.("style_sub_jp")]))
         st.markdown(style_line, unsafe_allow_html=True)
         info_arr = []
-        if pd.notna(r.get("abv_num")): info_arr.append(f"ABV {r.get('abv_num')}%")
-        if pd.notna(r.get("volume_num")): info_arr.append(f"{int(r.get('volume_num'))}ml")
-        vintage_val = r.get("vintage")
+        if pd.notna(r.("abv_num")): info_arr.append(f"ABV {r.('abv_num')}%")
+        if pd.notna(r.("volume_num")): info_arr.append(f"{int(r.('volume_num'))}ml")
+        vintage_val = r.("vintage")
         if pd.notna(vintage_val) and str(vintage_val).strip() != "":
             info_arr.append(str(vintage_val).strip())
-        if pd.notna(r.get("price_num")):
-            if r.get("price_num") == 0:
+        if pd.notna(r.("price_num")):
+            if r.("price_num") == 0:
                 info_arr.append("ASK")
             else:
-                info_arr.append(f"¥{int(r.get('price_num'))}")
+                info_arr.append(f"¥{int(r.('price_num'))}")
         st.markdown(" | ".join(info_arr), unsafe_allow_html=True)
-        if r.get("comment"):
-            st.markdown(r.get("comment"), unsafe_allow_html=True)
-        if r.get("detailed_comment"):
+        if r.("comment"):
+            st.markdown(r.("comment"), unsafe_allow_html=True)
+        if r.("detailed_comment"):
             st.markdown(
-                f"<details><summary>詳細コメント</summary>{r.get('detailed_comment')}</details>",
+                f"<details><summary>詳細コメント</summary>{r.('detailed_comment')}</details>",
                 unsafe_allow_html=True
             )
 
@@ -814,17 +814,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
-
-
-
-
-
-
-
-
-
-
 
 
 
