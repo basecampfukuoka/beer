@@ -331,18 +331,21 @@ with st.expander("フィルター / 検索を表示", False):
             for s in df["style_main_jp"].dropna().unique():
                 st.session_state[f"style_{s}"] = False
 
-            # 2. その他のUI状態も初期化
+            # 2. removed_ids をリセット ← ★これが抜けてた
+                st.session_state["removed_ids"] = set()
+
+            # 3. その他のUI状態も初期化
             for key in ["search_text", "sort_option", "size_choice", "abv_slider", "price_slider", "country_radio"]:
                 if key in st.session_state:
                     del st.session_state[key]
 
-            # 3. 醸造所詳細・ビール詳細のキーも削除
+            # 4. 醸造所詳細・ビール詳細のキーも削除
                 for key in list(st.session_state.keys()):
                     if key.startswith("show_detail_") or key.startswith("brewery_btn_"):
                         del st.session_state[key]
 
 
-            # 4. 必要に応じて初期値をセット
+            # 5. 必要に応じて初期値をセット
             st.session_state["search_text"] = ""
             st.session_state["sort_option"] = "名前順"
             st.session_state["size_choice"] = "小瓶（≤500ml）"
@@ -839,6 +842,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
