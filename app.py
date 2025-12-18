@@ -589,8 +589,8 @@ def render_beer_card(r, beer_id_safe, brewery):
         st.markdown(f'<img src="{brewery_img}" width="100" loading="lazy">', unsafe_allow_html=True)
         st.markdown(f"<b>{r.brewery_local}</b><br>{r.brewery_jp}",unsafe_allow_html=True)
 
-        brewery_city = safe_str(r.('city'))
-        brewery_country = safe_str(r.('country'))
+        brewery_city = safe_str(r.city)
+        brewery_country = safe_str (r.'country')
         flag_img = country_flag_url.get(brewery_country, "")
 
         # 国旗付きで city / country を表示
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
