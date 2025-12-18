@@ -414,7 +414,7 @@ with st.expander("フィルター / 検索を表示", False):
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
-        st.session_state["country_radio"] = "すべて"
+        st.session_state["country_radio"] = "ベルギー"
 
     # ---- UI（radio）----
     country_choice_display = col_country.radio(
@@ -490,7 +490,7 @@ filtered_base = build_filtered_df(
 
 # ---------- Style UI（差し込み） ----------
 with style_ui_placeholder:
-    styles_available = compute_style_candidates(filtered_base)
+    styles_available = get_style_candidates(filtered_base)
 
     selected_styles = []
 
@@ -602,7 +602,8 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # 醸造所詳細ボタン
     detail_key = f"show_detail_{brewery}_{beer_id_safe}"
-    if detail_key not in st.session_state:
+    for r in display_df.itertuples(index=False):
+        key = f"show_detail_{r.brewery_jp}_{int(r.id)}"
         st.session_state[detail_key] = False
     show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
     if st.button("醸造所詳細を見る", key=show_key):
@@ -613,7 +614,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     # ★ ここで必ず定義する ★
         brewery_beers_all = get_brewery_beers(
-            df_all,          # ← 必ず df_all
+            filtered_base,
             brewery,
             show_take_order,
             show_no_stock
@@ -749,7 +750,7 @@ disable_grouping = (
 # ---------- Render ----------
 if disable_grouping:
     # 🔹 並び順をそのまま表示（醸造所でまとめない）
-    for _, r in display_df.iterrows():
+    for r in display_df.itertuples(index=False):
         try:
             beer_id_safe = int(float(r["id"]))
         except (ValueError, TypeError):
@@ -810,20 +811,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
