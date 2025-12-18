@@ -710,7 +710,7 @@ def render_beer_card(r, beer_id_safe, brewery):
         if pd.notna(vintage_val) and str(vintage_val).strip() != "":
             info_arr.append(str(vintage_val).strip())
         if pd.notna(r."price_num"):
-            if r."price_num") == 0:
+            if r."price_num" == 0:
                 info_arr.append("ASK")
             else:
                 info_arr.append(f"¥{int(r.'price_num')}")
@@ -814,6 +814,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
