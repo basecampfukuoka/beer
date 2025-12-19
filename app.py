@@ -73,6 +73,22 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
+# ---------- Helpers ----------
+def get_countries_for_filter(df, show_take_order, show_no_stock):
+    """
+    現在の在庫フィルタを反映した国リストを返す
+    - show_take_order: 取り寄せも表示
+    - show_no_stock: 在庫なしも表示
+    """
+    d = df[df["stock_status"] == "○"].copy()  # 在庫あり
+    if show_take_order:
+        d = pd.concat([d, df[df["stock_status"] == "△"]])
+    if show_no_stock:
+        d = pd.concat([d, df[df["stock_status"] == "×"]])
+
+    countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
+    return countries
+
 # ---------- Style candidates (cached) ----------
 @st.cache_data
 def get_style_candidates(df):
@@ -796,6 +812,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
