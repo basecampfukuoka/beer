@@ -758,35 +758,32 @@ disable_grouping = (
 
 # ---------- Render ----------
 if disable_grouping:
-    # 🔹 並び順をそのまま表示（醸造所でまとめない）
-    for _, r in display_df.iterrows():
+    for r in display_df.itertuples(index=False):
         try:
-            beer_id_safe = int(float(r['id']))
+            beer_id_safe = int(float(r.id))
         except (ValueError, TypeError):
             continue
 
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        render_beer_card(r, beer_id_safe, r['brewery_jp'])
+        render_beer_card(r._asdict(), beer_id_safe, r.brewery_jp)
 
 else:
-    # 🔹 通常表示（醸造所ごとにまとめる）
     breweries_to_show = display_df["brewery_jp"].unique()
-
     for brewery in breweries_to_show:
         brewery_beers = display_df[display_df["brewery_jp"] == brewery]
 
-        for _, r in brewery_beers.iterrows():
+        for r in brewery_beers.itertuples(index=False):
             try:
-                beer_id_safe = int(float(r['id']))
+                beer_id_safe = int(float(r.id))
             except (ValueError, TypeError):
                 continue
 
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
 
-            render_beer_card(r, beer_id_safe, brewery)
+            render_beer_card(r._asdict(), beer_id_safe, brewery)
 
 
 # ---------- トップへ戻るボタン ----------
