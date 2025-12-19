@@ -535,7 +535,9 @@ elif sort_option == "ABV（低）":
 elif sort_option == "ABV（高）":
     filtered = filtered.sort_values(by="abv_num", ascending=False, na_position="last")
 elif sort_option == "価格（低）":
-    filtered = filtered.sort_values(by="price_num", ascending=True, na_position="last")
+    # price_num が 0（ASK）は極端に大きい値に置き換えて最後に回す
+    filtered["price_sort"] = filtered["price_num"].replace(0, 10**9)
+    filtered = filtered.sort_values(by="price_sort", ascending=True)
 elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
