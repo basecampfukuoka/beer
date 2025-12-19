@@ -435,13 +435,8 @@ with st.expander("フィルター / 検索を表示", False):
     if "country_radio" not in st.session_state:
         st.session_state["country_radio"] = "ベルギー"
 
-    # ---- UI（radio）----
-    country_choice_display = col_country.radio(
-        "国",
-        countries_display,
-        horizontal=True,
-        key="country_radio"
-    )
+    # ---- 国一覧（在庫フィルタ反映）----
+    countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
 
 
     # 表示用（日本語） → 内部用（英語）
@@ -812,6 +807,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
