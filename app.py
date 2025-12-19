@@ -430,6 +430,14 @@ with st.expander("フィルター / 検索を表示", False):
     # 日本語表示用に変換
     countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
 
+    # 日本語表示 → 内部用（英語）変換
+    if country_choice_display == "すべて":
+        country_choice = "すべて"
+    else:
+        country_choice = {v: k for k, v in country_map.items()}.get(
+            country_choice_display, country_choice_display
+        )
+
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
@@ -805,6 +813,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
