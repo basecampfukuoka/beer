@@ -554,15 +554,9 @@ elif sort_option == "スタイル順":
         by="style_main_jp",
         key=lambda x: x.map(locale_key)
     )
-
 elif sort_option == "ランダム順":
-    import numpy as np
-    filtered = (
-        filtered
-        .assign(_rand=np.random.rand(len(filtered)))
-        .sort_values("_rand")
-        .drop("_rand", axis=1)
-    )
+    display_limit = st.session_state.show_limit
+    filtered = filtered.sample(n=min(display_limit, len(filtered)))
 
 
 # ===== 表示処理用 sort flags =====
