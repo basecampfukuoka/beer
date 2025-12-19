@@ -767,7 +767,8 @@ if disable_grouping:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        render_beer_card(r._asdict(), beer_id_safe, r.brewery_jp)
+        # r._asdict() を外す → 属性アクセスのまま
+        render_beer_card(r, beer_id_safe, r.brewery_jp)
 
 else:
     breweries_to_show = display_df["brewery_jp"].unique()
@@ -783,8 +784,7 @@ else:
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
 
-            render_beer_card(r._asdict(), beer_id_safe, brewery)
-
+            render_beer_card(r, beer_id_safe, brewery)
 
 # ---------- トップへ戻るボタン ----------
 st.markdown(
