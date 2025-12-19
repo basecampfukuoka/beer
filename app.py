@@ -362,6 +362,17 @@ with st.expander("フィルター / 検索を表示", False):
             label_visibility="collapsed"
         )
 
+        # ---------- CSS でカーソルを非表示・文字入力不可にする ----------
+        st.markdown("""
+        <style>
+        /* Streamlit selectbox の文字入力を固定化 */
+        div[data-baseweb="select"] input {
+            caret-color: transparent !important;  /* カーソルを消す */
+            pointer-events: none !important;      /* 文字入力を無効化 */
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     with c5:
         # ---------- 修正：完全リセット ----------
         if st.button("🔄 リセット", help="すべて初期化"):
