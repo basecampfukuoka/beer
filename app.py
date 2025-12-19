@@ -418,14 +418,8 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_no_stock"
     )
 
-    # ---- 国一覧（英語）----
-    countries = sorted(
-        df_all["country"]
-        .replace("", pd.NA)
-        .dropna()
-        .unique()
-    )
-
+     # 国リストを在庫フィルタに合わせて取得
+    countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
 
     # 日本語表示用に変換
     countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
@@ -445,6 +439,7 @@ with st.expander("フィルター / 検索を表示", False):
 
     # ---- 国一覧（在庫フィルタ反映）----
     countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
+
 
 
     country_choice_display = col_country.radio(
@@ -813,6 +808,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
