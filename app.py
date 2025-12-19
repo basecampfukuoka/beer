@@ -439,14 +439,12 @@ with st.expander("フィルター / 検索を表示", False):
     countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
 
 
-    # 表示用（日本語） → 内部用（英語）
-    if country_choice_display == "すべて":
-        country_choice = "すべて"
-    else:
-        country_choice = {
-            v: k for k, v in country_map.items()
-        }.get(country_choice_display, country_choice_display)
-
+    country_choice_display = col_country.radio(
+        "国",
+        countries_display,
+        horizontal=True,
+        key="country_radio"
+    )
 
 
     # ===== 3行目：サイズ・ABV・価格 =====
@@ -807,6 +805,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
