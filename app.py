@@ -294,7 +294,7 @@ st.markdown("""
 /* ビール画像を固定幅にして横スクロール可能に */
 .detail-card img {
     width: 180px;          /* 画像は固定幅 */
-    height: auto;
+    height: 180px;
     object-fit: contain;
 }
 
