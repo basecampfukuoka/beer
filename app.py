@@ -421,16 +421,7 @@ with st.expander("フィルター / 検索を表示", False):
      # 国リストを在庫フィルタに合わせて取得
     countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
 
-    # 日本語表示用に変換
-    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
 
-    # 日本語表示 → 内部用（英語）変換
-    if country_choice_display == "すべて":
-        country_choice = "すべて"
-    else:
-        country_choice = {v: k for k, v in country_map.items()}.get(
-            country_choice_display, country_choice_display
-        )
 
 
     # session_state 初期化
@@ -440,6 +431,8 @@ with st.expander("フィルター / 検索を表示", False):
     # ---- 国一覧（在庫フィルタ反映）----
     countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
 
+    # 日本語表示用に変換
+    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
 
 
     country_choice_display = col_country.radio(
@@ -448,6 +441,14 @@ with st.expander("フィルター / 検索を表示", False):
         horizontal=True,
         key="country_radio"
     )
+
+    # 日本語表示 → 内部用（英語）変換
+    if country_choice_display == "すべて":
+        country_choice = "すべて"
+    else:
+        country_choice = {v: k for k, v in country_map.items()}.get(
+            country_choice_display, country_choice_display
+        )
 
 
     # ===== 3行目：サイズ・ABV・価格 =====
