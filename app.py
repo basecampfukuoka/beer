@@ -266,7 +266,7 @@ else:
         for key in list(st.session_state.keys()):
             if key.startswith("show_detail_") or key.startswith("detail_comment_"):
                 st.session_state[key] = False
-       st.session_state.show_limit = 20
+        st.session_state.show_limit = 20
         st.session_state.prev_filter_sig = current_sig
 
 # ---------- Custom CSS ----------
@@ -790,6 +790,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
