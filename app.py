@@ -687,15 +687,6 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     beer_info = " | ".join(info_arr)
 
-    detail_comment_key = f"detail_comment_{beer_id_safe}"
-
-    if detail_comment_key not in st.session_state:
-        st.session_state[detail_comment_key] = False
-
-    with st.expander("詳細コメント", expanded=st.session_state[detail_comment_key]):
-        if r.detailed_comment:
-            st.markdown(r.detailed_comment, unsafe_allow_html=True)
-
     beer_html = f"""
     <b>{r.name_local}</b><br>
     {r.name_jp}<br>
@@ -706,6 +697,16 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     with col3:
         st.markdown(beer_html, unsafe_allow_html=True)
+
+        if r.detailed_comment:
+            detail_comment_key = f"detail_comment_{beer_id_safe}"
+
+            if detail_comment_key not in st.session_state:
+                st.session_state[detail_comment_key] = False
+
+            with st.expander("詳細コメント", expanded=st.session_state[detail_comment_key]):
+                st.markdown(r.detailed_comment, unsafe_allow_html=True)
+
 
     # ---------- ❌ボタン（そのまま） ----------
     with col4:
@@ -790,7 +791,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
 
 
 
