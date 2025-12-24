@@ -388,9 +388,9 @@ with st.expander("フィルター / 検索を表示", False):
                     del st.session_state[key]
 
             # 4. 醸造所詳細・ビール詳細のキーも削除
-                for key in list(st.session_state.keys()):
-                    if key.startswith("show_detail_") or key.startswith("brewery_btn_"):
-                        del st.session_state[key]
+            for key in list(st.session_state.keys()):
+                if key.startswith("show_detail_") or key.startswith("brewery_btn_"):
+                    del st.session_state[key]
 
 
             # 5. 必要に応じて初期値をセット
@@ -584,7 +584,7 @@ def remove_beer(beer_id):
 def render_beer_card(r, beer_id_safe, brewery):
 
     col1, col2, col3, col4 = st.columns(
-        [1.5, 2, 4, 0.5],
+        [2, 2, 3.5, 0.5],
         vertical_alignment="center"
     )
 
