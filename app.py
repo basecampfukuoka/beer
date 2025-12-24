@@ -580,7 +580,7 @@ def remove_beer(beer_id):
     st.session_state["removed_ids"].add(beer_id_int)
 
 
-# --- カード描画関数（属性アクセス版） ---
+# --- カード描画関数（高速・安全版） ---
 def render_beer_card(r, beer_id_safe, brewery):
 
     col1, col2, col3, col4 = st.columns(
@@ -588,32 +588,33 @@ def render_beer_card(r, beer_id_safe, brewery):
         vertical_alignment="center"
     )
 
-    # 左：醸造所情報
+    # ---------- 左：醸造所情報（1 markdown） ----------
+    brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
+    brewery_city = safe_str(r.city)
+    brewery_country = safe_str(r.country)
+    flag_img = country_flag_url.get(brewery_country, "")
+
+    brewery_html = f"""
+    <img src="{brewery_img}" width="100" loading="lazy"><br>
+    <b>{r.brewery_local}</b><br>
+    {r.brewery_jp}<br>
+    {brewery_city}<br>
+    {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
+    """
+
     with col1:
-        brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
-        st.markdown(f'<img src="{brewery_img}" width="100" loading="lazy">', unsafe_allow_html=True)
-        st.markdown(f"<b>{r.brewery_local}</b><br>{r.brewery_jp}", unsafe_allow_html=True)
+        st.markdown(brewery_html, unsafe_allow_html=True)
 
-        brewery_city = safe_str(r.city)
-        brewery_country = safe_str(r.country)
-        flag_img = country_flag_url.get(brewery_country, "")
-
-        if flag_img:
-            st.markdown(
-                f"{brewery_city}<br><img src='{flag_img}' width='20'> {brewery_country}",
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(f"{brewery_city}<br>{brewery_country}", unsafe_allow_html=True)
-
-    # 醸造所詳細ボタン
+    # ---------- 醸造所詳細ボタン（そのまま） ----------
     detail_key = f"show_detail_{brewery}_{beer_id_safe}"
     if detail_key not in st.session_state:
         st.session_state[detail_key] = False
+
     show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
     if st.button("醸造所詳細を見る", key=show_key):
         st.session_state[detail_key] = not st.session_state[detail_key]
 
+    # ---------- 醸造所詳細（そのまま） ----------
     if st.session_state[detail_key]:
 
         brewery_beers_all = get_brewery_beers(
@@ -634,8 +635,9 @@ def render_beer_card(r, beer_id_safe, brewery):
             if pd.notna(b.price_num):
                 price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
             vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
+
             name_local = (b.name_local or "").split("/", 1)[-1].strip()
-            name_jp    = (b.name_jp or "").split("/", 1)[-1].strip()
+            name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
             specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
             cards.append(
@@ -650,68 +652,60 @@ def render_beer_card(r, beer_id_safe, brewery):
         cards.append("</div></div>")
         st.markdown("".join(cards), unsafe_allow_html=True)
 
-    # 中央：ビール画像
+    # ---------- 中央：ビール画像（1 markdown） ----------
+    beer_img = r.beer_image_url or DEFAULT_BEER_IMG
+    untappd_url = r.untappd_url
+
+    image_html = f"""
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
+        <a href="{untappd_url}" target="_blank"
+           style="background:#FFD633;padding:4px 10px;border-radius:6px;
+                  text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
+           UNTAPPD
+        </a>
+    </div>
+    """
+
     with col2:
-        beer_img = r.beer_image_url or DEFAULT_BEER_IMG
-        untappd_url = r.untappd_url
-        st.markdown(
-            f"""
-            <div style="
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100%;
-            ">
-                <img src="{beer_img}" style="height:150px; object-fit: contain;" loading="lazy">
-                <a href="{untappd_url}" target="_blank"
-                    style="
-                        display: inline-block;
-                        background-color: #FFD633;
-                        color: #000;
-                        padding: 4px 10px;
-                        border-radius: 6px;
-                        text-decoration: none;
-                        font-weight: 600;
-                        margin-top: 6px;
-                    ">
-                    UNTAPPD
-                </a>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.markdown(image_html, unsafe_allow_html=True)
 
-    # 右：ビール情報
+    # ---------- 右：ビール情報（1 markdown） ----------
+    style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
+
+    info_arr = []
+    if pd.notna(r.abv_num): info_arr.append(f"ABV {r.abv_num}%")
+    if pd.notna(r.volume_num): info_arr.append(f"{int(r.volume_num)}ml")
+    if pd.notna(r.vintage) and str(r.vintage).strip():
+        info_arr.append(str(r.vintage).strip())
+    if pd.notna(r.price_num):
+        info_arr.append("ASK" if r.price_num == 0 else f"¥{int(r.price_num)}")
+
+    beer_info = " | ".join(info_arr)
+
+    detail_html = (
+        f"<details><summary>詳細コメント</summary>{r.detailed_comment}</details>"
+        if r.detailed_comment else ""
+    )
+
+    beer_html = f"""
+    <b>{r.name_local}</b><br>
+    {r.name_jp}<br>
+    {style_line}<br>
+    {beer_info}<br>
+    {r.comment or ""}
+    {detail_html}
+    """
+
     with col3:
-        st.markdown(f"<b>{r.name_local}</b><br>{r.name_jp}", unsafe_allow_html=True)
-        style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
-        st.markdown(style_line, unsafe_allow_html=True)
+        st.markdown(beer_html, unsafe_allow_html=True)
 
-        info_arr = []
-        if pd.notna(r.abv_num): info_arr.append(f"ABV {r.abv_num}%")
-        if pd.notna(r.volume_num): info_arr.append(f"{int(r.volume_num)}ml")
-        vintage_val = r.vintage
-        if pd.notna(vintage_val) and str(vintage_val).strip() != "":
-            info_arr.append(str(vintage_val).strip())
-        if pd.notna(r.price_num):
-            info_arr.append("ASK" if r.price_num == 0 else f"¥{int(r.price_num)}")
-
-        st.markdown(" | ".join(info_arr), unsafe_allow_html=True)
-
-        if r.comment:
-            st.markdown(r.comment, unsafe_allow_html=True)
-        if r.detailed_comment:
-            st.markdown(
-                f"<details><summary>詳細コメント</summary>{r.detailed_comment}</details>",
-                unsafe_allow_html=True
-            )
-
-    # ❌ボタン
+    # ---------- ❌ボタン（そのまま） ----------
     with col4:
         button_key = f"remove_btn_{beer_id_safe}"
         if st.button("❌", key=button_key):
-            remove_beer(beer_id_safe)zz
+            remove_beer(beer_id_safe)
+
 
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
