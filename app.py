@@ -73,7 +73,7 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-# ---------- Helpers ----------
+
 def get_countries_for_filter(df, show_take_order, show_no_stock):
     """
     現在の在庫フィルタを反映した国リストを返す
@@ -88,6 +88,10 @@ def get_countries_for_filter(df, show_take_order, show_no_stock):
 
     countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
     return countries
+
+def toggle_detail_comment(key):
+    st.session_state[key] = not st.session_state.get(key, False)
+
 
 # ---------- Style candidates (cached) ----------
 @st.cache_data
@@ -706,12 +710,13 @@ def render_beer_card(r, beer_id_safe, brewery):
                 st.session_state[detail_comment_key] = False
 
             # ★ トグルボタン
-            if st.button(
-                "詳細コメントを見る",
+            st.button(
+            "詳細コメントを見る",
                 key=f"detail_comment_btn_{beer_id_safe}"
-            ):
-                st.session_state[detail_comment_key] = not st.session_state[detail_comment_key]
-
+                on_click=toggle_detail_comment,
+                args=(detail_comment_key,)
+            )
+            
             # ★ True のときだけ描画
             if st.session_state[detail_comment_key]:
                 st.markdown(
