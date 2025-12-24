@@ -266,11 +266,12 @@ if "prev_filter_sig" not in st.session_state:
 else:
     current_sig = compute_filter_signature()
     if current_sig != st.session_state.prev_filter_sig:
-        
+        st.session_state.show_limit = 20
+
         for key in list(st.session_state.keys()):
             if key.startswith(("show_detail_", "detail_comment_")):
                 st.session_state[key] = False
-        st.session_state.show_limit = 20
+
         st.session_state.prev_filter_sig = current_sig
 
 # ---------- Custom CSS ----------
@@ -330,6 +331,26 @@ st.markdown("""
 
 </style>
 """, unsafe_allow_html=True)
+
+/* ===== 詳細コメント ▶ 用 ===== */
+
+/* checkboxの四角（チェックマーク）を完全に消す */
+div[data-testid="stCheckbox"] input {
+    display: none;
+}
+
+/* ラベル（▶ 詳細コメントを開く）をリンク風に */
+div[data-testid="stCheckbox"] label {
+    cursor: pointer;
+    color: #1a73e8;
+    font-weight: 500;
+}
+
+/* ホバー時 */
+div[data-testid="stCheckbox"] label:hover {
+    text-decoration: underline;
+}
+
 
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
