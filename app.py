@@ -394,7 +394,7 @@ with st.expander("フィルター / 検索を表示", False):
                     or key.startswith("show_comment_")
                     or key.startswith("comment_btn_")
                 ):
-                del st.session_state[key]
+                    del st.session_state[key]
 
             # 5. 必要に応じて初期値をセット
             st.session_state["search_text"] = ""
