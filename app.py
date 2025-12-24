@@ -262,10 +262,11 @@ if "prev_filter_sig" not in st.session_state:
 else:
     current_sig = compute_filter_signature()
     if current_sig != st.session_state.prev_filter_sig:
-        st.session_state.show_limit = 20
+        
         for key in list(st.session_state.keys()):
-            if key.startswith("show_detail_"):
+            if key.startswith("show_detail_") or key.startswith("detail_comment_"):
                 st.session_state[key] = False
+       st.session_state.show_limit = 20
         st.session_state.prev_filter_sig = current_sig
 
 # ---------- Custom CSS ----------
@@ -686,16 +687,14 @@ def render_beer_card(r, beer_id_safe, brewery):
 
     beer_info = " | ".join(info_arr)
 
-    detail_html = (
-        f"""
-        <details>
-            <summary>詳細コメント</summary>
-            {r.detailed_comment}
-        </details>
-        """
-        if r.detailed_comment and str(r.detailed_comment).strip() else ""
-    )
+    detail_comment_key = f"detail_comment_{beer_id_safe}"
 
+    if detail_comment_key not in st.session_state:
+        st.session_state[detail_comment_key] = False
+
+    with st.expander("詳細コメント", expanded=st.session_state[detail_comment_key]):
+        if r.detailed_comment:
+            st.markdown(r.detailed_comment, unsafe_allow_html=True)
 
     beer_html = f"""
     <b>{r.name_local}</b><br>
