@@ -278,19 +278,24 @@ else:
 st.markdown("""
 <style>
 
-/* ===== 詳細コメント ▶ 用 ===== */
+/* ===== checkbox 完全無効化（▶用） ===== */
 
-/* checkbox本体を消す */
-div[data-testid="stCheckbox"] input {
+/* input 自体 */
+input[type="checkbox"] {
     display: none !important;
 }
 
-/* チェックボックスの四角を作っている疑似要素を消す */
-div[data-testid="stCheckbox"] label::before {
+/* checkbox を描画している疑似要素 */
+label::before,
+label::after {
     display: none !important;
 }
 
-/* 余白も消す */
+/* Streamlit固有のwrapper */
+div[data-testid="stCheckbox"] svg {
+    display: none !important;
+}
+
 div[data-testid="stCheckbox"] label {
     padding-left: 0 !important;
     margin-left: 0 !important;
@@ -299,22 +304,10 @@ div[data-testid="stCheckbox"] label {
     font-weight: 500;
 }
 
-/* ホバー */
 div[data-testid="stCheckbox"] label:hover {
     text-decoration: underline;
 }
 
-
-/* ビール名統一（英語・日本語） */
-.beer-name {
-    width: 180px;             /* カード幅に合わせる */
-    display: block;
-    margin: 0 auto;
-    text-align: center;       /* 中央揃え */
-    white-space: normal;      /* 折り返し有効 */
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
 
 /* 詳細カードデザイン */
 .detail-card { 
