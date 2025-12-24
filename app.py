@@ -707,18 +707,19 @@ def render_beer_card(r, beer_id_safe, brewery):
             detail_comment_key = f"detail_comment_{beer_id_safe}"
 
             if detail_comment_key not in st.session_state:
-                st.session_state[detail_comment_key] = False
+            st.session_state[detail_comment_key] = False
 
-            # ★ トグルUI（これが一番安全）
-            st.checkbox(
-                "詳細コメントを見る",
-                key=detail_comment_key
-            )
-            
-            # ★ True のときだけ描画
+            # ▶ 開く（未オープン時のみ表示）
+            if not st.session_state[detail_comment_key]:
+                st.checkbox(
+                    "▶ 詳細コメントを開く",
+                    key=detail_comment_key
+                )
+
+            # 開いたらコメント表示（リンクは消える）
             if st.session_state[detail_comment_key]:
                 st.markdown(
-                    f"<div class='detail-comment'>{r.detailed_comment}</div>",
+                    f"<div style='margin-top:4px'>{r.detailed_comment}</div>",
                     unsafe_allow_html=True
                 )
 
