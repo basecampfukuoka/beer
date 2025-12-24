@@ -712,7 +712,7 @@ def render_beer_card(r, beer_id_safe, brewery):
             # ★ トグルボタン
             st.button(
             "詳細コメントを見る",
-                key=f"detail_comment_btn_{beer_id_safe}"
+                key=f"detail_comment_btn_{beer_id_safe}",
                 on_click=toggle_detail_comment,
                 args=(detail_comment_key,)
             )
