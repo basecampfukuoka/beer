@@ -698,19 +698,26 @@ def render_beer_card(r, beer_id_safe, brewery):
     with col3:
         st.markdown(beer_html, unsafe_allow_html=True)
 
+        # --- 詳細コメント ---
         if r.detailed_comment:
             detail_comment_key = f"detail_comment_{beer_id_safe}"
 
             if detail_comment_key not in st.session_state:
                 st.session_state[detail_comment_key] = False
+
+            # ★ トグルボタン
+            if st.button(
+                "詳細コメントを見る",
+                key=f"detail_comment_btn_{beer_id_safe}"
+            ):
+                st.session_state[detail_comment_key] = not st.session_state[detail_comment_key]
+
             # ★ True のときだけ描画
             if st.session_state[detail_comment_key]:
-                with st.expander("詳細コメント", expanded=True):
-                    st.markdown(r.detailed_comment, unsafe_allow_html=True)
-            else:
-                # 閉じてる状態（タイトルだけ）
-                with st.expander("詳細コメント", expanded=False):
-                    pass
+                st.markdown(
+                    f"<div class='detail-comment'>{r.detailed_comment}</div>",
+                    unsafe_allow_html=True
+                )
 
     # ---------- ❌ボタン（そのまま） ----------
     with col4:
