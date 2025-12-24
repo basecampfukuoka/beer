@@ -703,10 +703,14 @@ def render_beer_card(r, beer_id_safe, brewery):
 
             if detail_comment_key not in st.session_state:
                 st.session_state[detail_comment_key] = False
-
-            with st.expander("詳細コメント", expanded=st.session_state[detail_comment_key]):
-                st.markdown(r.detailed_comment, unsafe_allow_html=True)
-
+            # ★ True のときだけ描画
+            if st.session_state[detail_comment_key]:
+                with st.expander("詳細コメント", expanded=True):
+                    st.markdown(r.detailed_comment, unsafe_allow_html=True)
+            else:
+                # 閉じてる状態（タイトルだけ）
+                with st.expander("詳細コメント", expanded=False):
+                    pass
 
     # ---------- ❌ボタン（そのまま） ----------
     with col4:
