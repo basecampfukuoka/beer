@@ -280,19 +280,26 @@ st.markdown("""
 
 /* ===== 詳細コメント ▶ 用 ===== */
 
-/* checkboxの四角（チェックマーク）を完全に消す */
+/* checkbox本体を消す */
 div[data-testid="stCheckbox"] input {
-    display: none;
+    display: none !important;
 }
 
-/* ラベル（▶ 詳細コメントを開く）をリンク風に */
+/* チェックボックスの四角を作っている疑似要素を消す */
+div[data-testid="stCheckbox"] label::before {
+    display: none !important;
+}
+
+/* 余白も消す */
 div[data-testid="stCheckbox"] label {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
     cursor: pointer;
     color: #1a73e8;
     font-weight: 500;
 }
 
-/* ホバー時 */
+/* ホバー */
 div[data-testid="stCheckbox"] label:hover {
     text-decoration: underline;
 }
