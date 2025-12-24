@@ -256,13 +256,16 @@ def compute_filter_signature():
     sig = "|".join(keys + style_vals)
     return sig
 
+# ▼ Step2: フィルタが変わったら表示上限をリセット
 if "prev_filter_sig" not in st.session_state:
     st.session_state.prev_filter_sig = compute_filter_signature()
 else:
     current_sig = compute_filter_signature()
     if current_sig != st.session_state.prev_filter_sig:
-        # ▼ Step2: フィルタが変わったら表示上限をリセット
         st.session_state.show_limit = 20
+        for key in list(st.session_state.keys()):
+            if key.startswith("show_detail_"):
+                st.session_state[key] = False
         st.session_state.prev_filter_sig = current_sig
 
 # ---------- Custom CSS ----------
