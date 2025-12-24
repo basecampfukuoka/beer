@@ -711,7 +711,7 @@ def render_beer_card(r, beer_id_safe, brewery):
     with col4:
         button_key = f"remove_btn_{beer_id_safe}"
         if st.button("❌", key=button_key):
-            remove_beer(beer_id_safe)
+            remove_beer(beer_id_safe)zz
 
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
