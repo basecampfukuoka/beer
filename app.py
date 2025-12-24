@@ -276,6 +276,26 @@ else:
 
 # ---------- Custom CSS ----------
 st.markdown("""
+
+/* ===== 詳細コメント ▶ 用 ===== */
+
+/* checkboxの四角（チェックマーク）を完全に消す */
+div[data-testid="stCheckbox"] input {
+    display: none;
+}
+
+/* ラベル（▶ 詳細コメントを開く）をリンク風に */
+div[data-testid="stCheckbox"] label {
+    cursor: pointer;
+    color: #1a73e8;
+    font-weight: 500;
+}
+
+/* ホバー時 */
+div[data-testid="stCheckbox"] label:hover {
+    text-decoration: underline;
+}
+
 <style>
 /* ビール名統一（英語・日本語） */
 .beer-name {
@@ -332,24 +352,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-/* ===== 詳細コメント ▶ 用 ===== */
 
-/* checkboxの四角（チェックマーク）を完全に消す */
-div[data-testid="stCheckbox"] input {
-    display: none;
-}
-
-/* ラベル（▶ 詳細コメントを開く）をリンク風に */
-div[data-testid="stCheckbox"] label {
-    cursor: pointer;
-    color: #1a73e8;
-    font-weight: 500;
-}
-
-/* ホバー時 */
-div[data-testid="stCheckbox"] label:hover {
-    text-decoration: underline;
-}
 
 
 # ---------- Filters UI ----------
