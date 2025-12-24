@@ -234,7 +234,7 @@ df_instock = df[df["stock_status"] == "○"]
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
-    st.session_state.show_limit = 20   # ▼ Step1: 初期表示件数（20件）
+    st.session_state.show_limit = 10   # ▼ Step1: 初期表示件数（10件）
 if "removed_ids" not in st.session_state:
     st.session_state["removed_ids"] = set()
 
@@ -262,7 +262,7 @@ else:
     current_sig = compute_filter_signature()
     if current_sig != st.session_state.prev_filter_sig:
         # ▼ Step2: フィルタが変わったら表示上限をリセット
-        st.session_state.show_limit = 20
+        st.session_state.show_limit = 10
         st.session_state.prev_filter_sig = current_sig
 
 # ---------- Custom CSS ----------
@@ -773,12 +773,12 @@ st.markdown(
 )
 
 # ---------- "もっと見る" ボタン (Step1 continuation) ----------
-# Show button below the list; if clicked, increase limit by 20
+# Show button below the list; if clicked, increase limit by 10
 if st.session_state.show_limit < len(filtered):
     # use container to place button nicely
     with st.container():
         if st.button("🔽もっと見る🔽", use_container_width=True):
-            st.session_state.show_limit += 20
+            st.session_state.show_limit += 10
             st.rerun()
 else:
     # optional: show nothing or a small message
