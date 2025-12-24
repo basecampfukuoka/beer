@@ -276,6 +276,7 @@ else:
 
 # ---------- Custom CSS ----------
 st.markdown("""
+<style>
 
 /* ===== 詳細コメント ▶ 用 ===== */
 
@@ -296,7 +297,7 @@ div[data-testid="stCheckbox"] label:hover {
     text-decoration: underline;
 }
 
-<style>
+
 /* ビール名統一（英語・日本語） */
 .beer-name {
     width: 180px;             /* カード幅に合わせる */
