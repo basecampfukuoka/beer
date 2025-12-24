@@ -707,7 +707,7 @@ def render_beer_card(r, beer_id_safe, brewery):
             detail_comment_key = f"detail_comment_{beer_id_safe}"
 
             if detail_comment_key not in st.session_state:
-            st.session_state[detail_comment_key] = False
+                st.session_state[detail_comment_key] = False
 
             # ▶ 開く（未オープン時のみ表示）
             if not st.session_state[detail_comment_key]:
