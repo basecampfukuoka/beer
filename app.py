@@ -687,9 +687,15 @@ def render_beer_card(r, beer_id_safe, brewery):
     beer_info = " | ".join(info_arr)
 
     detail_html = (
-        f"<details><summary>詳細コメント</summary>{r.detailed_comment}</details>"
-        if r.detailed_comment else ""
+        f"""
+        <details>
+            <summary>詳細コメント</summary>
+            {r.detailed_comment}
+        </details>
+        """
+        if r.detailed_comment and str(r.detailed_comment).strip() else ""
     )
+
 
     beer_html = f"""
     <b>{r.name_local}</b><br>
