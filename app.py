@@ -407,45 +407,6 @@ with st.expander("フィルター / 検索を表示", False):
 
             st.rerun()
 
-
-with c5:
-    # ---------- 完全リセット ----------
-    if st.button("🔄 リセット", help="すべて初期化"):
-
-        # 1. スタイルチェックボックスをリセット
-        for s in df["style_main_jp"].dropna().unique():
-            st.session_state[f"style_{s}"] = False
-
-        # 2. removed_ids をリセット
-        st.session_state["removed_ids"] = set()
-
-        # 3. その他のUI状態を削除
-        for key in ["search_text", "sort_option", "size_choice",
-                    "abv_slider", "price_slider", "country_radio"]:
-            st.session_state.pop(key, None)
-
-        # 4. 詳細系トグルをすべて閉じる
-        for key in list(st.session_state.keys()):
-            if (
-                key.startswith("show_detail_")
-                or key.startswith("brewery_btn_")
-                or key.startswith("show_comment_")
-                or key.startswith("comment_btn_")
-            ):
-                del st.session_state[key]
-
-        # 5. 初期値を再セット
-        st.session_state["search_text"] = ""
-        st.session_state["sort_option"] = "名前順"
-        st.session_state["size_choice"] = "小瓶（≤500ml）"
-        st.session_state["abv_slider"] = (0.0, 20.0)
-        st.session_state["price_slider"] = (0, 20000)
-        st.session_state["show_take_order"] = False
-        st.session_state["show_no_stock"] = False
-
-        st.rerun()
-
-
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
     col_country, col_stock1, col_stock2 = st.columns([4,1,1])
 
