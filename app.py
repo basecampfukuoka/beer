@@ -686,16 +686,16 @@ def render_beer_card(r, beer_id_safe, brewery):
         beer_info = " | ".join(info_arr)
 
         # --- 基本情報 ---
-            st.markdown(
-                f"""
-                <b>{r.name_local}</b><br>
-                {r.name_jp}<br>
-                {style_line}<br>
-                {beer_info}<br>
-                {r.comment or ""}
-                """,
-                unsafe_allow_html=True
-            )
+        st.markdown(
+            f"""
+            <b>{r.name_local}</b><br>
+            {r.name_jp}<br>
+            {style_line}<br>
+            {beer_info}<br>
+            {r.comment or ""}
+            """,
+            unsafe_allow_html=True
+        )
 
         detail_key = f"show_comment_{beer_id_safe}"
         if detail_key not in st.session_state:
