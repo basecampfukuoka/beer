@@ -701,19 +701,23 @@ def render_beer_card(r, beer_id_safe, brewery):
         if detail_key not in st.session_state:
             st.session_state[detail_key] = False
 
-        # ★ ここが重要：state を直接反転
+
         if r.detailed_comment:
-            if st.button(
-                "詳細コメント" if not st.session_state[detail_key] else "詳細コメント",
-                key=f"comment_btn_{beer_id_safe}"
-            ):
-                st.session_state[detail_key] = not st.session_state[detail_key]
-        # --- 詳細コメント描画 ---
-        if st.session_state[detail_key] and r.detailed_comment:
-            st.markdown(
-                f"<div class='detail-comment'>{r.detailed_comment}</div>",
-                unsafe_allow_html=True
+            label = (
+                "閉じる"
+                if st.session_state[detail_key]
+                else "詳細コメント"
             )
+
+            if st.button(label, key=f"comment_btn_{beer_id_safe}"):
+                st.session_state[detail_key] = not st.session_state[detail_key]
+
+           # --- 詳細コメント描画 ---
+            if st.session_state[detail_key] and r.detailed_comment:
+                st.markdown(
+                    f"<div class='detail-comment'>{r.detailed_comment}</div>",
+                    unsafe_allow_html=True
+                )
 
     # ---------- ❌ボタン（そのまま） ----------
     with col4:
