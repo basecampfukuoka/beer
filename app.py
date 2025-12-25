@@ -704,7 +704,7 @@ def render_beer_card(r, beer_id_safe, brewery):
         # ★ ここが重要：state を直接反転
         if r.detailed_comment:
             if st.button(
-                "詳細コメントを見る" if not st.session_state[detail_key] else "詳細コメントを閉じる",
+                "詳細コメント" if not st.session_state[detail_key] else "閉じる",
                 key=f"comment_btn_{beer_id_safe}"
             ):
                 st.session_state[detail_key] = not st.session_state[detail_key]
