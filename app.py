@@ -380,7 +380,7 @@ with st.expander("フィルター / 検索を表示", False):
                 st.session_state[f"style_{s}"] = False
 
             # 2. removed_ids をリセット ← ★これが抜けてた
-                st.session_state["removed_ids"] = set()
+            st.session_state["removed_ids"] = set()
 
             # 3. その他のUI状態も初期化
             for key in ["search_text", "sort_option", "size_choice", "abv_slider", "price_slider", "country_radio"]:
@@ -532,7 +532,7 @@ with style_ui_placeholder:
 
 # ---------- 表示条件スナップショット ----------
 current_view_state = (
-    tuple(sorted(selected_styles)),,
+    tuple(sorted(selected_styles)),
     st.session_state.get("sort_option"),
     st.session_state.get("country_radio"),
     st.session_state.get("search_text"),
