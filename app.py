@@ -602,35 +602,39 @@ def render_beer_card(r, beer_id_safe, brewery):
         [2.5, 5],
         vertical_alignment="center"
     )
-    # ---------- 左カラム（醸造所情報 + ビール画像） ----------
+
     # --- 醸造所情報 ---
-    brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
-    brewery_city = safe_str(r.city)
-    brewery_country = safe_str(r.country)
-    flag_img = country_flag_url.get(brewery_country, "")
+    with col1:
+        st.markdown(brewery_html, unsafe_allow_html=True)
+        st.markdown(image_html, unsafe_allow_html=True)
 
-    brewery_html = f"""
-    <img src="{brewery_img}" width="100" loading="lazy"><br>
-    <b>{r.brewery_local}</b><br>
-    {r.brewery_jp}<br>
-    {brewery_city}<br>
-    {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
-    """
+        brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
+        brewery_city = safe_str(r.city)
+        brewery_country = safe_str(r.country)
+        flag_img = country_flag_url.get(brewery_country, "")
 
-    # --- ビール画像 ---
-    beer_img = r.beer_image_url or DEFAULT_BEER_IMG
-    untappd_url = r.untappd_url
+        brewery_html = f"""
+        <img src="{brewery_img}" width="100" loading="lazy"><br>
+        <b>{r.brewery_local}</b><br>
+        {r.brewery_jp}<br>
+        {brewery_city}<br>
+        {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
+        """
 
-    image_html = f"""
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-        <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
-        <a href="{untappd_url}" target="_blank"
-           style="background:#FFD633;padding:4px 10px;border-radius:6px;
-                  text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
-           UNTAPPD
-        </a>
-    </div>
-    """
+        # --- ビール画像 ---
+        beer_img = r.beer_image_url or DEFAULT_BEER_IMG
+        untappd_url = r.untappd_url
+
+        image_html = f"""
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
+            <a href="{untappd_url}" target="_blank"
+               style="background:#FFD633;padding:4px 10px;border-radius:6px;
+                      text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
+               UNTAPPD
+            </a>
+        </div>
+        """
 
     # ---------- 右：ビール情報（1 markdown） ----------
     with col2:
