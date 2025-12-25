@@ -630,9 +630,15 @@ def render_beer_card(r, beer_id_safe, brewery):
     col1, col2 = st.columns([1,1], vertical_alignment="center")
 
     # ---------- col1 左：醸造所・ビール画像 ----------
+
     with col1:
-        st.markdown(brewery_html, unsafe_allow_html=True)
-        st.markdown(image_html, unsafe_allow_html=True)
+        left, right = st.columns([1.2, 1])
+
+        with left:
+            st.markdown(brewery_html, unsafe_allow_html=True)
+
+        with right:
+            st.markdown(image_html, unsafe_allow_html=True)
 
         detail_key = f"show_detail_{brewery}_{beer_id_safe}"
         if detail_key not in st.session_state:
