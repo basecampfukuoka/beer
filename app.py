@@ -598,45 +598,51 @@ def remove_beer(beer_id):
 # --- カード描画関数（高速・安全版） ---
 def render_beer_card(r, beer_id_safe, brewery):
 
-    col1, col2 = st.columns(
-        [2.5, 5],
-        vertical_alignment="center"
-    )
+    # ---------- 変数定義（必ず col の外） ----------
+    brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
+    brewery_city = safe_str(r.city)
+    brewery_country = safe_str(r.country)
+    flag_img = country_flag_url.get(brewery_country, "")
 
-    # --- 醸造所情報 ---
+    brewery_html = f"""
+    <img src="{brewery_img}" width="100" loading="lazy"><br>
+    <b>{r.brewery_local}</b><br>
+    {r.brewery_jp}<br>
+    {brewery_city}<br>
+    {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
+    """
+
+    beer_img = r.beer_image_url or DEFAULT_BEER_IMG
+    untappd_url = r.untappd_url
+
+    image_html = f"""
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
+        <a href="{untappd_url}" target="_blank"
+           style="background:#FFD633;padding:4px 10px;border-radius:6px;
+                  text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
+           UNTAPPD
+        </a>
+    </div>
+    """
+
+    # ---------- レイアウト ----------
+    col1, col2 = st.columns([1,1], vertical_alignment="center")
+
+    # ---------- col1 左：醸造所・ビール画像 ----------
     with col1:
         st.markdown(brewery_html, unsafe_allow_html=True)
         st.markdown(image_html, unsafe_allow_html=True)
 
-        brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
-        brewery_city = safe_str(r.city)
-        brewery_country = safe_str(r.country)
-        flag_img = country_flag_url.get(brewery_country, "")
+        detail_key = f"show_detail_{brewery}_{beer_id_safe}"
+        if detail_key not in st.session_state:
+            st.session_state[detail_key] = False
 
-        brewery_html = f"""
-        <img src="{brewery_img}" width="100" loading="lazy"><br>
-        <b>{r.brewery_local}</b><br>
-        {r.brewery_jp}<br>
-        {brewery_city}<br>
-        {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
-        """
+        if st.button("醸造所詳細を見る", key=f"brewery_btn_{brewery}_{beer_id_safe}"):
+            st.session_state[detail_key] = not st.session_state[detail_key]
 
-        # --- ビール画像 ---
-        beer_img = r.beer_image_url or DEFAULT_BEER_IMG
-        untappd_url = r.untappd_url
 
-        image_html = f"""
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
-            <a href="{untappd_url}" target="_blank"
-               style="background:#FFD633;padding:4px 10px;border-radius:6px;
-                      text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
-               UNTAPPD
-            </a>
-        </div>
-        """
-
-    # ---------- 右：ビール情報（1 markdown） ----------
+    # ---------- col2 右：ビール情報  ----------
     with col2:
         style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
 
