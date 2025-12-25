@@ -581,6 +581,7 @@ def remove_beer(beer_id):
     st.session_state["removed_ids"].add(beer_id_int)
 
 
+
 # --- カード描画関数（高速・安全版） ---
 def render_beer_card(r, beer_id_safe, brewery):
 
@@ -704,7 +705,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
         if r.detailed_comment:
             label = (
-                "閉じる"
+                "詳細コメント"
                 if st.session_state[detail_key]
                 else "詳細コメント"
             )
@@ -739,6 +740,30 @@ disable_grouping = (
     or is_abv_high_sort
     or is_random_sort
 )
+
+# ---------- 表示条件スナップショット ----------
+current_view_state = (
+    tuple(sorted(style_selected)),
+    st.session_state.get("sort_option"),
+    st.session_state.get("country_radio"),
+    st.session_state.get("search_text"),
+    st.session_state.get("size_choice"),
+    st.session_state.get("abv_slider"),
+    st.session_state.get("price_slider"),
+    st.session_state.get("show_take_order"),
+    st.session_state.get("show_no_stock"),
+)
+# ---------- 表示条件が変わったら詳細系を閉じる ----------
+if "prev_view_state" not in st.session_state:
+    st.session_state["prev_view_state"] = current_view_state
+
+if st.session_state["prev_view_state"] != current_view_state:
+    for key in list(st.session_state.keys()):
+        if key.startswith(("show_comment_", "show_detail_")):
+            del st.session_state[key]
+
+st.session_state["prev_view_state"] = current_view_state
+
 
 
 # ---------- Render ----------
