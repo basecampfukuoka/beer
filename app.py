@@ -706,10 +706,6 @@ def render_beer_card(r, beer_id_safe, brewery):
     {detail_html}
     """
 
-    # E
-    st.markdown(beer_html, unsafe_allow_html=True)
-
-
     with col3:
         st.markdown(beer_html, unsafe_allow_html=True)
 
