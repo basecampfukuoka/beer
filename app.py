@@ -685,6 +685,18 @@ def render_beer_card(r, beer_id_safe, brewery):
 
         beer_info = " | ".join(info_arr)
 
+        # --- 基本情報 ---
+            st.markdown(
+                f"""
+                <b>{r.name_local}</b><br>
+                {r.name_jp}<br>
+                {style_line}<br>
+                {beer_info}<br>
+                {r.comment or ""}
+                """,
+                unsafe_allow_html=True
+            )
+
         detail_key = f"show_comment_{beer_id_safe}"
         if detail_key not in st.session_state:
             st.session_state[detail_key] = False
@@ -697,16 +709,6 @@ def render_beer_card(r, beer_id_safe, brewery):
             f"<div class='detail-comment'>{r.detailed_comment}</div>"
             if st.session_state[detail_key] and r.detailed_comment else ""
         )
-
-        beer_html = f"""
-        <b>{r.name_local}</b><br>
-        {r.name_jp}<br>
-        {style_line}<br>
-        {beer_info}<br>
-        {r.comment or ""}
-        {detail_html}
-        """
-        st.markdown(beer_html, unsafe_allow_html=True)
 
     # ---------- ❌ボタン（そのまま） ----------
     with col4:
