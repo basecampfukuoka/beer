@@ -627,7 +627,7 @@ def render_beer_card(r, beer_id_safe, brewery):
     """
 
     # ---------- レイアウト ----------
-    col1, col2 = st.columns([1,1], vertical_alignment="center")
+    col1, col2 = st.columns([1,2], vertical_alignment="center")
 
     # ---------- col1 左：醸造所・ビール画像 ----------
 
