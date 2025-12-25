@@ -632,7 +632,7 @@ def render_beer_card(r, beer_id_safe, brewery):
     # ---------- col1 左：醸造所・ビール画像 ----------
 
     with col1:
-        left, right = st.columns([1.2, 1])
+        left, right = st.columns([1, 1])
 
         with left:
             st.markdown(brewery_html, unsafe_allow_html=True)
