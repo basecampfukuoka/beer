@@ -603,71 +603,34 @@ def render_beer_card(r, beer_id_safe, brewery):
         vertical_alignment="center"
     )
     # ---------- 左カラム（醸造所情報 + ビール画像） ----------
-    with col1:
-        # --- 醸造所情報 ---
-        st.markdown(brewery_html, unsafe_allow_html=True)
+    # --- 醸造所情報 ---
+    brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
+    brewery_city = safe_str(r.city)
+    brewery_country = safe_str(r.country)
+    flag_img = country_flag_url.get(brewery_country, "")
 
-        # --- 醸造所詳細ボタン ---
-        if st.button("醸造所詳細を見る", key=show_key):
-            st.session_state[detail_key] = not st.session_state[detail_key]
+    brewery_html = f"""
+    <img src="{brewery_img}" width="100" loading="lazy"><br>
+    <b>{r.brewery_local}</b><br>
+    {r.brewery_jp}<br>
+    {brewery_city}<br>
+    {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
+    """
 
-        # --- 醸造所詳細 ---
-        if st.session_state[detail_key]:
+    # --- ビール画像 ---
+    beer_img = r.beer_image_url or DEFAULT_BEER_IMG
+    untappd_url = r.untappd_url
 
-            brewery_beers_all = get_brewery_beers(
-                filtered_base,
-                brewery,
-                show_take_order,
-                show_no_stock
-            )
-
-            st.markdown("### この醸造所のビール一覧")
-
-            cards = [
-                '<div class="brewery-beer-list">'
-                '<div style="white-space: nowrap; overflow-x: auto;">'
-            ]
-
-            for b in brewery_beers_all.itertuples(index=False):
-                abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
-                vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
-                price = ""
-                if pd.notna(b.price_num):
-                    price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
-                vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
-
-                name_local = (b.name_local or "").split("/", 1)[-1].strip()
-                name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
-                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
-
-                cards.append(
-                    '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
-                    f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
-                    f'<div class="beer-name"><b>{name_local}</b></div>'
-                    f'<div class="beer-name">{name_jp}</div>'
-                    f'<div class="beer-spec">{specs}</div>'
-                    '</div>'
-                )
-
-            cards.append("</div></div>")
-            st.markdown("".join(cards), unsafe_allow_html=True)
-
-        # --- ビール画像 + UNTAPPD ---
-        beer_img = r.beer_image_url or DEFAULT_BEER_IMG
-        untappd_url = r.untappd_url
-
-        image_html = f"""
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:8px;">
-            <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
-            <a href="{untappd_url}" target="_blank"
-               style="background:#FFD633;padding:4px 10px;border-radius:6px;
-                      text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
-               UNTAPPD
-            </a>
-        </div>
-        """
-
-        st.markdown(image_html, unsafe_allow_html=True)
+    image_html = f"""
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
+        <a href="{untappd_url}" target="_blank"
+           style="background:#FFD633;padding:4px 10px;border-radius:6px;
+                  text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
+           UNTAPPD
+        </a>
+    </div>
+    """
 
     # ---------- 右：ビール情報（1 markdown） ----------
     with col2:
