@@ -632,20 +632,47 @@ def render_beer_card(r, beer_id_safe, brewery):
     # ---------- col1 左：醸造所・ビール画像 ----------
 
     with col1:
-        left, right = st.columns([1, 1])
+        st.markdown(
+            f"""
+            <div style="
+                display:flex;
+                flex-direction:row;
+                align-items:center;
+                gap:6px;
+            ">
+                <!-- 醸造所情報 -->
+                <div>
+                    <img src="{brewery_img}" width="90" loading="lazy"><br>
+                    <b>{r.brewery_local}</b><br>
+                    {r.brewery_jp}<br>
+                    {brewery_city}<br>
+                    {"<img src='"+flag_img+"' width='18'> "+brewery_country if flag_img else brewery_country}
+                </div>
 
-        with left:
-            st.markdown(brewery_html, unsafe_allow_html=True)
+                <!-- ビール画像 + UNTAPPD -->
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <img src="{beer_img}"
+                         style="height:120px; object-fit:contain"
+                         loading="lazy">
 
-        with right:
-            st.markdown(image_html, unsafe_allow_html=True)
-
-        detail_key = f"show_detail_{brewery}_{beer_id_safe}"
-        if detail_key not in st.session_state:
-            st.session_state[detail_key] = False
-
-        if st.button("醸造所詳細を見る", key=f"brewery_btn_{brewery}_{beer_id_safe}"):
-            st.session_state[detail_key] = not st.session_state[detail_key]
+                    <a href="{untappd_url}" target="_blank"
+                       style="
+                           margin-top:4px;
+                           background:#FFD633;
+                           padding:3px 8px;
+                           border-radius:6px;
+                           text-decoration:none;
+                           color:#000;
+                           font-weight:600;
+                           font-size:12px;
+                       ">
+                       UNTAPPD
+                    </a>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
     # ---------- col2 右：ビール情報  ----------
