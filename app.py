@@ -637,22 +637,29 @@ def render_beer_card(r, beer_id_safe, brewery):
             <div style="
                 display:flex;
                 flex-direction:row;
-                align-items:center;
-                gap:6px;
+                align-items:flex-start;   /* ★ center → flex-start */
+                gap:8px;                  /* ★ 6 → 8（自然な詰まり） */
             ">
+
                 <!-- 醸造所情報 -->
-                <div>
-                    <img src="{brewery_img}" width="90" loading="lazy"><br>
+                <div style="line-height:1.2;">  <!-- ★ 行間を詰める -->
+                    <img src="{brewery_img}" width="90" loading="lazy"
+                         style="margin-bottom:4px;"><br>
                     <b>{r.brewery_local}</b><br>
                     {r.brewery_jp}<br>
                     {brewery_city}<br>
-                    {"<img src='"+flag_img+"' width='18'> "+brewery_country if flag_img else brewery_country}
+                    {"<img src='"+flag_img+"' width='18' style='vertical-align:middle;'> "+brewery_country if flag_img else brewery_country}
                 </div>
 
                 <!-- ビール画像 + UNTAPPD -->
-                <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="
+                    display:flex;
+                    flex-direction:column;
+                    align-items:center;
+                    margin-top:2px;        /* ★ 上のズレを微調整 */
+                ">
                     <img src="{beer_img}"
-                         style="height:120px; object-fit:contain"
+                         style="height:120px; object-fit:contain; margin:0;"
                          loading="lazy">
 
                     <a href="{untappd_url}" target="_blank"
@@ -669,6 +676,7 @@ def render_beer_card(r, beer_id_safe, brewery):
                        UNTAPPD
                     </a>
                 </div>
+
             </div>
             """,
             unsafe_allow_html=True
