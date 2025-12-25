@@ -672,41 +672,40 @@ def render_beer_card(r, beer_id_safe, brewery):
         st.markdown(image_html, unsafe_allow_html=True)
 
     # ---------- 右：ビール情報（1 markdown） ----------
-    style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
-
-    info_arr = []
-    if pd.notna(r.abv_num): info_arr.append(f"ABV {r.abv_num}%")
-    if pd.notna(r.volume_num): info_arr.append(f"{int(r.volume_num)}ml")
-    if pd.notna(r.vintage) and str(r.vintage).strip():
-        info_arr.append(str(r.vintage).strip())
-    if pd.notna(r.price_num):
-        info_arr.append("ASK" if r.price_num == 0 else f"¥{int(r.price_num)}")
-
-    beer_info = " | ".join(info_arr)
-
-    detail_key = f"show_comment_{beer_id_safe}"
-    if detail_key not in st.session_state:
-        st.session_state[detail_key] = False
-
-    if r.detailed_comment:
-        if st.button("詳細コメントを見る", key=f"comment_btn_{beer_id_safe}"):
-            st.session_state[detail_key] = not st.session_state[detail_key]
-
-    detail_html = (
-        f"<div class='detail-comment'>{r.detailed_comment}</div>"
-        if st.session_state[detail_key] and r.detailed_comment else ""
-    )
-
-    beer_html = f"""
-    <b>{r.name_local}</b><br>
-    {r.name_jp}<br>
-    {style_line}<br>
-    {beer_info}<br>
-    {r.comment or ""}
-    {detail_html}
-    """
-
     with col3:
+        style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
+
+        info_arr = []
+        if pd.notna(r.abv_num): info_arr.append(f"ABV {r.abv_num}%")
+        if pd.notna(r.volume_num): info_arr.append(f"{int(r.volume_num)}ml")
+        if pd.notna(r.vintage) and str(r.vintage).strip():
+            info_arr.append(str(r.vintage).strip())
+        if pd.notna(r.price_num):
+            info_arr.append("ASK" if r.price_num == 0 else f"¥{int(r.price_num)}")
+
+        beer_info = " | ".join(info_arr)
+
+        detail_key = f"show_comment_{beer_id_safe}"
+        if detail_key not in st.session_state:
+            st.session_state[detail_key] = False
+
+        if r.detailed_comment:
+            if st.button("詳細コメントを見る", key=f"comment_btn_{beer_id_safe}"):
+                st.session_state[detail_key] = not st.session_state[detail_key]
+
+        detail_html = (
+            f"<div class='detail-comment'>{r.detailed_comment}</div>"
+            if st.session_state[detail_key] and r.detailed_comment else ""
+        )
+
+        beer_html = f"""
+        <b>{r.name_local}</b><br>
+        {r.name_jp}<br>
+        {style_line}<br>
+        {beer_info}<br>
+        {r.comment or ""}
+        {detail_html}
+        """
         st.markdown(beer_html, unsafe_allow_html=True)
 
     # ---------- ❌ボタン（そのまま） ----------
