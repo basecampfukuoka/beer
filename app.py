@@ -530,7 +530,20 @@ with style_ui_placeholder:
             if cols[i % len(cols)].checkbox(s, key=key):
                 selected_styles.append(s)
 
-# ---------- Step4: style 選択を filtered に適用 ----------
+# ---------- 表示条件スナップショット ----------
+current_view_state = (
+    tuple(sorted(selected_styles)),,
+    st.session_state.get("sort_option"),
+    st.session_state.get("country_radio"),
+    st.session_state.get("search_text"),
+    st.session_state.get("size_choice"),
+    st.session_state.get("abv_slider"),
+    st.session_state.get("price_slider"),
+    st.session_state.get("show_take_order"),
+    st.session_state.get("show_no_stock"),
+)
+
+# ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
 if selected_styles:
     filtered = filtered[
@@ -741,18 +754,7 @@ disable_grouping = (
     or is_random_sort
 )
 
-# ---------- 表示条件スナップショット ----------
-current_view_state = (
-    tuple(sorted(style_selected)),
-    st.session_state.get("sort_option"),
-    st.session_state.get("country_radio"),
-    st.session_state.get("search_text"),
-    st.session_state.get("size_choice"),
-    st.session_state.get("abv_slider"),
-    st.session_state.get("price_slider"),
-    st.session_state.get("show_take_order"),
-    st.session_state.get("show_no_stock"),
-)
+
 # ---------- 表示条件が変わったら詳細系を閉じる ----------
 if "prev_view_state" not in st.session_state:
     st.session_state["prev_view_state"] = current_view_state
