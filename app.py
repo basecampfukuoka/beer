@@ -642,17 +642,16 @@ def render_beer_card(r, beer_id_safe, brewery):
                     {"<img src='"+flag_img+"' width='18'> "+brewery_country if flag_img else brewery_country}
                 </div>
 
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <img src="{beer_img}" style="height:120px; object-fit:contain" loading="lazy">
-                    <a href="{untappd_url}" target="_blank"
-                       style="margin-top:4px;background:#FFD633;padding:3px 8px;
-                              border-radius:6px;text-decoration:none;color:#000;
-                              font-weight:600;font-size:12px;">
-                       UNTAPPD
-                    </a>
-                </div>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <img src="{beer_img}" style="height:120px; object-fit:contain" loading="lazy">
+                <a href="{untappd_url}" target="_blank"
+                    style="margin-top:4px;background:#FFD633;padding:3px 8px;
+                          border-radius:6px;text-decoration:none;color:#000;
+                          font-weight:600;font-size:12px;">
+                    UNTAPPD
+                </a>
             </div>
-            """,
+        </div>""",
             unsafe_allow_html=True
         )
 
