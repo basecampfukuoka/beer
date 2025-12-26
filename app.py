@@ -632,8 +632,6 @@ def render_beer_card(r, beer_id_safe, brewery):
     # ---------- col1 左：醸造所・ビール画像 ----------
     with col1:
         st.markdown(
-with col1:
-    st.markdown(
     f"""<div style="display:flex; flex-direction:row; align-items:center; gap:6px;">
         <div>
             <img src="{brewery_img}" width="90" loading="lazy"><br>
