@@ -632,26 +632,27 @@ def render_beer_card(r, beer_id_safe, brewery):
     # ---------- col1 左：醸造所・ビール画像 ----------
     with col1:
         st.markdown(
-            f"""
-            <div style="display:flex; flex-direction:row; align-items:center; gap:6px;">
-                <div>
-                    <img src="{brewery_img}" width="90" loading="lazy"><br>
-                    <b>{r.brewery_local}</b><br>
-                    {r.brewery_jp}<br>
-                    {brewery_city}<br>
-                    {"<img src='"+flag_img+"' width='18'> "+brewery_country if flag_img else brewery_country}
-                </div>
+with col1:
+    st.markdown(
+    f"""<div style="display:flex; flex-direction:row; align-items:center; gap:6px;">
+        <div>
+            <img src="{brewery_img}" width="90" loading="lazy"><br>
+            <b>{r.brewery_local}</b><br>
+            {r.brewery_jp}<br>
+            {brewery_city}<br>
+            {"<img src='"+flag_img+"' width='18'> "+brewery_country if flag_img else brewery_country}
+        </div>
 
-            <div style="display:flex; flex-direction:column; align-items:center;">
-                <img src="{beer_img}" style="height:120px; object-fit:contain" loading="lazy">
-                <a href="{untappd_url}" target="_blank"
-                    style="margin-top:4px;background:#FFD633;padding:3px 8px;
-                          border-radius:6px;text-decoration:none;color:#000;
-                          font-weight:600;font-size:12px;">
-                    UNTAPPD
-                </a>
-            </div>
-        </div>""",
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <img src="{beer_img}" style="height:120px; object-fit:contain" loading="lazy">
+            <a href="{untappd_url}" target="_blank"
+               style="margin-top:4px;background:#FFD633;padding:3px 8px;
+                      border-radius:6px;text-decoration:none;color:#000;
+                      font-weight:600;font-size:12px;">
+               UNTAPPD
+            </a>
+        </div>
+    </div>""",
             unsafe_allow_html=True
         )
 
