@@ -691,7 +691,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
     detail_container = st.container()
 
     with detail_container:
-        if st.session_state.get(detail_key):
+        if st.session_state.get("open_brewery") == brewery:
 
             brewery_beers_all = get_brewery_beers(
                 filtered_base,
