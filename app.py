@@ -596,7 +596,7 @@ def remove_beer(beer_id):
 
 
 # --- カード描画関数（高速・安全版） ---
-def render_beer_card(r, beer_id_safe, brewery):
+def render_beer_card(r, beer_id_safe, brewery, idx):
 
     # ---------- 変数定義（必ず col の外） ----------
     brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
@@ -678,7 +678,7 @@ def render_beer_card(r, beer_id_safe, brewery):
         if "open_brewery" not in st.session_state:
             st.session_state.open_brewery = None
 
-        show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
+        show_key = f"brewery_btn_{brewery}_{beer_id_safe}_{idx}"
 
         if st.button("醸造所詳細を見る", key=show_key):
             if st.session_state.open_brewery == brewery:
@@ -823,10 +823,11 @@ if disable_grouping:
 
 else:
     breweries_to_show = display_df["brewery_jp"].unique()
-    for brewery in breweries_to_show:
+
+    for b_idx, brewery in enumerate(breweries_to_show):
         brewery_beers = display_df[display_df["brewery_jp"] == brewery]
 
-        for r in brewery_beers.itertuples(index=False):
+        for i, r in enumerate(brewery_beers.itertuples(index=False)):
             try:
                 beer_id_safe = int(float(r.id))
             except (ValueError, TypeError):
@@ -835,7 +836,12 @@ else:
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
 
-            render_beer_card(r, beer_id_safe, brewery)
+            render_beer_card(
+                r,
+                beer_id_safe,
+                brewery,
+                f"{b_idx}_{i}"   # ← これが決定打
+            )
 
 # ---------- トップへ戻るボタン ----------
 st.markdown(
