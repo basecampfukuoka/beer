@@ -650,7 +650,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
 
 
             # ▼ トグル（1つだけ開く）
-            if st.button("醸造所詳細を見る", key=f"brewery_btn_{brewery}_{beer_id_safe}"):
+            if st.button("醸造所詳細を見る", key=f"brewery_btn_{brewery}_{beer_id_safe}_{idx}"):
                 if st.session_state.open_brewery == brewery:
                     st.session_state.open_brewery = None   # もう一度押したら閉じる
                 else:
@@ -673,6 +673,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
             </div>
             """
             st.markdown(image_html, unsafe_allow_html=True)
+
 
         # ---------- 醸造所詳細（そのまま） ----------
 
@@ -793,6 +794,9 @@ if st.session_state["prev_view_state"] != current_view_state:
 
 st.session_state["prev_view_state"] = current_view_state
 
+# ===== セッション状態の初期化（必須・1回だけ）=====
+if "open_brewery" not in st.session_state:
+    st.session_state.open_brewery = None
 
 
 # ---------- Render ----------
