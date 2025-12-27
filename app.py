@@ -627,10 +627,11 @@ def render_beer_card(r, beer_id_safe, brewery):
     """
 
     # ---------- レイアウト ----------
-    show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
-    detail_key = f"show_detail_{brewery}_{beer_id_safe}"
+
+
 
     left_col, right_col = st.columns([4, 4], vertical_alignment="center")
+
 
     with left_col:
         inner1, inner2 = st.columns([1, 1], gap="small")
@@ -651,12 +652,6 @@ def render_beer_card(r, beer_id_safe, brewery):
             """
             st.markdown(brewery_html, unsafe_allow_html=True)
 
-            if detail_key not in st.session_state:
-                st.session_state[detail_key] = False
-
-            if st.button("醸造所詳細を見る", key=show_key):
-                st.session_state[detail_key] = not st.session_state[detail_key]
-
         # ====== 旧 col2（ビール画像）=====
         with inner2:
             beer_img = r.beer_image_url or DEFAULT_BEER_IMG
@@ -674,21 +669,52 @@ def render_beer_card(r, beer_id_safe, brewery):
             """
             st.markdown(image_html, unsafe_allow_html=True)
 
-        # ====== 醸造所詳細（横スクロール）======
-        if st.session_state.get(detail_key):
-            st.markdown(
-                f"""
-                <div class="brewery-beer-list">
-                    <div class="detail-card">
-                        <b>{r.brewery_local}</b><br>
-                        {r.brewery_jp}<br><br>
-                        {safe_str(r.brewery_description)}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
+        # ---------- 醸造所詳細ボタン（そのまま） ----------
+        detail_key = f"show_detail_{brewery}_{beer_id_safe}"
+        if detail_key not in st.session_state:
+            st.session_state[detail_key] = False
+
+        show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
+        if st.button("醸造所詳細を見る", key=show_key):
+            st.session_state[detail_key] = not st.session_state[detail_key]
+
+        # ---------- 醸造所詳細（そのまま） ----------
+        if st.session_state[detail_key]:
+
+            brewery_beers_all = get_brewery_beers(
+                filtered_base,
+                brewery,
+                show_take_order,
+                show_no_stock
             )
 
+            st.markdown("### この醸造所のビール一覧")
+
+            cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
+
+            for b in brewery_beers_all.itertuples(index=False):
+                abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
+                vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
+                price = ""
+                if pd.notna(b.price_num):
+                    price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
+                vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
+
+                name_local = (b.name_local or "").split("/", 1)[-1].strip()
+                name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
+                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
+
+                cards.append(
+                    '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
+                    f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
+                    f'<div class="beer-name"><b>{name_local}</b></div>'
+                    f'<div class="beer-name">{name_jp}</div>'
+                    f'<div class="beer-spec">{specs}</div>'
+                    '</div>'
+                )
+
+            cards.append("</div></div>")
+            st.markdown("".join(cards), unsafe_allow_html=True)
 
     with right_col:
         info_col, remove_col = st.columns([6, 1])
