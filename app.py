@@ -631,7 +631,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
 
     with left_col:
-        inner1, inner2 = st.columns([1.2, 1])
+        inner1, inner2 = st.columns([0.8,0.8])
 
         # ---------- col1 左：醸造所・ビール画像 ----------
         with inner1:
