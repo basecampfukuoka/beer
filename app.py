@@ -692,6 +692,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
             beer_info = " | ".join(info_arr)
 
+        if st.session_state.get(detail_key):
             st.markdown(
                 f"""
                 <b>{r.name_local}</b><br>
