@@ -650,8 +650,13 @@ def render_beer_card(r, beer_id_safe, brewery):
             st.markdown(brewery_html, unsafe_allow_html=True)
 
             show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
+            detail_key = f"show_detail_{brewery}_{beer_id_safe}"
+
+            if detail_key not in st.session_state:
+                st.session_state[detail_key] = False
+
             if st.button("醸造所詳細を見る", key=show_key):
-                st.session_state[f"show_detail_{brewery}_{beer_id_safe}"] ^= True
+                st.session_state[detail_key] = not st.session_state[detail_key]
 
         # ====== 旧 col2（ビール画像）=====
         with inner2:
