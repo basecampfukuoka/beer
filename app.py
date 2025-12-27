@@ -698,6 +698,23 @@ def render_beer_card(r, beer_id_safe, brewery):
                 unsafe_allow_html=True
             )
 
+
+        # ====== 詳細コメント（トグル：必ず Streamlit）=====
+        with info_col:
+            detail_key = f"show_comment_{beer_id_safe}"
+            if detail_key not in st.session_state:
+                st.session_state[detail_key] = False
+
+            if r.detailed_comment:
+                if st.button("詳細コメント", key=f"comment_btn_{beer_id_safe}"):
+                    st.session_state[detail_key] = not st.session_state[detail_key]
+
+                if st.session_state[detail_key]:
+                    st.markdown(
+                        f"<div class='detail-comment'>{r.detailed_comment}</div>",
+                        unsafe_allow_html=True
+                    )
+
         # ====== 旧 col4（❌ボタン）=====
         with remove_col:
             if st.button("❌", key=f"remove_btn_{beer_id_safe}"):
