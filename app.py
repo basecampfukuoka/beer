@@ -630,7 +630,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
 
 
-    left_col, right_col = st.columns([4, 4], vertical_alignment="center")
+    left_col, right_col = st.columns([4, 4], vertical_alignment="start")
 
 
     with left_col:
@@ -679,7 +679,11 @@ def render_beer_card(r, beer_id_safe, brewery):
             st.session_state[detail_key] = not st.session_state[detail_key]
 
         # ---------- 醸造所詳細（そのまま） ----------
-        if st.session_state[detail_key]:
+
+    detail_container = st.container()
+
+    with detail_container:
+        if st.session_state.get(detail_key):
 
             brewery_beers_all = get_brewery_beers(
                 filtered_base,
