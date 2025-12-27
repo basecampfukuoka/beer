@@ -788,9 +788,13 @@ if "prev_view_state" not in st.session_state:
     st.session_state["prev_view_state"] = current_view_state
 
 if st.session_state["prev_view_state"] != current_view_state:
+    # 詳細コメントを閉じる
     for key in list(st.session_state.keys()):
-        if key.startswith(("show_comment_", "show_detail_")):
+        if key.startswith("show_comment_"):
             del st.session_state[key]
+
+    # ★ 醸造所詳細を閉じる
+    st.session_state.open_brewery = None
 
 st.session_state["prev_view_state"] = current_view_state
 
