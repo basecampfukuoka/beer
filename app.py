@@ -649,6 +649,7 @@ def render_beer_card(r, beer_id_safe, brewery):
             """
             st.markdown(brewery_html, unsafe_allow_html=True)
 
+
             show_key = f"brewery_btn_{brewery}_{beer_id_safe}"
             detail_key = f"show_detail_{brewery}_{beer_id_safe}"
 
@@ -692,7 +693,6 @@ def render_beer_card(r, beer_id_safe, brewery):
 
             beer_info = " | ".join(info_arr)
 
-        if st.session_state.get(detail_key):
             st.markdown(
                 f"""
                 <b>{r.name_local}</b><br>
