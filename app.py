@@ -15,6 +15,10 @@ EXCEL_PATH = "beer_data.xlsx"
 DEFAULT_BEER_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-beer-default.png"
 DEFAULT_BREWERY_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-brewery-default.png"
 
+# ===== セッション状態の初期化（必須・1回だけ）=====
+if "open_beer_id" not in st.session_state:
+    st.session_state.open_beer_id = None
+
 # ---------- 国旗 URL マッピング (ここが「1」) ----------
 country_flag_url = {
     "Japan": "https://freesozai.jp/sozai/nation_flag/ntf_131/ntf_131.png",
@@ -797,10 +801,6 @@ if st.session_state["prev_view_state"] != current_view_state:
     st.session_state.open_brewery = None
 
 st.session_state["prev_view_state"] = current_view_state
-
-# ===== セッション状態の初期化（必須・1回だけ）=====
-if "open_beer_id" not in st.session_state:
-    st.session_state.open_beer_id = None
 
 
 # ---------- Render ----------
