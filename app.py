@@ -648,6 +648,15 @@ def render_beer_card(r, beer_id_safe, brewery):
             """
             st.markdown(brewery_html, unsafe_allow_html=True)
 
+
+            # ▼ トグル（1つだけ開く）
+            if st.button("醸造所詳細を見る", key=f"brewery_btn_{brewery}_{beer_id_safe}"):
+                if st.session_state.open_brewery == brewery:
+                    st.session_state.open_brewery = None   # もう一度押したら閉じる
+                else:
+                    st.session_state.open_brewery = brewery  # 他は自動で閉じる
+
+
         # ====== 旧 col2（ビール画像）=====
         with inner2:
             beer_img = r.beer_image_url or DEFAULT_BEER_IMG
