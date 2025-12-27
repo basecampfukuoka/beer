@@ -630,9 +630,7 @@ def render_beer_card(r, beer_id_safe, brewery):
 
 
 
-    left_col, right_col = st.columns([4, 4], vertical_alignment="start")
-
-
+    left_col, right_col = st.columns([4, 4], vertical_alignment="top
     with left_col:
         inner1, inner2 = st.columns([1, 1], gap="small")
 
