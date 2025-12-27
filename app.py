@@ -651,10 +651,10 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
 
             # ▼ トグル（1つだけ開く）
             if st.button("醸造所詳細を見る", key=f"brewery_btn_{brewery}_{beer_id_safe}_{idx}"):
-                if st.session_state.open_brewery == brewery:
-                    st.session_state.open_brewery = None   # もう一度押したら閉じる
+                if st.session_state.open_beer_id == beer_id_safe:
+                    st.session_state.open_beer_id = None   # もう一度押したら閉じる
                 else:
-                    st.session_state.open_brewery = brewery  # 他は自動で閉じる
+                    st.session_state.open_beer_id = beer_id_safe  # 他は自動で閉じる
 
 
         # ====== 旧 col2（ビール画像）=====
@@ -680,7 +680,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
     detail_container = st.container()
 
     with detail_container:
-        if st.session_state.get("open_brewery") == brewery:
+        if st.session_state.open_beer_id == beer_id_safe:
 
             brewery_beers_all = get_brewery_beers(
                 filtered_base,
@@ -795,8 +795,8 @@ if st.session_state["prev_view_state"] != current_view_state:
 st.session_state["prev_view_state"] = current_view_state
 
 # ===== セッション状態の初期化（必須・1回だけ）=====
-if "open_brewery" not in st.session_state:
-    st.session_state.open_brewery = None
+if "open_beer_id" not in st.session_state:
+    st.session_state.open_beer_id = None
 
 
 # ---------- Render ----------
