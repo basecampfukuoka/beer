@@ -866,19 +866,22 @@ else:
         brewery_beers = brewery_beers_map.get(brewery, pd.DataFrame())
         brewery_beers = brewery_beers[brewery_beers["stock_status"] == "○"]
 
-    for i, r in enumerate(brewery_beers.itertuples(index=False)):
-            beer_id_safe = int(float(r.id))
+        for i, r in enumerate(brewery_beers.itertuples(index=False)):
+            try:
+                beer_id_safe = int(float(r.id))
+            except (ValueError, TypeError):
+                continue
 
-        if beer_id_safe in st.session_state["removed_ids"]:
-            continue
+            if beer_id_safe in st.session_state["removed_ids"]:
+                continue
 
-        render_beer_card(
-            r,
-            beer_id_safe,
-            brewery,
-            f"{b_idx}_{i}",   # ← これが決定打
-            brewery_beers
-        )
+            render_beer_card(
+                r,
+                beer_id_safe,
+                brewery,
+                f"{b_idx}_{i}",
+                brewery_beers
+            )
 
 # ---------- トップへ戻るボタン ----------
 st.markdown(
