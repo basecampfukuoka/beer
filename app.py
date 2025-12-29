@@ -808,12 +808,8 @@ is_abv_high_sort  = sort_option == "ABV（高）"
 is_random_sort    = sort_option == "ランダム順"
 
 # 並び順を最優先する条件
-disable_grouping = (
-    is_price_sort
-    or is_abv_low_sort
-    or is_abv_high_sort
-    or is_random_sort
-)
+disable_grouping = (is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort or sort_option == "名前順")
+
 
 # ===== セッション状態の初期化（必須・1回だけ）=====
 if "open_beer_id" not in st.session_state:
