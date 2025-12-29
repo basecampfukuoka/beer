@@ -533,7 +533,7 @@ filtered_base = build_filtered_df(
 brewery_beers_map = build_brewery_beers_map(
     filtered_base,
     show_take_order=show_take_order,
-    show_no_stock=show_no_stock=show_no_stock
+    show_no_stock=show_no_stock
 )
 # 醸造所ごとのビールも名前順に並べる
 for brewery, beers in brewery_beers_map.items():
