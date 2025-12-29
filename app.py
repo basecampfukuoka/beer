@@ -819,7 +819,7 @@ if disable_grouping:
             r,
             beer_id_safe,
             r.brewery_jp,
-            f"nogroup_{beer_id_safe}"   # ← ダミーでOK
+            f"nogroup_{beer_id_safe}",   # ← ダミーでOK
             brewery_beers
         )
 
