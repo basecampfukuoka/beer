@@ -73,7 +73,6 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-# ---------- Helpers ----------
 def get_countries_for_filter(df, show_take_order, show_no_stock):
     """
     現在の在庫フィルタを反映した国リストを返す
@@ -88,6 +87,19 @@ def get_countries_for_filter(df, show_take_order, show_no_stock):
 
     countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
     return countries
+
+params = st.query_params
+if "remove" in params:
+    try:
+        remove_id = int(params["remove"])
+        st.session_state["removed_ids"].add(remove_id)
+    except:
+        pass
+
+    # URLを元に戻す（重要）
+    st.query_params.clear()
+    st.rerun()
+
 
 # ---------- Style candidates (cached) ----------
 @st.cache_data
@@ -762,8 +774,16 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
 
         # ====== 旧 col4（❌ボタン）=====
         with remove_col:
-            if st.button("❌", key=f"remove_btn_{beer_id_safe}"):
-                remove_beer(beer_id_safe)
+            st.markdown(
+                f"""
+                <a href="?remove={beer_id_safe}"
+                   style="text-decoration:none;font-size:18px;"
+                   title="このビールを非表示">
+                   ❌
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
 
 
 # ---------- 表示モード判定 ----------
