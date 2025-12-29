@@ -209,9 +209,6 @@ def load_data(path=EXCEL_PATH):
     for c in str_cols:
         df[c] = df[c].fillna("").astype(str)
 
-    brewery_map_all = build_brewery_map_all(df_all)
-
-
     df["stock_status"] = df["in_stock"].apply(stock_status)
 
 
@@ -229,6 +226,8 @@ def load_data(path=EXCEL_PATH):
 # --- load_data の外 ---
 df_all = load_data()
 df = df_all
+
+brewery_map_all = build_brewery_map_all(df_all)
 
 df_instock = df[df["stock_status"] == "○"]
 
