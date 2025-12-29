@@ -618,6 +618,10 @@ disable_grouping = (
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
+# ---------- Prepare display_df with limit (Step1: show_limit) ----------
+display_df = filtered.head(st.session_state.show_limit)
+
+
 # ---------- Removed beers tracking ----------
 def remove_beer(beer_id):
     beer_id_int = int(float(beer_id))
