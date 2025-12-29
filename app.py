@@ -615,7 +615,6 @@ removed_ids = st.session_state.get("removed_ids", set())
 
 # 削除済みビールを除外して表示件数を制限
 display_df = filtered[~filtered["id"].astype(int).isin(removed_ids)]
-display_df = display_df.head(st.session_state.show_limit)
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
 display_df = filtered.head(st.session_state.show_limit)
@@ -848,9 +847,6 @@ if disable_grouping:
         except (ValueError, TypeError):
             continue
 
-        if beer_id_safe in st.session_state["removed_ids"]:
-            continue
-
         render_beer_card(
             r,
             beer_id_safe,
@@ -869,9 +865,6 @@ else:
             try:
                 beer_id_safe = int(float(r.id))
             except (ValueError, TypeError):
-                continue
-
-            if beer_id_safe in st.session_state["removed_ids"]:
                 continue
 
             render_beer_card(
