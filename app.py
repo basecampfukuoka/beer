@@ -855,7 +855,7 @@ else:
     breweries_to_show = display_df["brewery_jp"].unique()
 
     for b_idx, brewery in enumerate(breweries_to_show):
-        brewery_beers = display_df[display_df["brewery_jp"] == brewery]
+        brewery_beers = brewery_beers_map.get(brewery, pd.DataFrame())
 
         for i, r in enumerate(brewery_beers.itertuples(index=False)):
             try:
