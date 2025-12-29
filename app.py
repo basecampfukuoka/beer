@@ -539,6 +539,19 @@ brewery_beers_map = build_brewery_beers_map(
 for brewery, beers in brewery_beers_map.items():
     brewery_beers_map[brewery] = beers.sort_values(by="yomi_sort", na_position="last")
 
+# ----------style 選択を filtered に適用 ----------
+filtered = filtered_base
+if selected_styles:
+    filtered = filtered[
+        filtered["style_main_jp"].isin(selected_styles)
+    ]
+
+# バツで削除したビールを除外
+filtered = filtered[~filtered["id"].astype(int).isin(st.session_state["removed_ids"])]
+
+# ---------- Prepare display_df with limit (Step1: show_limit) ----------
+display_df = filtered.head(st.session_state.show_limit)
+
 
 # ---------- Style UI（差し込み） ----------
 with style_ui_placeholder:
@@ -577,12 +590,7 @@ else:
         st.session_state["removed_ids"] = set()
         st.session_state["prev_view_state"] = current_view_state
 
-# ----------style 選択を filtered に適用 ----------
-filtered = filtered_base
-if selected_styles:
-    filtered = filtered[
-        filtered["style_main_jp"].isin(selected_styles)
-    ]
+
 # ---------- Sorting ----------
 if sort_option == "名前順":
     filtered = filtered.sort_values(by="yomi_sort", na_position="last")
@@ -617,12 +625,6 @@ disable_grouping = (
 )
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
-
-# バツで削除したビールを除外
-filtered = filtered[~filtered["id"].astype(int).isin(st.session_state["removed_ids"])]
-
-# ---------- Prepare display_df with limit (Step1: show_limit) ----------
-display_df = filtered.head(st.session_state.show_limit)
 
 
 # ---------- Removed beers tracking ----------
