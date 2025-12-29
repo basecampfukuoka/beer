@@ -833,8 +833,12 @@ if disable_grouping:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        # r._asdict() を外す → 属性アクセスのまま
-        render_beer_card(r, beer_id_safe, r.brewery_jp)
+        render_beer_card(
+            r,
+            beer_id_safe,
+            r.brewery_jp,
+            f"nogroup_{beer_id_safe}"   # ← ダミーでOK
+        )
 
 else:
     breweries_to_show = display_df["brewery_jp"].unique()
