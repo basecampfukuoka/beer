@@ -228,7 +228,6 @@ def load_data(path=EXCEL_PATH):
 df_all = load_data()
 df = df_all
 
-brewery_map_all = build_brewery_map_all(df_all)
 
 df_instock = df[df["stock_status"] == "○"]
 
