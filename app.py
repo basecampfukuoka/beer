@@ -114,7 +114,7 @@ def get_style_candidates(df):
     )
 
 
-@st.cache_data(
+@st.cache_data
 def build_filtered_df(
     df,
     search_text,
