@@ -88,19 +88,6 @@ def get_countries_for_filter(df, show_take_order, show_no_stock):
     countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
     return countries
 
-params = st.query_params
-if "remove" in params:
-    try:
-        remove_id = int(params["remove"])
-        st.session_state["removed_ids"].add(remove_id)
-    except:
-        pass
-
-    # URLを元に戻す（重要）
-    st.query_params.clear()
-    st.rerun()
-
-
 # ---------- Style candidates (cached) ----------
 @st.cache_data
 def get_style_candidates(df):
@@ -774,17 +761,8 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
 
         # ====== 旧 col4（❌ボタン）=====
         with remove_col:
-            st.markdown(
-                f"""
-                <a href="?remove={beer_id_safe}"
-                   target="_self"
-                   style="text-decoration:none;font-size:18px;"
-                   title="このビールを非表示">
-                   ❌
-                </a>
-                """,
-                unsafe_allow_html=True
-            )
+            if st.button("❌", key=f"remove_btn_{beer_id_safe}"):
+                remove_beer(beer_id_safe)
 
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
