@@ -699,14 +699,6 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
         if brewery_beers_all is None or brewery_beers_all.empty:
             return
 
-
-        brewery_beers_all = get_brewery_beers(
-            filtered_base,
-            brewery,
-            show_take_order,
-            show_no_stock
-        )
-
         st.markdown("### この醸造所のビール一覧")
 
         cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
