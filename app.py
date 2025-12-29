@@ -513,6 +513,14 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("### スタイル（メイン）で絞り込み")
     style_ui_placeholder = st.container()
 
+# 条件が変わったかどうか判定
+condition_changed = st.session_state.get("prev_view_state") != current_view_state
+if condition_changed:
+    st.session_state["removed_ids"] = set()  # バツをリセット
+
+st.session_state["prev_view_state"] = current_view_state
+
+
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
     df_all,
