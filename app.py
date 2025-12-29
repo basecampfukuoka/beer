@@ -562,9 +562,6 @@ if selected_styles:
         filtered["style_main_jp"].isin(selected_styles)
     ]
 
-# バツで削除したビールを除外
-filtered = filtered[~filtered["id"].astype(int).isin(st.session_state["removed_ids"])]
-
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
 display_df = filtered.head(st.session_state.show_limit)
 
@@ -626,6 +623,9 @@ disable_grouping = (
 )
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
+
+# ---------- Prepare display_df with limit (Step1: show_limit) ----------
+display_df = filtered.head(st.session_state.show_limit)
 
 
 # ---------- Removed beers tracking ----------
