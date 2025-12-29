@@ -675,47 +675,45 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
             st.markdown(image_html, unsafe_allow_html=True)
 
 
-        # ---------- 醸造所詳細（そのまま） ----------
+    # ---------- 醸造所詳細（そのまま） ----------
 
-    detail_container = st.container()
+    if st.session_state.open_beer_id == beer_id_safe:
 
-    with detail_container:
-        if st.session_state.open_beer_id == beer_id_safe:
+        brewery_beers_all = get_brewery_beers(
+            filtered_base,
+            brewery,
+            show_take_order,
+            show_no_stock
+        )
 
-            brewery_beers_all = get_brewery_beers(
-                filtered_base,
-                brewery,
-                show_take_order,
-                show_no_stock
+        st.markdown("### この醸造所のビール一覧")
+
+        cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
+
+        for b in brewery_beers_all.itertuples(index=False):
+            abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
+            vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
+            price = ""
+            if pd.notna(b.price_num):
+                price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
+            vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
+
+            name_local = (b.name_local or "").split("/", 1)[-1].strip()
+            name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
+            specs = " | ".join(filter(None, [abv, vol, vintage, price]))
+
+            cards.append(
+                '<div class="detail-card">'
+                f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
+                f'<div class="beer-name"><b>{name_local}</b></div>'
+                f'<div class="beer-name">{name_jp}</div>'
+                f'<div class="beer-spec">{specs}</div>'
+                '</div>'
             )
 
-            st.markdown("### この醸造所のビール一覧")
+        cards.append("</div></div>")
+        st.markdown("".join(cards), unsafe_allow_html=True)
 
-            cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
-
-            for b in brewery_beers_all.itertuples(index=False):
-                abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
-                vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
-                price = ""
-                if pd.notna(b.price_num):
-                    price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
-                vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
-
-                name_local = (b.name_local or "").split("/", 1)[-1].strip()
-                name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
-                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
-
-                cards.append(
-                    '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
-                    f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
-                    f'<div class="beer-name"><b>{name_local}</b></div>'
-                    f'<div class="beer-name">{name_jp}</div>'
-                    f'<div class="beer-spec">{specs}</div>'
-                    '</div>'
-                )
-
-            cards.append("</div></div>")
-            st.markdown("".join(cards), unsafe_allow_html=True)
 
     with right_col:
         info_col, remove_col = st.columns([6, 1])
