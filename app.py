@@ -150,18 +150,6 @@ def build_filtered_df(
             mask |= temp[c].str.contains(kw, na=False)
         d = d[mask]
 
-    # ---  ---
-    d = d[
-        (d["stock_status"] == "○") |
-        (show_take_order & (d["stock_status"] == "△")) |
-        (show_no_stock & (d["stock_status"] == "×"))
-    ]
-
-    # --- サイズ ---
-    if size_choice == "小瓶（≤500ml）":
-        d = d[d["volume_num"] <= 500]
-    elif size_choice == "大瓶（≥500ml）":
-        d = d[d["volume_num"] >= 500]
 
     # --- ABV ---
     d = d[
@@ -182,6 +170,27 @@ def build_filtered_df(
     # --- 削除済み ---
     if removed_ids:
         d = d[~d["id"].astype(int).isin(removed_ids)]
+
+# ---------- Helpers ----------
+# （既存の safe_str, stock_status, try_number, locale_key ... などの下に）
+
+def get_brewery_beers(df, brewery_name, show_take_order=False, show_no_stock=False, size_choice="すべて"):
+    """
+    """
+    d = df[df["brewery_jp"] == brewery_name]
+
+    # 在庫フィルタ
+    d = d[
+        (d["stock_status"] == "○") |
+        (show_take_order & (d["stock_status"] == "△")) |
+        (show_no_stock & (d["stock_status"] == "×"))
+    ]
+
+    # サイズフィルタ
+    if size_choice == "小瓶（≤500ml）":
+        d = d[d["volume_num"] <= 500]
+    elif size_choice == "大瓶（≥500ml）":
+        d = d[d["volume_num"] >= 500]
 
     return d
 
