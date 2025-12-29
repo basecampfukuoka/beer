@@ -777,6 +777,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
             st.markdown(
                 f"""
                 <a href="?remove={beer_id_safe}"
+                   target="_self"
                    style="text-decoration:none;font-size:18px;"
                    title="このビールを非表示">
                    ❌
@@ -784,7 +785,6 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
                 """,
                 unsafe_allow_html=True
             )
-
 
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
