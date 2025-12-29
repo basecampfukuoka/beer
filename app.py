@@ -851,20 +851,20 @@ if disable_grouping:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        # ここで醸造所ビール一覧を取得
+        # 醸造所のビール一覧を取得
         brewery_beers_all = get_brewery_beers(
-            filtered_base,           # フィルタ済みの DataFrame
-            r.brewery_jp,            # 醸造所名
-            show_take_order,         # 取り寄せを表示
-            show_no_stock,           # 在庫なしを表示
-            size_choice              # サイズフィルタ
+            filtered_base,
+            r.brewery_jp,
+            show_take_order,
+            show_no_stock,
+            size_choice
         )
 
         render_beer_card(
             r,
             beer_id_safe,
             r.brewery_jp,
-            f"nogroup_{beer_id_safe}",   # ダミーでOK
+            f"nogroup_{beer_id_safe}",
             brewery_beers_all
         )
 
@@ -872,9 +872,16 @@ else:
     breweries_to_show = display_df["brewery_jp"].unique()
 
     for b_idx, brewery in enumerate(breweries_to_show):
-        brewery_beers = brewery_beers_map.get(brewery, pd.DataFrame())
+        # ここも map ではなく get_brewery_beers() を使う
+        brewery_beers_all = get_brewery_beers(
+            filtered_base,
+            brewery,
+            show_take_order,
+            show_no_stock,
+            size_choice
+        )
 
-        for i, r in enumerate(brewery_beers.itertuples(index=False)):
+        for i, r in enumerate(brewery_beers_all.itertuples(index=False)):
             try:
                 beer_id_safe = int(float(r.id))
             except (ValueError, TypeError):
@@ -887,8 +894,8 @@ else:
                 r,
                 beer_id_safe,
                 brewery,
-                f"{b_idx}_{i}",   # ← これが決定打
-                brewery_beers
+                f"{b_idx}_{i}",
+                brewery_beers_all
             )
 
 # ---------- トップへ戻るボタン ----------
