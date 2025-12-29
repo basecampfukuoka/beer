@@ -719,9 +719,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
                 unsafe_allow_html=True
             )
 
-        def render_beer_card(r, beer_id_safe, brewery, idx, brewery_map_all):
-            brewery_beers_all = brewery_beers_map.get(brewery, pd.DataFrame())
-            brewery_beers_all = brewery_beers_all[brewery_beers_all["stock_status"] == "○"]
+        def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
             if brewery_beers.empty:
                 st.info("現在表示できるビールがありません")
@@ -881,7 +879,7 @@ else:
                 beer_id_safe,
                 brewery,
                 f"{b_idx}_{i}",   # ← これが決定打
-                brewery_beers_map
+                brewery_beers
             )
 
 # ---------- トップへ戻るボタン ----------
