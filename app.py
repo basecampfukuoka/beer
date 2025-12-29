@@ -610,6 +610,13 @@ disable_grouping = (
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
+# セッションに保持している削除済みIDを取得
+removed_ids = st.session_state.get("removed_ids", set())
+
+# 削除済みビールを除外して表示件数を制限
+display_df = filtered[~filtered["id"].astype(int).isin(removed_ids)]
+display_df = display_df.head(st.session_state.show_limit)
+
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
 display_df = filtered.head(st.session_state.show_limit)
 
