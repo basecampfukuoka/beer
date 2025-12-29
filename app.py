@@ -279,17 +279,30 @@ st.markdown("""
     background-color: #f0f8ff; 
     border-radius: 8px; 
     padding: 10px; 
-    margin:5px; 
+    margin:6px; 
     display:inline-block; 
     vertical-align:top; 
     min-width: 150px;  /* 任意で最小幅を設定 */
     max-width: 450px;       /* 任意で最大幅 */
     text-align:center !important; 
 }
+
+<style>
+/* コメント用カード */
+.comment-card {
+    background-color: #eaf4ff;
+    padding: 10px 14px;
+    margin: 10px 0 16px 0;
+    border-radius: 6px;
+    line-height: 1.6;
+}
+</style>
+
+
 /* ビール画像を固定幅にして横スクロール可能に */
 .detail-card img {
-    width: 180px;          /* 画像は固定幅 */
-    height: 180px;
+    width: 100px;          /* 画像は固定幅 */
+    height: 100px;
     object-fit: contain;
 }
 
@@ -301,6 +314,16 @@ st.markdown("""
 
 /* brewery-beer-list 横スクロール */
 .brewery-beer-list { margin-top:10px; }
+
+<style>
+/* ビール画像（UNTAPPD 上）を固定幅に */
+.beer-image {
+    width: 150px;        /* ← 好きな幅に調整 */
+    height: 150px;       /* 高さも固定したい場合 */
+    object-fit: contain; /* 画像を切らずに収める */
+}
+</style>
+
 
 /* remove btn hover */
 .remove-btn div[data-testid="stButton"] > button:hover {
@@ -660,7 +683,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
             image_html = f"""
             <div style="display:flex;flex-direction:column;align-items:center;">
-                <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
+                <img src="{beer_img}" class="beer-image" loading="lazy">
                 <a href="{untappd_url}" target="_blank"
                    style="background:#FFD633;padding:4px 10px;border-radius:6px;
                           text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
@@ -761,7 +784,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
                 if st.session_state[detail_key]:
                     st.markdown(
-                        f"<div class='detail-comment'>{r.detailed_comment}</div>",
+                        f"<div class="comment-card">{r.detailed_comment}</div>",
                         unsafe_allow_html=True
                     )
 
