@@ -653,7 +653,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
     # ---------- レイアウト ----------
 
-    left_col, right_col = st.columns([4, 4], vertical_alignment="top")
+    left_col, right_col = st.columns([4, 6], vertical_alignment="top")
     with left_col:
         st.markdown('<div class="left-center">', unsafe_allow_html=True)
         inner1, inner2 = st.columns([0.8, 0.8], gap="small")
