@@ -720,7 +720,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
             )
 
         def render_beer_card(r, beer_id_safe, brewery, idx, brewery_map_all):
-            brewery_beers_all = brewery_map_all.get(brewery, pd.DataFrame())
+            brewery_beers_all = brewery_beers_map.get(brewery, pd.DataFrame())
             brewery_beers_all = brewery_beers_all[brewery_beers_all["stock_status"] == "○"]
 
             if brewery_beers.empty:
@@ -881,7 +881,7 @@ else:
                 beer_id_safe,
                 brewery,
                 f"{b_idx}_{i}",   # ← これが決定打
-                brewery_map_all
+                brewery_beers_map
             )
 
 # ---------- トップへ戻るボタン ----------
