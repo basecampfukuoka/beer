@@ -822,7 +822,7 @@ if disable_grouping:
             beer_id_safe,
             r.brewery_jp,
             f"nogroup_{beer_id_safe}",   # ← ダミーでOK
-            brewery_beers
+            brewery_beers_map.get(r.brewery_jp, pd.DataFrame())
         )
 
 else:
@@ -844,7 +844,8 @@ else:
                 r,
                 beer_id_safe,
                 brewery,
-                f"{b_idx}_{i}"   # ← これが決定打
+                f"{b_idx}_{i}",   # ← これが決定打
+                brewery_beers
             )
 
 # ---------- トップへ戻るボタン ----------
