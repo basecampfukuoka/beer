@@ -74,7 +74,7 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-def get_available_countries(df, show_take_order, show_no_stock):
+def get_countries_for_filter(df, show_take_order, show_no_stock):
     d = apply_stock_filter(df, show_take_order, show_no_stock)
     countries = (
         d["country"]
@@ -83,6 +83,7 @@ def get_available_countries(df, show_take_order, show_no_stock):
         .unique()
     )
     return sorted(countries)
+
 
 # 在庫フィルタ共通化
 def apply_stock_filter(df, show_take_order, show_no_stock):
@@ -100,6 +101,7 @@ def build_brewery_beers_map(df, show_take_order, show_no_stock):
         brewery: g
         for brewery, g in d.groupby("brewery_jp")
     }
+
 
 
 # ---------- Style candidates (cached) ----------
