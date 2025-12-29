@@ -88,18 +88,16 @@ def get_countries_for_filter(df, show_take_order, show_no_stock):
     countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
     return countries
 
-# ---------- 醸造所マップ ----------
-@st.cache_data(
-    hash_funcs={pd.DataFrame: lambda _: None}
-)
-def build_brewery_map(df):
-    """
-    brewery_jp -> DataFrame の辞書を作る
-    """
+# ===== 醸造所 → ビール一覧 map =====
+@st.cache_data
+def build_brewery_map_all(df):
     return {
         brewery: g.copy()
         for brewery, g in df.groupby("brewery_jp")
     }
+
+brewery_map_all = build_brewery_map_all(df_all)
+
 
 
 # ---------- Style candidates (cached) ----------
@@ -562,10 +560,6 @@ if selected_styles:
     filtered = filtered[
         filtered["style_main_jp"].isin(selected_styles)
     ]
-
-# ===== 醸造所 → ビール一覧 map =====
-brewery_map = build_brewery_map(filtered_base)
-
 # ---------- Sorting ----------
 if sort_option == "名前順":
     filtered = filtered.sort_values(by="yomi_sort", na_position="last")
@@ -692,14 +686,44 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
 
 
     # ---------- 醸造所詳細（そのまま） ----------
-
     if st.session_state.open_beer_id == beer_id_safe:
 
-        brewery_beers_all = brewery_map.get(brewery)
-        if brewery_beers_all is None or brewery_beers_all.empty:
+        # --- 醸造所コメント ---
+        if r.brewery_description:
+            st.markdown(
+                f"""
+                <div style="background:#f7f7f7;padding:10px 14px;margin:10px 0 16px 0;">
+                <b>{r.brewery_jp}</b><br>
+                {r.brewery_description}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        # --- 事前構築 map から取得 ---
+        brewery_beers_all = brewery_map_all.get(brewery, pd.DataFrame())
+
+        # --- 在庫トグル反映 ---
+        brewery_beers_all = brewery_beers_all[
+            (brewery_beers_all["stock_status"] == "○")
+            | (show_take_order & (brewery_beers_all["stock_status"] == "△"))
+            | (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
+        ]
+
+        if brewery_beers_all.empty:
+            st.info("現在表示できるビールがありません")
             return
 
         st.markdown("### この醸造所のビール一覧")
+        # ↓ 横スクロールカード描画
+
+
+        brewery_beers_all = get_brewery_beers(
+            filtered_base,
+            brewery,
+            show_take_order,
+            show_no_stock
+        )
 
         cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
