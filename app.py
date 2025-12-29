@@ -705,21 +705,21 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
         st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------- 醸造所詳細（そのまま） ----------
-    if st.session_state.open_beer_id == beer_id_safe:
+    def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
-        # --- 醸造所コメント ---
-        if r.brewery_description:
-            st.markdown(
-                f"""
-                <div style="background:#f7f7f7;padding:10px 14px;margin:10px 0 16px 0;">
-                <b>{r.brewery_jp}</b><br>
-                {r.brewery_description}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        if st.session_state.open_beer_id == beer_id_safe:
 
-        def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
+            # --- 醸造所コメント ---
+            if r.brewery_description:
+                st.markdown(
+                    f"""
+                    <div style="background:#f7f7f7;padding:10px 14px;margin:10px 0 16px 0;">
+                    <b>{r.brewery_jp}</b><br>
+                    {r.brewery_description}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
             if brewery_beers.empty:
                 st.info("現在表示できるビールがありません")
@@ -864,12 +864,10 @@ else:
 
     for b_idx, brewery in enumerate(breweries_to_show):
         brewery_beers = brewery_beers_map.get(brewery, pd.DataFrame())
+        brewery_beers = brewery_beers[brewery_beers["stock_status"] == "○"]
 
         for i, r in enumerate(brewery_beers.itertuples(index=False)):
-            try:
                 beer_id_safe = int(float(r.id))
-            except (ValueError, TypeError):
-                continue
 
             if beer_id_safe in st.session_state["removed_ids"]:
                 continue
