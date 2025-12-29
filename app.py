@@ -88,6 +88,20 @@ def get_countries_for_filter(df, show_take_order, show_no_stock):
     countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
     return countries
 
+# ---------- 醸造所マップ ----------
+@st.cache_data(
+    hash_funcs={pd.DataFrame: lambda _: None}
+)
+def build_brewery_map(df):
+    """
+    brewery_jp -> DataFrame の辞書を作る
+    """
+    return {
+        brewery: g.copy()
+        for brewery, g in df.groupby("brewery_jp")
+    }
+
+
 # ---------- Style candidates (cached) ----------
 @st.cache_data
 def get_style_candidates(df):
@@ -549,6 +563,9 @@ if selected_styles:
         filtered["style_main_jp"].isin(selected_styles)
     ]
 
+# ===== 醸造所 → ビール一覧 map =====
+brewery_map = build_brewery_map(filtered_base)
+
 # ---------- Sorting ----------
 if sort_option == "名前順":
     filtered = filtered.sort_values(by="yomi_sort", na_position="last")
@@ -677,6 +694,11 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
     # ---------- 醸造所詳細（そのまま） ----------
 
     if st.session_state.open_beer_id == beer_id_safe:
+
+        brewery_beers_all = brewery_map.get(brewery)
+        if brewery_beers_all is None or brewery_beers_all.empty:
+            return
+
 
         brewery_beers_all = get_brewery_beers(
             filtered_base,
