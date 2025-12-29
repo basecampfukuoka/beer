@@ -332,6 +332,13 @@ st.markdown("""
     height: 100%;
 }
 
+.left-center {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -643,6 +650,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
     left_col, right_col = st.columns([4, 4], vertical_alignment="top")
     with left_col:
+        st.markdown('<div class="left-center">', unsafe_allow_html=True)
         inner1, inner2 = st.columns([1, 1], gap="small")
 
         # ---------- col1 左：醸造所・ビール画像 ----------
@@ -687,6 +695,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
             """
             st.markdown(image_html, unsafe_allow_html=True)
 
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------- 醸造所詳細（そのまま） ----------
     if st.session_state.open_beer_id == beer_id_safe:
