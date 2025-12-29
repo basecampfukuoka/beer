@@ -555,16 +555,6 @@ with style_ui_placeholder:
             if cols[i % len(cols)].checkbox(s, key=key):
                 selected_styles.append(s)
 
-# ----------style 選択を filtered に適用 ----------
-filtered = filtered_base
-if selected_styles:
-    filtered = filtered[
-        filtered["style_main_jp"].isin(selected_styles)
-    ]
-
-# ---------- Prepare display_df with limit (Step1: show_limit) ----------
-display_df = filtered.head(st.session_state.show_limit)
-
 
 # ---------- 表示条件スナップショット ----------
 current_view_state = (
@@ -586,6 +576,16 @@ else:
         # フィルタ条件が変わったら removed_ids をリセット
         st.session_state["removed_ids"] = set()
         st.session_state["prev_view_state"] = current_view_state
+
+# ----------style 選択を filtered に適用 ----------
+filtered = filtered_base
+if selected_styles:
+    filtered = filtered[
+        filtered["style_main_jp"].isin(selected_styles)
+    ]
+
+# ---------- Prepare display_df with limit (Step1: show_limit) ----------
+display_df = filtered.head(st.session_state.show_limit)
 
 
 
@@ -623,10 +623,6 @@ disable_grouping = (
 )
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
-
-# ---------- Prepare display_df with limit (Step1: show_limit) ----------
-display_df = filtered.head(st.session_state.show_limit)
-
 
 # ---------- Removed beers tracking ----------
 def remove_beer(beer_id):
