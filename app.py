@@ -713,40 +713,41 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
                 unsafe_allow_html=True
             )
 
-        brewery_beers_all = brewery_map_all.get(brewery, pd.DataFrame())
-        brewery_beers_all = brewery_beers_all[brewery_beers_all["stock_status"] == "○"]
+        def render_beer_card(r, beer_id_safe, brewery, idx, brewery_map_all):
+            brewery_beers_all = brewery_map_all.get(brewery, pd.DataFrame())
+            brewery_beers_all = brewery_beers_all[brewery_beers_all["stock_status"] == "○"]
 
-        if brewery_beers.empty:
-            st.info("現在表示できるビールがありません")
-            return
+            if brewery_beers.empty:
+                st.info("現在表示できるビールがありません")
+                return
 
-        st.markdown("### この醸造所のビール一覧")
+            st.markdown("### この醸造所のビール一覧")
 
-        cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
+            cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
-        for b in brewery_beers.itertuples(index=False):
-            abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
-            vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
-            price = ""
-            if pd.notna(b.price_num):
-                price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
-            vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
+            for b in brewery_beers.itertuples(index=False):
+                abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
+                vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
+                price = ""
+                if pd.notna(b.price_num):
+                    price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
+                vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
 
-            name_local = (b.name_local or "").split("/", 1)[-1].strip()
-            name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
-            specs = " | ".join(filter(None, [abv, vol, vintage, price]))
+                name_local = (b.name_local or "").split("/", 1)[-1].strip()
+                name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
+                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
-            cards.append(
-                '<div class="detail-card">'
-                f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
-                f'<div class="beer-name"><b>{name_local}</b></div>'
-                f'<div class="beer-name">{name_jp}</div>'
-                f'<div class="beer-spec">{specs}</div>'
-                '</div>'
-            )
+                cards.append(
+                    '<div class="detail-card">'
+                    f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
+                    f'<div class="beer-name"><b>{name_local}</b></div>'
+                    f'<div class="beer-name">{name_jp}</div>'
+                    f'<div class="beer-spec">{specs}</div>'
+                    '</div>'
+                )
 
-        cards.append("</div></div>")
-        st.markdown("".join(cards), unsafe_allow_html=True)
+            cards.append("</div></div>")
+            st.markdown("".join(cards), unsafe_allow_html=True)
 
 
     with right_col:
@@ -874,7 +875,7 @@ else:
                 beer_id_safe,
                 brewery,
                 f"{b_idx}_{i}",   # ← これが決定打
-                brewery_beers
+                brewery_map_all
             )
 
 # ---------- トップへ戻るボタン ----------
