@@ -513,6 +513,30 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("### スタイル（メイン）で絞り込み")
     style_ui_placeholder = st.container()
 
+# ---------- 表示条件スナップショット ----------
+current_view_state = (
+    tuple(sorted(selected_styles)),
+    st.session_state.get("sort_option"),
+    st.session_state.get("country_radio"),
+    st.session_state.get("search_text"),
+    st.session_state.get("size_choice"),
+    st.session_state.get("abv_slider"),
+    st.session_state.get("price_slider"),
+    st.session_state.get("show_take_order"),
+    st.session_state.get("show_no_stock"),
+)
+
+if "prev_view_state" not in st.session_state:
+    st.session_state["prev_view_state"] = current_view_state
+else:
+    if st.session_state["prev_view_state"] != current_view_state:
+        # フィルタ条件が変わったら removed_ids をリセット
+        st.session_state["removed_ids"] = set()
+        st.session_state["prev_view_state"] = current_view_state
+
+    else:
+        st.session_state["reset_removed_ids"] = False
+
 # 条件が変わったかどうか判定
 condition_changed = st.session_state.get("prev_view_state") != current_view_state
 if condition_changed:
@@ -564,29 +588,6 @@ with style_ui_placeholder:
                 selected_styles.append(s)
 
 
-# ---------- 表示条件スナップショット ----------
-current_view_state = (
-    tuple(sorted(selected_styles)),
-    st.session_state.get("sort_option"),
-    st.session_state.get("country_radio"),
-    st.session_state.get("search_text"),
-    st.session_state.get("size_choice"),
-    st.session_state.get("abv_slider"),
-    st.session_state.get("price_slider"),
-    st.session_state.get("show_take_order"),
-    st.session_state.get("show_no_stock"),
-)
-
-if "prev_view_state" not in st.session_state:
-    st.session_state["prev_view_state"] = current_view_state
-else:
-    if st.session_state["prev_view_state"] != current_view_state:
-        # フィルタ条件が変わったら removed_ids をリセット
-        st.session_state["removed_ids"] = set()
-        st.session_state["prev_view_state"] = current_view_state
-
-    else:
-        st.session_state["reset_removed_ids"] = False
 
 # ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
