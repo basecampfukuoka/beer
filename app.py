@@ -102,6 +102,10 @@ def build_brewery_beers_map(df, show_take_order, show_no_stock):
         for brewery, g in d.groupby("brewery_jp")
     }
 
+@st.cache_data
+def build_brewery_map_all(df):
+    return {brewery: g for brewery, g in df.groupby("brewery_jp")}
+
 
 
 # ---------- Style candidates (cached) ----------
@@ -204,6 +208,9 @@ def load_data(path=EXCEL_PATH):
     ]
     for c in str_cols:
         df[c] = df[c].fillna("").astype(str)
+
+    brewery_map_all = build_brewery_map_all(df_all)
+
 
     df["stock_status"] = df["in_stock"].apply(stock_status)
 
