@@ -103,8 +103,9 @@ def build_brewery_beers_map(df, show_take_order, show_no_stock):
     }
 
 @st.cache_data
-def build_brewery_map_all(df):
-    return {brewery: g for brewery, g in df.groupby("brewery_jp")}
+def build_brewery_beers_map_instock(df):
+    d = df[df["stock_status"] == "○"]  # 在庫アリだけ
+    return {brewery: g for brewery, g in d.groupby("brewery_jp")}
 
 
 
