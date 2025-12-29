@@ -569,6 +569,14 @@ current_view_state = (
     st.session_state.get("show_no_stock"),
 )
 
+if "prev_view_state" not in st.session_state:
+    st.session_state["prev_view_state"] = current_view_state
+else:
+    if st.session_state["prev_view_state"] != current_view_state:
+        # フィルタ条件が変わったら removed_ids をリセット
+        st.session_state["removed_ids"] = set()
+        st.session_state["prev_view_state"] = current_view_state
+
 # ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
 if selected_styles:
@@ -609,15 +617,6 @@ disable_grouping = (
 )
 
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
-
-# セッションに保持している削除済みIDを取得
-removed_ids = st.session_state.get("removed_ids", set())
-
-# 削除済みビールを除外して表示件数を制限
-display_df = filtered[~filtered["id"].astype(int).isin(removed_ids)]
-
-# ---------- Prepare display_df with limit (Step1: show_limit) ----------
-display_df = filtered.head(st.session_state.show_limit)
 
 # ---------- Removed beers tracking ----------
 def remove_beer(beer_id):
