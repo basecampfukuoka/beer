@@ -96,6 +96,34 @@ def build_brewery_map_all(df):
         for brewery, g in df.groupby("brewery_jp")
     }
 
+@st.cache_data
+def build_brewery_beers_map(df, show_take_order, show_no_stock):
+    d = df[
+        (df["stock_status"] == "○")
+        | (show_take_order & (df["stock_status"] == "△"))
+        | (show_no_stock & (df["stock_status"] == "×"))
+    ]
+    return {
+        k: g for k, g in d.groupby("brewery_jp")
+    }
+
+
+def apply_stock_filter(df, show_take_order, show_no_stock):
+    return df[
+        (df["stock_status"] == "○")
+        | (show_take_order & (df["stock_status"] == "△"))
+        | (show_no_stock & (df["stock_status"] == "×"))
+    ]
+
+@st.cache_data
+def build_brewery_beers_map(df, show_take_order, show_no_stock):
+    d = apply_stock_filter(df, show_take_order, show_no_stock)
+    return {
+        brewery: g
+        for brewery, g in d.groupby("brewery_jp")
+    }
+
+
 # ---------- Style candidates (cached) ----------
 @st.cache_data
 def get_style_candidates(df):
@@ -521,6 +549,13 @@ filtered_base = build_filtered_df(
     show_no_stock=show_no_stock,
     removed_ids=tuple(sorted(st.session_state.get("removed_ids", set()))),
     country_choice=country_choice,
+)
+
+# ---------- Brewery beers map ----------
+brewery_beers_map = build_brewery_beers_map(
+    df_all,
+    show_take_order,
+    show_no_stock
 )
 
 # ---------- Style UI（差し込み） ----------
