@@ -531,10 +531,14 @@ filtered_base = build_filtered_df(
 # ---------- Brewery beers map ----------
 # 醸造所のビール一覧は在庫ありだけを表示
 brewery_beers_map = build_brewery_beers_map(
-    df_all,
+    filtered_base,
     show_take_order=False,
     show_no_stock=False
 )
+# 醸造所ごとのビールも名前順に並べる
+for brewery, beers in brewery_beers_map.items():
+    brewery_beers_map[brewery] = beers.sort_values(by="yomi_sort", na_position="last")
+
 
 # ---------- Style UI（差し込み） ----------
 with style_ui_placeholder:
