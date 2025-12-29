@@ -75,34 +75,26 @@ def locale_key(x):
     return collator.sort_key(s)
 
 def get_countries_for_filter(df, show_take_order, show_no_stock):
-    d = apply_stock_filter(df, show_take_order, show_no_stock)
-    countries = (
-        d["country"]
-        .replace("", pd.NA)
-        .dropna()
-        .unique()
-    )
-    return sorted(countries)
+    """
+    現在の在庫フィルタを反映した国リストを返す
+    - show_take_order: 取り寄せも表示
+    - show_no_stock: 在庫なしも表示
+    """
+    d = df[df["stock_status"] == "○"].copy()  # 在庫あり
+    if show_take_order:
+        d = pd.concat([d, df[df["stock_status"] == "△"]])
+    if show_no_stock:
+        d = pd.concat([d, df[df["stock_status"] == "×"]])
 
+    countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
+    return countries
 
-# 在庫フィルタ共通化
-def apply_stock_filter(df, show_take_order, show_no_stock):
-    return df[
-        (df["stock_status"] == "○")
-        | (show_take_order & (df["stock_status"] == "△"))
-        | (show_no_stock & (df["stock_status"] == "×"))
-    ]
-
-# 醸造所ビール map（キャッシュ）
 @st.cache_data
-def build_brewery_beers_map(df, show_take_order, show_no_stock):
-    d = apply_stock_filter(df, show_take_order, show_no_stock)
+def build_brewery_map_all(df):
     return {
-        brewery: g
-        for brewery, g in d.groupby("brewery_jp")
+        brewery: g.copy()
+        for brewery, g in df.groupby("brewery_jp")
     }
-
-
 
 # ---------- Style candidates (cached) ----------
 @st.cache_data
@@ -116,7 +108,9 @@ def get_style_candidates(df):
     )
 
 
-@st.cache_data
+@st.cache_data(
+    hash_funcs={pd.DataFrame: lambda _: None}
+)
 def build_filtered_df(
     df,
     search_text,
@@ -129,12 +123,14 @@ def build_filtered_df(
     country_choice,  
 ):
 
+    d = df.copy()
 
-    # ★ 最初に df をそのまま使う
-    d = df
-
-    # --- 在庫フィルタ（共通関数） ---
-    d = apply_stock_filter(d, show_take_order, show_no_stock)
+    # --- 在庫フィルタ ---
+    d = d[
+        (d["stock_status"] == "○")
+        | (show_take_order & (d["stock_status"] == "△"))
+        | (show_no_stock & (d["stock_status"] == "×"))
+    ]
 
     # --- フリー検索 ---
     if search_text and search_text.strip():
@@ -150,6 +146,11 @@ def build_filtered_df(
             mask |= temp[c].str.contains(kw, na=False)
         d = d[mask]
 
+    # --- サイズ ---
+    if size_choice == "小瓶（≤500ml）":
+        d = d[d["volume_num"] <= 500]
+    elif size_choice == "大瓶（≥500ml）":
+        d = d[d["volume_num"] >= 500]
 
     # --- ABV ---
     d = d[
@@ -170,27 +171,6 @@ def build_filtered_df(
     # --- 削除済み ---
     if removed_ids:
         d = d[~d["id"].astype(int).isin(removed_ids)]
-
-# ---------- Helpers ----------
-# （既存の safe_str, stock_status, try_number, locale_key ... などの下に）
-
-def get_brewery_beers(df, brewery_name, show_take_order=False, show_no_stock=False, size_choice="すべて"):
-    """
-    """
-    d = df[df["brewery_jp"] == brewery_name]
-
-    # 在庫フィルタ
-    d = d[
-        (d["stock_status"] == "○") |
-        (show_take_order & (d["stock_status"] == "△")) |
-        (show_no_stock & (d["stock_status"] == "×"))
-    ]
-
-    # サイズフィルタ
-    if size_choice == "小瓶（≤500ml）":
-        d = d[d["volume_num"] <= 500]
-    elif size_choice == "大瓶（≥500ml）":
-        d = d[d["volume_num"] >= 500]
 
     return d
 
@@ -234,6 +214,23 @@ def load_data(path=EXCEL_PATH):
 
     return df
 
+# ===== ★ここに追加（③）=====
+@st.cache_data
+def get_brewery_beers(
+    df_all,
+    brewery_jp,
+    show_take_order,
+    show_no_stock
+):
+    d = df_all[df_all["brewery_jp"] == brewery_jp]
+
+    d = d[
+        (d["stock_status"] == "○") |
+        (show_take_order & (d["stock_status"] == "△")) |
+        (show_no_stock & (d["stock_status"] == "×"))
+    ]
+
+    return d
 
 # --- load_data の外 ---
 df_all = load_data()
@@ -241,6 +238,7 @@ df = df_all
 
 df_instock = df[df["stock_status"] == "○"]
 
+brewery_map_all = build_brewery_map_all(df_all)
 
 
 # ---------- Initialize show limit and filter signature ----------
@@ -295,27 +293,17 @@ st.markdown("""
     background-color: #f0f8ff; 
     border-radius: 8px; 
     padding: 10px; 
-    margin:6px; 
+    margin:5px; 
     display:inline-block; 
     vertical-align:top; 
     min-width: 150px;  /* 任意で最小幅を設定 */
     max-width: 450px;       /* 任意で最大幅 */
     text-align:center !important; 
 }
-
-/* コメント用カード */
-.comment-card {
-    background-color: #eaf4ff;
-    padding: 10px 14px;
-    margin: 10px 0 16px 0;
-    border-radius: 6px;
-    line-height: 1.6;
-}
-
 /* ビール画像を固定幅にして横スクロール可能に */
 .detail-card img {
-    width: 100px;          /* 画像は固定幅 */
-    height: 100px;
+    width: 180px;          /* 画像は固定幅 */
+    height: 180px;
     object-fit: contain;
 }
 
@@ -327,13 +315,6 @@ st.markdown("""
 
 /* brewery-beer-list 横スクロール */
 .brewery-beer-list { margin-top:10px; }
-
-/* ビール画像（UNTAPPD 上）を固定幅に */
-.beer-image {
-    width: 150px;        /* ← 好きな幅に調整 */
-    height: 150px;       /* 高さも固定したい場合 */
-    object-fit: contain; /* 画像を切らずに収める */
-}
 
 /* remove btn hover */
 .remove-btn div[data-testid="stButton"] > button:hover {
@@ -347,13 +328,6 @@ st.markdown("""
     justify-content: center;
     height: 100%;
 }
-
-.left-center {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
 
 </style>
 """, unsafe_allow_html=True)
@@ -463,6 +437,11 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_no_stock"
     )
 
+     # 国リストを在庫フィルタに合わせて取得
+    countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
+
+
+
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
@@ -542,14 +521,6 @@ filtered_base = build_filtered_df(
     show_no_stock=show_no_stock,
     removed_ids=tuple(sorted(st.session_state.get("removed_ids", set()))),
     country_choice=country_choice,
-)
-
-# ---------- Brewery beers map ----------
-# 醸造所のビール一覧は在庫ありだけを表示
-brewery_beers_map = build_brewery_beers_map(
-    df_all,
-    show_take_order=False,
-    show_no_stock=False
 )
 
 # ---------- Style UI（差し込み） ----------
@@ -632,8 +603,8 @@ def remove_beer(beer_id):
 
 
 
-# --- カード描画関数 ---
-def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
+# --- カード描画関数（高速・安全版） ---
+def render_beer_card(r, beer_id_safe, brewery, idx):
 
     # ---------- 変数定義（必ず col の外） ----------
     brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
@@ -667,8 +638,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
     left_col, right_col = st.columns([4, 4], vertical_alignment="top")
     with left_col:
-        st.markdown('<div class="left-center">', unsafe_allow_html=True)
-        inner1, inner2 = st.columns([0.8, 0.8], gap="small")
+        inner1, inner2 = st.columns([1, 1], gap="small")
 
         # ---------- col1 左：醸造所・ビール画像 ----------
         with inner1:
@@ -702,7 +672,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
             image_html = f"""
             <div style="display:flex;flex-direction:column;align-items:center;">
-                <img src="{beer_img}" class="beer-image" loading="lazy">
+                <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
                 <a href="{untappd_url}" target="_blank"
                    style="background:#FFD633;padding:4px 10px;border-radius:6px;
                           text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
@@ -712,7 +682,6 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
             """
             st.markdown(image_html, unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------- 醸造所詳細（そのまま） ----------
     if st.session_state.open_beer_id == beer_id_safe:
@@ -729,16 +698,34 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
                 unsafe_allow_html=True
             )
 
+        # --- 事前構築 map から取得 ---
+        brewery_beers_all = brewery_map_all.get(brewery, pd.DataFrame())
 
-        if brewery_beers.empty:
+        # --- 在庫トグル反映 ---
+        brewery_beers_all = brewery_beers_all[
+            (brewery_beers_all["stock_status"] == "○")
+            | (show_take_order & (brewery_beers_all["stock_status"] == "△"))
+            | (show_no_stock & (brewery_beers_all["stock_status"] == "×"))
+        ]
+
+        if brewery_beers_all.empty:
             st.info("現在表示できるビールがありません")
             return
 
         st.markdown("### この醸造所のビール一覧")
+        # ↓ 横スクロールカード描画
+
+
+        brewery_beers_all = get_brewery_beers(
+            filtered_base,
+            brewery,
+            show_take_order,
+            show_no_stock
+        )
 
         cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
-        for b in brewery_beers.itertuples(index=False):
+        for b in brewery_beers_all.itertuples(index=False):
             abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
             vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
             price = ""
@@ -804,7 +791,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
                 if st.session_state[detail_key]:
                     st.markdown(
-                        f'<div class="comment-card">{r.detailed_comment}</div>',
+                        f"<div class='detail-comment'>{r.detailed_comment}</div>",
                         unsafe_allow_html=True
                     )
 
@@ -860,37 +847,20 @@ if disable_grouping:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
-        # 醸造所のビール一覧を取得
-        brewery_beers_all = get_brewery_beers(
-            filtered_base,
-            r.brewery_jp,
-            show_take_order,
-            show_no_stock,
-            size_choice
-        )
-
         render_beer_card(
             r,
             beer_id_safe,
             r.brewery_jp,
-            f"nogroup_{beer_id_safe}",
-            brewery_beers_all
+            f"nogroup_{beer_id_safe}"   # ← ダミーでOK
         )
 
 else:
     breweries_to_show = display_df["brewery_jp"].unique()
 
     for b_idx, brewery in enumerate(breweries_to_show):
-        # ここも map ではなく get_brewery_beers() を使う
-        brewery_beers_all = get_brewery_beers(
-            filtered_base,
-            brewery,
-            show_take_order,
-            show_no_stock,
-            size_choice
-        )
+        brewery_beers = display_df[display_df["brewery_jp"] == brewery]
 
-        for i, r in enumerate(brewery_beers_all.itertuples(index=False)):
+        for i, r in enumerate(brewery_beers.itertuples(index=False)):
             try:
                 beer_id_safe = int(float(r.id))
             except (ValueError, TypeError):
@@ -903,8 +873,7 @@ else:
                 r,
                 beer_id_safe,
                 brewery,
-                f"{b_idx}_{i}",
-                brewery_beers_all
+                f"{b_idx}_{i}"   # ← これが決定打
             )
 
 # ---------- トップへ戻るボタン ----------
