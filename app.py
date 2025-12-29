@@ -31,6 +31,7 @@ country_flag_url = {
 }
 
 
+
 # ---------- Helpers ----------
 
 def safe_str(v):
@@ -88,17 +89,12 @@ def get_countries_for_filter(df, show_take_order, show_no_stock):
     countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
     return countries
 
-# ===== 醸造所 → ビール一覧 map =====
 @st.cache_data
 def build_brewery_map_all(df):
     return {
         brewery: g.copy()
         for brewery, g in df.groupby("brewery_jp")
     }
-
-brewery_map_all = build_brewery_map_all(df_all)
-
-
 
 # ---------- Style candidates (cached) ----------
 @st.cache_data
@@ -240,8 +236,10 @@ def get_brewery_beers(
 df_all = load_data()
 df = df_all
 
-
 df_instock = df[df["stock_status"] == "○"]
+
+brewery_map_all = build_brewery_map_all(df_all)
+
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
