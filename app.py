@@ -150,6 +150,13 @@ def build_filtered_df(
             mask |= temp[c].str.contains(kw, na=False)
         d = d[mask]
 
+    # --- 在庫 ---
+    d = d[
+        (d["stock_status"] == "○") |
+        (show_take_order & (d["stock_status"] == "△")) |
+        (show_no_stock & (d["stock_status"] == "×"))
+    ]
+
     # --- サイズ ---
     if size_choice == "小瓶（≤500ml）":
         d = d[d["volume_num"] <= 500]
