@@ -150,7 +150,7 @@ def build_filtered_df(
             mask |= temp[c].str.contains(kw, na=False)
         d = d[mask]
 
-    # --- 在庫 ---
+    # ---  ---
     d = d[
         (d["stock_status"] == "○") |
         (show_take_order & (d["stock_status"] == "△")) |
@@ -851,12 +851,21 @@ if disable_grouping:
         if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
+        # ここで醸造所ビール一覧を取得
+        brewery_beers_all = get_brewery_beers(
+            filtered_base,           # フィルタ済みの DataFrame
+            r.brewery_jp,            # 醸造所名
+            show_take_order,         # 取り寄せを表示
+            show_no_stock,           # 在庫なしを表示
+            size_choice              # サイズフィルタ
+        )
+
         render_beer_card(
             r,
             beer_id_safe,
             r.brewery_jp,
-            f"nogroup_{beer_id_safe}",   # ← ダミーでOK
-            brewery_beers_map.get(r.brewery_jp, pd.DataFrame())
+            f"nogroup_{beer_id_safe}",   # ダミーでOK
+            brewery_beers_all
         )
 
 else:
