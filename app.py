@@ -514,6 +514,11 @@ with st.expander("フィルター / 検索を表示", False):
     style_ui_placeholder = st.container()
 
 # ---------- 表示条件スナップショット ----------
+selected_styles = [
+    s for s in df_all["style_main_jp"].dropna().unique()
+    if st.session_state.get(f"style_{s}", False)
+]
+
 current_view_state = (
     tuple(sorted(selected_styles)),
     st.session_state.get("sort_option"),
