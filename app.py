@@ -513,25 +513,6 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("### スタイル（メイン）で絞り込み")
     style_ui_placeholder = st.container()
 
-# ---------- Style UI（差し込み） ----------
-with style_ui_placeholder:
-    styles_available = get_style_candidates(filtered_base)
-
-    selected_styles = []
-
-    if styles_available:
-        cols = st.columns(min(6, len(styles_available)))
-        for i, s in enumerate(styles_available):
-            key = f"style_{s}"
-            if key not in st.session_state:
-                st.session_state[key] = False
-
-            if cols[i % len(cols)].checkbox(s, key=key):
-                selected_styles.append(s)
-
-
-
-
 # ---------- 表示条件スナップショット ----------
 current_view_state = (
     tuple(sorted(selected_styles)),
@@ -579,6 +560,7 @@ filtered_base = build_filtered_df(
     country_choice=country_choice,
 )
 
+
 # ---------- Brewery beers map ----------
 # 醸造所のビール一覧は在庫ありだけを表示
 brewery_beers_map = build_brewery_beers_map(
@@ -589,6 +571,22 @@ brewery_beers_map = build_brewery_beers_map(
 # 醸造所ごとのビールも名前順に並べる
 for brewery, beers in brewery_beers_map.items():
     brewery_beers_map[brewery] = beers.sort_values(by="yomi_sort", na_position="last")
+
+# ---------- Style UI（差し込み） ----------
+with style_ui_placeholder:
+    styles_available = get_style_candidates(filtered_base)
+
+    selected_styles = []
+
+    if styles_available:
+        cols = st.columns(min(6, len(styles_available)))
+        for i, s in enumerate(styles_available):
+            key = f"style_{s}"
+            if key not in st.session_state:
+                st.session_state[key] = False
+
+            if cols[i % len(cols)].checkbox(s, key=key):
+                selected_styles.append(s)
 
 
 # ----------style 選択を filtered に適用 ----------
