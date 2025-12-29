@@ -784,7 +784,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
                 if st.session_state[detail_key]:
                     st.markdown(
-                        f"<div class="comment-card">{r.detailed_comment}</div>",
+                        f'<div class="comment-card">{r.detailed_comment}</div>',
                         unsafe_allow_html=True
                     )
 
