@@ -287,7 +287,6 @@ st.markdown("""
     text-align:center !important; 
 }
 
-<style>
 /* コメント用カード */
 .comment-card {
     background-color: #eaf4ff;
@@ -296,8 +295,6 @@ st.markdown("""
     border-radius: 6px;
     line-height: 1.6;
 }
-</style>
-
 
 /* ビール画像を固定幅にして横スクロール可能に */
 .detail-card img {
@@ -315,15 +312,12 @@ st.markdown("""
 /* brewery-beer-list 横スクロール */
 .brewery-beer-list { margin-top:10px; }
 
-<style>
 /* ビール画像（UNTAPPD 上）を固定幅に */
 .beer-image {
     width: 150px;        /* ← 好きな幅に調整 */
     height: 150px;       /* 高さも固定したい場合 */
     object-fit: contain; /* 画像を切らずに収める */
 }
-</style>
-
 
 /* remove btn hover */
 .remove-btn div[data-testid="stButton"] > button:hover {
