@@ -529,10 +529,11 @@ filtered_base = build_filtered_df(
 )
 
 # ---------- Brewery beers map ----------
+# 醸造所のビール一覧は在庫ありだけを表示
 brewery_beers_map = build_brewery_beers_map(
     df_all,
-    show_take_order,
-    show_no_stock
+    show_take_order=False,
+    show_no_stock=False
 )
 
 # ---------- Style UI（差し込み） ----------
