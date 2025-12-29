@@ -524,7 +524,7 @@ filtered_base = build_filtered_df(
     price_max=price_max,
     show_take_order=show_take_order,
     show_no_stock=show_no_stock,
-    removed_ids=tuple(),
+    removed_ids=() if st.session_state.get("reset_removed_ids", False) else tuple(sorted(st.session_state.get("removed_ids", set()))),
     country_choice=country_choice,
 )
 
@@ -577,12 +577,19 @@ else:
         st.session_state["removed_ids"] = set()
         st.session_state["prev_view_state"] = current_view_state
 
+    else:
+        st.session_state["reset_removed_ids"] = False
+
 # ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
 if selected_styles:
     filtered = filtered[
         filtered["style_main_jp"].isin(selected_styles)
     ]
+
+# ---------- バツで消したビールを最後に除外 ----------
+filtered = filtered[~filtered["id"].astype(int).isin(st.session_state["removed_ids"])]
+
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
 display_df = filtered.head(st.session_state.show_limit)
