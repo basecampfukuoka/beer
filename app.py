@@ -31,7 +31,6 @@ country_flag_url = {
 }
 
 
-
 # ---------- Helpers ----------
 
 def safe_str(v):
@@ -74,35 +73,21 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
+# ---------- Helpers ----------
 def get_countries_for_filter(df, show_take_order, show_no_stock):
-    d = apply_stock_filter(df, show_take_order, show_no_stock)
-    countries = (
-        d["country"]
-        .replace("", pd.NA)
-        .dropna()
-        .unique()
-    )
-    return sorted(countries)
+    """
+    現在の在庫フィルタを反映した国リストを返す
+    - show_take_order: 取り寄せも表示
+    - show_no_stock: 在庫なしも表示
+    """
+    d = df[df["stock_status"] == "○"].copy()  # 在庫あり
+    if show_take_order:
+        d = pd.concat([d, df[df["stock_status"] == "△"]])
+    if show_no_stock:
+        d = pd.concat([d, df[df["stock_status"] == "×"]])
 
-
-# 在庫フィルタ共通化
-def apply_stock_filter(df, show_take_order, show_no_stock):
-    return df[
-        (df["stock_status"] == "○")
-        | (show_take_order & (df["stock_status"] == "△"))
-        | (show_no_stock & (df["stock_status"] == "×"))
-    ]
-
-# 醸造所ビール map（キャッシュ）
-@st.cache_data
-def build_brewery_beers_map(df, show_take_order, show_no_stock):
-    d = apply_stock_filter(df, show_take_order, show_no_stock)
-    return {
-        brewery: g
-        for brewery, g in d.groupby("brewery_jp")
-    }
-
-
+    countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
+    return countries
 
 # ---------- Style candidates (cached) ----------
 @st.cache_data
@@ -116,7 +101,9 @@ def get_style_candidates(df):
     )
 
 
-@st.cache_data
+@st.cache_data(
+    hash_funcs={pd.DataFrame: lambda _: None}
+)
 def build_filtered_df(
     df,
     search_text,
@@ -129,12 +116,14 @@ def build_filtered_df(
     country_choice,  
 ):
 
+    d = df.copy()
 
-    # ★ 最初に df をそのまま使う
-    d = df
-
-    # --- 在庫フィルタ（共通関数） ---
-    d = apply_stock_filter(d, show_take_order, show_no_stock)
+    # --- 在庫フィルタ ---
+    d = d[
+        (d["stock_status"] == "○")
+        | (show_take_order & (d["stock_status"] == "△"))
+        | (show_no_stock & (d["stock_status"] == "×"))
+    ]
 
     # --- フリー検索 ---
     if search_text and search_text.strip():
@@ -218,14 +207,30 @@ def load_data(path=EXCEL_PATH):
 
     return df
 
+# ===== ★ここに追加（③）=====
+@st.cache_data
+def get_brewery_beers(
+    df_all,
+    brewery_jp,
+    show_take_order,
+    show_no_stock
+):
+    d = df_all[df_all["brewery_jp"] == brewery_jp]
+
+    d = d[
+        (d["stock_status"] == "○") |
+        (show_take_order & (d["stock_status"] == "△")) |
+        (show_no_stock & (d["stock_status"] == "×"))
+    ]
+
+    return d
 
 # --- load_data の外 ---
 df_all = load_data()
 df = df_all
 
+
 df_instock = df[df["stock_status"] == "○"]
-
-
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
@@ -279,27 +284,17 @@ st.markdown("""
     background-color: #f0f8ff; 
     border-radius: 8px; 
     padding: 10px; 
-    margin:6px; 
+    margin:5px; 
     display:inline-block; 
     vertical-align:top; 
     min-width: 150px;  /* 任意で最小幅を設定 */
     max-width: 450px;       /* 任意で最大幅 */
     text-align:center !important; 
 }
-
-/* コメント用カード */
-.comment-card {
-    background-color: #eaf4ff;
-    padding: 10px 14px;
-    margin: 10px 0 16px 0;
-    border-radius: 6px;
-    line-height: 1.6;
-}
-
 /* ビール画像を固定幅にして横スクロール可能に */
 .detail-card img {
-    width: 100px;          /* 画像は固定幅 */
-    height: 100px;
+    width: 180px;          /* 画像は固定幅 */
+    height: 180px;
     object-fit: contain;
 }
 
@@ -311,13 +306,6 @@ st.markdown("""
 
 /* brewery-beer-list 横スクロール */
 .brewery-beer-list { margin-top:10px; }
-
-/* ビール画像（UNTAPPD 上）を固定幅に */
-.beer-image {
-    width: 150px;        /* ← 好きな幅に調整 */
-    height: 150px;       /* 高さも固定したい場合 */
-    object-fit: contain; /* 画像を切らずに収める */
-}
 
 /* remove btn hover */
 .remove-btn div[data-testid="stButton"] > button:hover {
@@ -331,13 +319,6 @@ st.markdown("""
     justify-content: center;
     height: 100%;
 }
-
-.left-center {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
 
 </style>
 """, unsafe_allow_html=True)
@@ -447,6 +428,11 @@ with st.expander("フィルター / 検索を表示", False):
         key="show_no_stock"
     )
 
+     # 国リストを在庫フィルタに合わせて取得
+    countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
+
+
+
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
@@ -513,43 +499,6 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("### スタイル（メイン）で絞り込み")
     style_ui_placeholder = st.container()
 
-# ---------- 表示条件スナップショット ----------
-selected_styles = [
-    s for s in df_all["style_main_jp"].dropna().unique()
-    if st.session_state.get(f"style_{s}", False)
-]
-
-current_view_state = (
-    tuple(sorted(selected_styles)),
-    st.session_state.get("sort_option"),
-    st.session_state.get("country_radio"),
-    st.session_state.get("search_text"),
-    st.session_state.get("size_choice"),
-    st.session_state.get("abv_slider"),
-    st.session_state.get("price_slider"),
-    st.session_state.get("show_take_order"),
-    st.session_state.get("show_no_stock"),
-)
-
-if "prev_view_state" not in st.session_state:
-    st.session_state["prev_view_state"] = current_view_state
-else:
-    if st.session_state["prev_view_state"] != current_view_state:
-        # フィルタ条件が変わったら removed_ids をリセット
-        st.session_state["removed_ids"] = set()
-        st.session_state["prev_view_state"] = current_view_state
-
-    else:
-        st.session_state["reset_removed_ids"] = False
-
-# 条件が変わったかどうか判定
-condition_changed = st.session_state.get("prev_view_state") != current_view_state
-if condition_changed:
-    st.session_state["removed_ids"] = set()  # バツをリセット
-
-st.session_state["prev_view_state"] = current_view_state
-
-
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
     df_all,
@@ -561,21 +510,9 @@ filtered_base = build_filtered_df(
     price_max=price_max,
     show_take_order=show_take_order,
     show_no_stock=show_no_stock,
-    removed_ids=() if st.session_state.get("reset_removed_ids", False) else tuple(sorted(st.session_state.get("removed_ids", set()))),
+    removed_ids=tuple(sorted(st.session_state.get("removed_ids", set()))),
     country_choice=country_choice,
 )
-
-
-# ---------- Brewery beers map ----------
-# 醸造所のビール一覧は在庫ありだけを表示
-brewery_beers_map = build_brewery_beers_map(
-    filtered_base,
-    show_take_order=show_take_order,
-    show_no_stock=show_no_stock
-)
-# 醸造所ごとのビールも名前順に並べる
-for brewery, beers in brewery_beers_map.items():
-    brewery_beers_map[brewery] = beers.sort_values(by="yomi_sort", na_position="last")
 
 # ---------- Style UI（差し込み） ----------
 with style_ui_placeholder:
@@ -593,6 +530,18 @@ with style_ui_placeholder:
             if cols[i % len(cols)].checkbox(s, key=key):
                 selected_styles.append(s)
 
+# ---------- 表示条件スナップショット ----------
+current_view_state = (
+    tuple(sorted(selected_styles)),
+    st.session_state.get("sort_option"),
+    st.session_state.get("country_radio"),
+    st.session_state.get("search_text"),
+    st.session_state.get("size_choice"),
+    st.session_state.get("abv_slider"),
+    st.session_state.get("price_slider"),
+    st.session_state.get("show_take_order"),
+    st.session_state.get("show_no_stock"),
+)
 
 # ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
@@ -600,15 +549,6 @@ if selected_styles:
     filtered = filtered[
         filtered["style_main_jp"].isin(selected_styles)
     ]
-
-# ---------- バツで消したビールを最後に除外 ----------
-filtered = filtered[~filtered["id"].astype(int).isin(st.session_state["removed_ids"])]
-
-
-# ---------- Prepare display_df with limit (Step1: show_limit) ----------
-display_df = filtered.head(st.session_state.show_limit)
-
-
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
@@ -643,6 +583,12 @@ disable_grouping = (
     is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort
 )
 
+
+
+# ---------- Prepare display_df with limit (Step1: show_limit) ----------
+total_count = len(filtered)
+
+display_df = filtered.head(st.session_state.show_limit)
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
 # ---------- Removed beers tracking ----------
@@ -652,8 +598,8 @@ def remove_beer(beer_id):
 
 
 
-# --- カード描画関数 ---
-def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
+# --- カード描画関数（高速・安全版） ---
+def render_beer_card(r, beer_id_safe, brewery, idx):
 
     # ---------- 変数定義（必ず col の外） ----------
     brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
@@ -685,9 +631,8 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
     # ---------- レイアウト ----------
 
-    left_col, right_col = st.columns([3, 6], vertical_alignment="top")
+    left_col, right_col = st.columns([4, 4], vertical_alignment="top")
     with left_col:
-        st.markdown('<div class="left-center">', unsafe_allow_html=True)
         inner1, inner2 = st.columns([1, 1], gap="small")
 
         # ---------- col1 左：醸造所・ビール画像 ----------
@@ -722,7 +667,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
             image_html = f"""
             <div style="display:flex;flex-direction:column;align-items:center;">
-                <img src="{beer_img}" class="beer-image" loading="lazy">
+                <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
                 <a href="{untappd_url}" target="_blank"
                    style="background:#FFD633;padding:4px 10px;border-radius:6px;
                           text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
@@ -732,56 +677,48 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
             """
             st.markdown(image_html, unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
 
-    # ---------- 醸造所詳細（そのまま） ----------
-    if st.session_state.open_beer_id == beer_id_safe:
+        # ---------- 醸造所詳細（そのまま） ----------
 
-        # --- 醸造所コメント ---
-        if r.brewery_description:
-            st.markdown(
-                f"""
-                <div style="background:#f7f7f7;padding:10px 14px;margin:10px 0 16px 0;">
-                <b>{r.brewery_jp}</b><br>
-                {r.brewery_description}
-                </div>
-                """,
-                unsafe_allow_html=True
+    detail_container = st.container()
+
+    with detail_container:
+        if st.session_state.open_beer_id == beer_id_safe:
+
+            brewery_beers_all = get_brewery_beers(
+                filtered_base,
+                brewery,
+                show_take_order,
+                show_no_stock
             )
 
+            st.markdown("### この醸造所のビール一覧")
 
-        if brewery_beers.empty:
-            st.info("現在表示できるビールがありません")
-            return
+            cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
 
-        st.markdown("### この醸造所のビール一覧")
+            for b in brewery_beers_all.itertuples(index=False):
+                abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
+                vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
+                price = ""
+                if pd.notna(b.price_num):
+                    price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
+                vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
 
-        cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
+                name_local = (b.name_local or "").split("/", 1)[-1].strip()
+                name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
+                specs = " | ".join(filter(None, [abv, vol, vintage, price]))
 
-        for b in brewery_beers.itertuples(index=False):
-            abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
-            vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
-            price = ""
-            if pd.notna(b.price_num):
-                price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
-            vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
+                cards.append(
+                    '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
+                    f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
+                    f'<div class="beer-name"><b>{name_local}</b></div>'
+                    f'<div class="beer-name">{name_jp}</div>'
+                    f'<div class="beer-spec">{specs}</div>'
+                    '</div>'
+                )
 
-            name_local = (b.name_local or "").split("/", 1)[-1].strip()
-            name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
-            specs = " | ".join(filter(None, [abv, vol, vintage, price]))
-
-            cards.append(
-                '<div class="detail-card">'
-                f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
-                f'<div class="beer-name"><b>{name_local}</b></div>'
-                f'<div class="beer-name">{name_jp}</div>'
-                f'<div class="beer-spec">{specs}</div>'
-                '</div>'
-            )
-
-        cards.append("</div></div>")
-        st.markdown("".join(cards), unsafe_allow_html=True)
-
+            cards.append("</div></div>")
+            st.markdown("".join(cards), unsafe_allow_html=True)
 
     with right_col:
         info_col, remove_col = st.columns([6, 1])
@@ -824,7 +761,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
 
                 if st.session_state[detail_key]:
                     st.markdown(
-                        f'<div class="comment-card">{r.detailed_comment}</div>',
+                        f"<div class='detail-comment'>{r.detailed_comment}</div>",
                         unsafe_allow_html=True
                     )
 
@@ -833,6 +770,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx, brewery_beers):
             if st.button("❌", key=f"remove_btn_{beer_id_safe}"):
                 remove_beer(beer_id_safe)
 
+
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
 is_abv_low_sort   = sort_option == "ABV（低）"
@@ -840,8 +778,12 @@ is_abv_high_sort  = sort_option == "ABV（高）"
 is_random_sort    = sort_option == "ランダム順"
 
 # 並び順を最優先する条件
-disable_grouping = (is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort or sort_option == "名前順")
-
+disable_grouping = (
+    is_price_sort
+    or is_abv_low_sort
+    or is_abv_high_sort
+    or is_random_sort
+)
 
 # ===== セッション状態の初期化（必須・1回だけ）=====
 if "open_beer_id" not in st.session_state:
@@ -873,19 +815,17 @@ if disable_grouping:
         except (ValueError, TypeError):
             continue
 
-        render_beer_card(
-            r,
-            beer_id_safe,
-            r.brewery_jp,
-            f"nogroup_{beer_id_safe}",   # ← ダミーでOK
-            brewery_beers_map.get(r.brewery_jp, pd.DataFrame())
-        )
+        if beer_id_safe in st.session_state["removed_ids"]:
+            continue
+
+        # r._asdict() を外す → 属性アクセスのまま
+        render_beer_card(r, beer_id_safe, r.brewery_jp)
 
 else:
     breweries_to_show = display_df["brewery_jp"].unique()
 
     for b_idx, brewery in enumerate(breweries_to_show):
-        brewery_beers = brewery_beers_map.get(brewery, pd.DataFrame())
+        brewery_beers = display_df[display_df["brewery_jp"] == brewery]
 
         for i, r in enumerate(brewery_beers.itertuples(index=False)):
             try:
@@ -893,12 +833,14 @@ else:
             except (ValueError, TypeError):
                 continue
 
+            if beer_id_safe in st.session_state["removed_ids"]:
+                continue
+
             render_beer_card(
                 r,
                 beer_id_safe,
                 brewery,
-                f"{b_idx}_{i}",   # ← これが決定打
-                brewery_beers
+                f"{b_idx}_{i}"   # ← これが決定打
             )
 
 # ---------- トップへ戻るボタン ----------
