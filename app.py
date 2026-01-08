@@ -161,6 +161,7 @@ def build_filtered_df(
     if country_choice != "すべて":
         d = d[d["country"] == country_choice]
 
+
     # --- 削除済み ---
     if removed_ids:
         d = d[~d["id"].astype(int).isin(removed_ids)]
@@ -824,7 +825,6 @@ if disable_grouping:
             beer_id_safe,
             r.brewery_jp,
             f"nogroup_{beer_id_safe}",
-            brewery_beers_map.get(r.brewery_jp, pd.DataFrame())
         )
 
 
