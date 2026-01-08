@@ -679,10 +679,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
             st.markdown(image_html, unsafe_allow_html=True)
 
 
-        # ---------- 醸造所詳細（そのまま） ----------
-
-
-    with detail_container:
+    # ---------- 醸造所詳細（そのまま） ----------
     if st.session_state.open_beer_id == beer_id_safe:
 
         brewery_beers_all = get_brewery_beers(
