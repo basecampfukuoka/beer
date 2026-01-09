@@ -538,16 +538,16 @@ def render_beer_card(r, beer_id_safe, idx):
             unsafe_allow_html=True
         )
 
-        # ====== 詳細コメント（軽量・確定版）=====
+        # ====== 詳細コメント（最終確定版）=====
         if r.detailed_comment:
-            expander_slot = st.empty()   # ← 毎回新しい領域を作る
+            # フィルタやリセットで変わるシグネチャ
+            invisible_suffix = "\u200b" * (abs(hash(current_view_state)) % 5)
 
-            with expander_slot:
-                with st.expander("詳細コメント", expanded=False):
-                    st.markdown(
-                        f"<div class='detail-comment'>{r.detailed_comment}</div>",
-                        unsafe_allow_html=True
-                    )
+            with st.expander(f"詳細コメント{invisible_suffix}", expanded=False):
+                st.markdown(
+                    f"<div class='detail-comment'>{r.detailed_comment}</div>",
+                    unsafe_allow_html=True
+                )
 
 
 # ---------- Render（統一版） ----------
