@@ -107,15 +107,7 @@ def build_filtered_df(
     removed_ids,
     country_choice,  
 ):
-
-    d = df.copy()
-
-    # --- 在庫フィルタ ---
-    d = d[
-        (d["stock_status"] == "○")
-        | (show_take_order & (d["stock_status"] == "△"))
-        | (show_no_stock & (d["stock_status"] == "×"))
-    ]
+    d = df[df["stock_status"] == "○"].copy()
 
     # --- フリー検索 ---
     if search_text and search_text.strip():
@@ -202,19 +194,11 @@ def load_data(path=EXCEL_PATH):
 
 # ===== ★ここに追加（③）=====
 @st.cache_data
-def get_brewery_beers(
-    df_all,
-    brewery_jp,
-    show_take_order,
-    show_no_stock
-):
+def get_brewery_beers(df_all, brewery_jp):
     d = df_all[df_all["brewery_jp"] == brewery_jp]
 
-    d = d[
-        (d["stock_status"] == "○") |
-        (show_take_order & (d["stock_status"] == "△")) |
-        (show_no_stock & (d["stock_status"] == "×"))
-    ]
+    # 在庫ありのみ
+    d = d[d["stock_status"] == "○"]
 
     return d
 
@@ -332,7 +316,7 @@ div[data-testid="stHorizontalBlock"]:hover {
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5 = st.columns([0.2, 2, 0.5, 1.5,1])
+    c1, c2, c3, c4, c5 = st.columns([0.2, 2, 1, 1.5,1])
 
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
@@ -777,6 +761,7 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
 
 
 
