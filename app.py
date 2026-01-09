@@ -1,8 +1,6 @@
 
 import streamlit as st
 import pandas as pd
-import locale
-import unicodedata
 from pyuca import Collator  # <- import
 
 collator = Collator()  
@@ -104,7 +102,6 @@ def build_filtered_df(
     size_choice,
     abv_min, abv_max,
     price_min, price_max,
-    removed_ids,
     country_choice,  
 ):
     d = df[df["stock_status"] == "○"].copy()
@@ -144,11 +141,6 @@ def build_filtered_df(
     # --- 国フィルタ（ここだけ） ---
     if country_choice != "すべて":
         d = d[d["country"] == country_choice]
-
-
-    # --- 削除済み ---
-    if removed_ids:
-        d = d[~d["id"].astype(int).isin(removed_ids)]
 
     return d
 
@@ -192,28 +184,13 @@ def load_data(path=EXCEL_PATH):
 
     return df
 
-# ===== ★ここに追加（③）=====
-@st.cache_data
-def get_brewery_beers(df_all, brewery_jp):
-    d = df_all[df_all["brewery_jp"] == brewery_jp]
-
-    # 在庫ありのみ
-    d = d[d["stock_status"] == "○"]
-
-    return d
-
 # --- load_data の外 ---
 df_all = load_data()
 df = df_all
 
-
-df_instock = df[df["stock_status"] == "○"]
-
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
     st.session_state.show_limit = 10   # ▼ Step1: 初期表示件数（10件）
-if "removed_ids" not in st.session_state:
-    st.session_state["removed_ids"] = set()
 
 # helper: compute a signature for current filters so we can reset show_limit when filters change
 def compute_filter_signature():
@@ -244,57 +221,6 @@ else:
 # ---------- Custom CSS ----------
 st.markdown("""
 <style>
-/* ビール名統一（英語・日本語） */
-.beer-name {
-    width: 180px;             /* カード幅に合わせる */
-    display: block;
-    margin: 0 auto;
-    text-align: center;       /* 中央揃え */
-    white-space: normal;      /* 折り返し有効 */
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
-/* 詳細カードデザイン */
-.detail-card { 
-    background-color: #f0f8ff; 
-    border-radius: 8px; 
-    padding: 10px; 
-    margin:5px; 
-    display:inline-block; 
-    vertical-align:top; 
-    min-width: 150px;  /* 任意で最小幅を設定 */
-    max-width: 450px;       /* 任意で最大幅 */
-    text-align:center !important; 
-}
-/* ビール画像を固定幅にして横スクロール可能に */
-.detail-card img {
-    width: 180px;          /* 画像は固定幅 */
-    height: 180px;
-    object-fit: contain;
-}
-
-/* 横スクロール用ラッパー */
-.brewery-beer-list > div {
-    white-space: nowrap;
-    overflow-x: auto;
-}
-
-/* brewery-beer-list 横スクロール */
-.brewery-beer-list { margin-top:10px; }
-
-/* remove btn hover */
-.remove-btn div[data-testid="stButton"] > button:hover {
-    opacity: 0.6 !important;
-}
-
-/* ボタン中央寄せ */
-.remove-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
 
 /* ビール1カード（columns 全体） */
 div[data-testid="stHorizontalBlock"] {
@@ -369,24 +295,20 @@ with st.expander("フィルター / 検索を表示", False):
             for s in df["style_main_jp"].dropna().unique():
                 st.session_state[f"style_{s}"] = False
 
-            # 2. removed_ids をリセット
-            st.session_state["removed_ids"] = set()
-
-            # 3. その他のUI状態も初期化
+            # 2. その他のUI状態も初期化
             for key in ["search_text", "sort_option", "size_choice", "abv_slider", "price_slider", "country_radio"]:
                 st.session_state.pop(key, None)
          
-            # 4. 醸造所詳細・ビール詳細のキーも削除
+            # 3. 醸造所詳細・ビール詳細のキーも削除
             for key in list(st.session_state.keys()):
                 if (
                     key.startswith("show_detail_")
-                    or key.startswith("brewery_btn_")
                     or key.startswith("show_comment_")
                     or key.startswith("comment_btn_")
                 ):
                     del st.session_state[key]
 
-            # 5. 必要に応じて初期値をセット
+            # 4. 必要に応じて初期値をセット
             st.session_state["search_text"] = ""
             st.session_state["sort_option"] = "名前順"
             st.session_state["size_choice"] = "小瓶（≤500ml）"
@@ -479,7 +401,6 @@ filtered_base = build_filtered_df(
     abv_max=abv_max,
     price_min=price_min,
     price_max=price_max,
-    removed_ids=tuple(sorted(st.session_state.get("removed_ids", set()))),
     country_choice=country_choice,
 )
 
@@ -558,15 +479,8 @@ total_count = len(filtered)
 display_df = filtered.head(st.session_state.show_limit)
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
-# ---------- Removed beers tracking ----------
-def remove_beer(beer_id):
-    beer_id_int = int(float(beer_id))
-    st.session_state["removed_ids"].add(beer_id_int)
-
-
-
 # --- カード描画関数（高速・安全版） ---
-def render_beer_card(r, beer_id_safe, brewery, idx):
+def render_beer_card(r, beer_id_safe, idx):
 
     # --- 変数定義 ---
     beer_img = r.beer_image_url or DEFAULT_BEER_IMG
@@ -645,24 +559,8 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
                 )
         st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------- 表示モード判定 ----------
-is_price_sort     = sort_option == "価格（低）"
-is_abv_low_sort   = sort_option == "ABV（低）"
-is_abv_high_sort  = sort_option == "ABV（高）"
-is_random_sort    = sort_option == "ランダム順"
-
-# 並び順を最優先する条件
-disable_grouping = (
-    is_price_sort
-    or is_abv_low_sort
-    or is_abv_high_sort
-    or is_random_sort
-)
 
 # ===== セッション状態の初期化（必須・1回だけ）=====
-if "open_beer_id" not in st.session_state:
-    st.session_state.open_beer_id = None
-
 
 # ---------- 表示条件が変わったら詳細系を閉じる ----------
 if "prev_view_state" not in st.session_state:
@@ -674,9 +572,6 @@ if st.session_state["prev_view_state"] != current_view_state:
         if key.startswith("show_comment_"):
             del st.session_state[key]
 
-    # ★ 醸造所詳細を閉じる
-    st.session_state.open_beer_id = None
-
 st.session_state["prev_view_state"] = current_view_state
 
 
@@ -687,9 +582,6 @@ if disable_grouping:
         try:
             beer_id_safe = int(float(r.id))
         except (ValueError, TypeError):
-            continue
-
-        if beer_id_safe in st.session_state["removed_ids"]:
             continue
 
         # r._asdict() を外す → 属性アクセスのまま
@@ -713,15 +605,7 @@ else:
             except (ValueError, TypeError):
                 continue
 
-            if beer_id_safe in st.session_state["removed_ids"]:
-                continue
-
-            render_beer_card(
-                r,
-                beer_id_safe,
-                brewery,
-                f"{b_idx}_{i}"   # ← これが決定打
-            )
+            render_beer_card(r, beer_id_safe, f"{b_idx}_{i}")
 
 # ---------- トップへ戻るボタン ----------
 st.markdown(
