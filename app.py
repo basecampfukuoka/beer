@@ -321,6 +321,19 @@ st.markdown("""
     height: 100%;
 }
 
+.beer-card {
+    background: #fff5f5;           /* 薄い赤 */
+    border: 1px solid #f2c2c2;     /* ほんのり赤枠 */
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.beer-card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
