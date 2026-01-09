@@ -673,6 +673,15 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
             unsafe_allow_html=True
         )
 
+        # ====== 詳細コメント（軽量版）=====
+        if r.detailed_comment:
+            with st.expander("詳細コメント", expanded=False):
+                st.markdown(
+                    f"<div class='detail-comment'>{r.detailed_comment}</div>",
+                    unsafe_allow_html=True
+                )
+
+
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
 is_abv_low_sort   = sort_option == "ABV（低）"
