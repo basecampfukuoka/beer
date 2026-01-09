@@ -74,20 +74,14 @@ def locale_key(x):
     return collator.sort_key(s)
 
 # ---------- Helpers ----------
-def get_countries_for_filter(df, show_take_order, show_no_stock):
-    """
-    現在の在庫フィルタを反映した国リストを返す
-    - show_take_order: 取り寄せも表示
-    - show_no_stock: 在庫なしも表示
-    """
-    d = df[df["stock_status"] == "○"].copy()  # 在庫あり
-    if show_take_order:
-        d = pd.concat([d, df[df["stock_status"] == "△"]])
-    if show_no_stock:
-        d = pd.concat([d, df[df["stock_status"] == "×"]])
+def get_countries_for_filter(df):
+    return sorted(
+        df[df["stock_status"] == "○"]["country"]
+        .replace("", pd.NA)
+        .dropna()
+        .unique()
+    )
 
-    countries = sorted(d["country"].replace("", pd.NA).dropna().unique())
-    return countries
 
 # ---------- Style candidates (cached) ----------
 @st.cache_data
@@ -110,8 +104,6 @@ def build_filtered_df(
     size_choice,
     abv_min, abv_max,
     price_min, price_max,
-    show_take_order,
-    show_no_stock,
     removed_ids,
     country_choice,  
 ):
@@ -248,8 +240,7 @@ def compute_filter_signature():
         st.session_state.get("size_choice",""),
         str(st.session_state.get("abv_slider","")),
         str(st.session_state.get("price_slider","")),
-        st.session_state.get("country_radio",""),
-        str(st.session_state.get("show_out_of_stock", False))
+        st.session_state.get("country_radio","")
     ]
     # include style selections
     style_keys = [k for k in st.session_state.keys() if k.startswith("style_")]
@@ -394,7 +385,7 @@ with st.expander("フィルター / 検索を表示", False):
             for s in df["style_main_jp"].dropna().unique():
                 st.session_state[f"style_{s}"] = False
 
-            # 2. removed_ids をリセット ← ★これが抜けてた
+            # 2. removed_ids をリセット
             st.session_state["removed_ids"] = set()
 
             # 3. その他のUI状態も初期化
@@ -417,9 +408,6 @@ with st.expander("フィルター / 検索を表示", False):
             st.session_state["size_choice"] = "小瓶（≤500ml）"
             st.session_state["abv_slider"] = (0.0, 20.0)
             st.session_state["price_slider"] = (0, 20000)
-            st.session_state["show_take_order"] = False
-            st.session_state["show_no_stock"] = False
-
             st.rerun()
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
@@ -513,8 +501,6 @@ filtered_base = build_filtered_df(
     abv_max=abv_max,
     price_min=price_min,
     price_max=price_max,
-    show_take_order=show_take_order,
-    show_no_stock=show_no_stock,
     removed_ids=tuple(sorted(st.session_state.get("removed_ids", set()))),
     country_choice=country_choice,
 )
@@ -544,8 +530,6 @@ current_view_state = (
     st.session_state.get("size_choice"),
     st.session_state.get("abv_slider"),
     st.session_state.get("price_slider"),
-    st.session_state.get("show_take_order"),
-    st.session_state.get("show_no_stock"),
 )
 
 # ----------style 選択を filtered に適用 ----------
