@@ -431,9 +431,6 @@ with st.expander("フィルター / 検索を表示", False):
     if "country_radio" not in st.session_state:
         st.session_state["country_radio"] = "ベルギー"
 
-    # ---- 国一覧（在庫フィルタ反映）----
-    countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
-
     # 日本語表示用に変換
     countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
 
