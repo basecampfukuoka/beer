@@ -341,7 +341,7 @@ div[data-testid="stHorizontalBlock"]:hover {
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5 = st.columns([0.2, 4, 0.5, 1,0.8])
+    c1, c2, c3, c4, c5 = st.columns([0.2, 2, 0.5, 1.5,1])
 
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
@@ -432,16 +432,6 @@ with st.expander("フィルター / 検索を表示", False):
         "Italy": "イタリア", "Sweden": "スウェーデン",
     }
 
-    # ---- 取り寄せ・在庫なし表示 ----
-    show_take_order = col_stock1.checkbox(
-        "取り寄せを表示",
-        key="show_take_order"
-    )
-
-    show_no_stock = col_stock2.checkbox(
-        "在庫なしを表示",
-        key="show_no_stock"
-    )
 
      # 国リストを在庫フィルタに合わせて取得
     countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
@@ -511,7 +501,7 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     # ===== 4行目：スタイル（メイン） =====
-    st.markdown("### スタイル（メイン）で絞り込み")
+    st.markdown("### スタイルで絞り込み")
     style_ui_placeholder = st.container()
 
 # ---------- Filtering（★1回だけ） ----------
@@ -650,15 +640,14 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
 
         st.markdown(
             f"""
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                {"<img src='"+flag_img+"' width='18'>" if flag_img else ""}
-                <div>
-                    <b style="font-size:1.0em;">{r.brewery_local}</b>
-                    <span style="font-size:0.9em;color:#666;">
-                        / {r.brewery_jp}
-                    </span>
-                </div>
-            </div>
+            <a href="{r.untappd_url}" target="_blank"
+                style="text-decoration:none;color:inherit;">
+                <b style="font-size:1.15em;">{r.name_local}</b><br>
+                <span style="font-size:0.95em;">{r.name_jp}</span>
+            </a><br>
+            <span style="color:#666;">{style_line}</span><br>
+            {beer_info}<br>
+            {r.comment or ""}
             """,
             unsafe_allow_html=True
         )
