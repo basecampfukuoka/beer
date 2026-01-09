@@ -540,13 +540,14 @@ def render_beer_card(r, beer_id_safe, idx):
 
         # ====== 詳細コメント（軽量版）=====
         if r.detailed_comment:
-            expander_key = f"detail_{beer_id_safe}_{hash(current_view_state)}"
+            expander_key = f"detail_{idx}_{hash(current_view_state)}"
             with st.expander("詳細コメント",expanded=False,key=expander_key):
                 st.markdown(
                     f"<div class='detail-comment'>{r.detailed_comment}</div>",
                     unsafe_allow_html=True
                 )
         st.markdown('</div>', unsafe_allow_html=True)
+
 
 # ---------- Render ----------
 if disable_grouping:
