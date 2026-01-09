@@ -211,8 +211,13 @@ if "prev_filter_sig" not in st.session_state:
 else:
     current_sig = compute_filter_signature()
     if current_sig != st.session_state.prev_filter_sig:
-        # ▼ Step2: フィルタが変わったら表示上限をリセット
+        # フィルタが変わったら表示上限をリセット
         st.session_state.show_limit = 10
+        st.session_state.prev_filter_sig = current_sig
+        for key in list(st.session_state.keys()):
+            if key.startswith("detail_") or key == "open_detail":
+                del st.session_state[key]
+
         st.session_state.prev_filter_sig = current_sig
 
 # ---------- Custom CSS ----------
