@@ -585,13 +585,7 @@ if disable_grouping:
             continue
 
         # r._asdict() を外す → 属性アクセスのまま
-        render_beer_card(
-            r,
-            beer_id_safe,
-            r.brewery_jp,
-            f"nogroup_{beer_id_safe}",
-        )
-
+        render_beer_card(r, beer_id_safe, idx=f"nogroup_{beer_id_safe}")
 
 else:
     breweries_to_show = display_df["brewery_jp"].unique()
