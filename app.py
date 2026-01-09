@@ -538,12 +538,9 @@ def render_beer_card(r, beer_id_safe, idx):
             unsafe_allow_html=True
         )
 
-        # ====== 詳細コメント（最終確定版）=====
+        # ====== 詳細コメント ======
         if r.detailed_comment:
-            # フィルタやリセットで変わるシグネチャ
-            invisible_suffix = "\u200b" * (abs(hash(current_view_state)) % 5)
-
-            with st.expander(f"詳細コメント{invisible_suffix}", expanded=False):
+            with st.expander("詳細コメント", expanded=False):
                 st.markdown(
                     f"<div class='detail-comment'>{r.detailed_comment}</div>",
                     unsafe_allow_html=True
