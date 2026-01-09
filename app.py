@@ -486,7 +486,7 @@ def render_beer_card(r, beer_id_safe):
 
     st.markdown('<div class="beer-card">', unsafe_allow_html=True)
 
-    left_col, right_col = st.columns([3, 5], vertical_alignment="top")
+    left_col, right_col = st.columns([3, 5])
 
     # ===== 左：ビール画像のみ =====
     with left_col:
