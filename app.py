@@ -626,25 +626,52 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
             unsafe_allow_html=True
         )
 
-    # ===== 右：情報 =====
+    # ===== 右：情報（国 → 醸造所 → ビール）=====
     with right_col:
-
-        if flag_img:
-            st.markdown(
-                f"<img src='{flag_img}' width='18' style='margin-bottom:6px;'>",
-                unsafe_allow_html=True
-            )
+        # --- 国旗 + 醸造所名（1列） ---
+        brewery_country = safe_str(r.country)
+        flag_img = country_flag_url.get(brewery_country, "")
 
         st.markdown(
             f"""
-            <b>{r.brewery_local}</b><br>
-            <span style="color:#666;">{r.brewery_jp}</span><br><br>
-            <b style="font-size:1.15em;">{r.name_local}</b><br>
-            {r.name_jp}
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                {"<img src='"+flag_img+"' width='18'>" if flag_img else ""}
+                <div>
+                    <b style="font-size:1.0em;">{r.brewery_local}</b>
+                    <span style="font-size:0.9em;color:#666;">
+                        / {r.brewery_jp}
+                    </span>
+                </div>
+            </div>
             """,
             unsafe_allow_html=True
         )
 
+        # ===== 旧 col3（ビール情報）ベース =====
+        style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
+
+        info_arr = []
+        if pd.notna(r.abv_num):
+            info_arr.append(f"ABV {r.abv_num}%")
+        if pd.notna(r.volume_num):
+            info_arr.append(f"{int(r.volume_num)}ml")
+        if pd.notna(r.vintage) and str(r.vintage).strip():
+            info_arr.append(str(r.vintage).strip())
+        if pd.notna(r.price_num):
+            info_arr.append("ASK" if r.price_num == 0 else f"¥{int(r.price_num)}")
+
+        beer_info = " | ".join(info_arr)
+
+        st.markdown(
+            f"""
+            <b style="font-size:1.15em;">{r.name_local}</b><br>
+            <span style="font-size:0.95em;">{r.name_jp}</span><br>
+            <span style="color:#666;">{style_line}</span><br>
+            {beer_info}<br>
+            {r.comment or ""}
+            """,
+            unsafe_allow_html=True
+        )
 
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
