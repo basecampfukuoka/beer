@@ -540,7 +540,7 @@ def render_beer_card(r, beer_id_safe, idx):
 
         # ====== 詳細コメント（軽量版）=====
         if r.detailed_comment:
-            expander_key = f"detail_{idx}_{hash(current_view_state)}"
+            expander_key = f"detail_{idx}"
             with st.expander("詳細コメント",expanded=False,key=expander_key):
                 st.markdown(
                     f"<div class='detail-comment'>{r.detailed_comment}</div>",
@@ -549,29 +549,14 @@ def render_beer_card(r, beer_id_safe, idx):
         st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ---------- Render ----------
-if disable_grouping:
-    for r in display_df.itertuples(index=False):
-        try:
-            beer_id_safe = int(float(r.id))
-        except (ValueError, TypeError):
-            continue
+# ---------- Render（統一版） ----------
+for global_idx, r in enumerate(display_df.itertuples(index=False)):
+    try:
+        beer_id_safe = int(float(r.id))
+    except (ValueError, TypeError):
+        continue
 
-        render_beer_card(r, beer_id_safe, idx=f"nogroup_{beer_id_safe}")
-
-else:
-    breweries_to_show = display_df["brewery_jp"].unique()
-
-    for b_idx, brewery in enumerate(breweries_to_show):
-        brewery_beers = display_df[display_df["brewery_jp"] == brewery]
-
-        for i, r in enumerate(brewery_beers.itertuples(index=False)):
-            try:
-                beer_id_safe = int(float(r.id))
-            except (ValueError, TypeError):
-                continue
-
-            render_beer_card(r, beer_id_safe, f"{b_idx}_{i}")
+    render_beer_card(r,beer_id_safe,global_idx)
 
 # ---------- トップへ戻るボタン ----------
 st.markdown(
