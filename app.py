@@ -334,6 +334,17 @@ st.markdown("""
     box-shadow: 0 4px 10px rgba(0,0,0,0.10);
 }
 
+    
+/* 1カード（1 beer）全体 */
+div[data-testid="stHorizontalBlock"] {
+    background: #fff5f5;
+    border: 1px solid #f2c2c2;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -621,6 +632,8 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
     brewery_country = safe_str(r.country)
     flag_img = country_flag_url.get(brewery_country, "")
 
+    st.markdown('<div class="beer-card">', unsafe_allow_html=True)
+
     left_col, right_col = st.columns([3, 5], vertical_alignment="top")
 
     # ===== 左：ビール画像 =====
@@ -693,7 +706,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
                     f"<div class='detail-comment'>{r.detailed_comment}</div>",
                     unsafe_allow_html=True
                 )
-
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- 表示モード判定 ----------
 is_price_sort     = sort_option == "価格（低）"
