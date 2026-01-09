@@ -408,9 +408,6 @@ with st.expander("フィルター / 検索を表示", False):
      # 国リストを在庫フィルタに合わせて取得
     countries = get_countries_for_filter(df_all)
 
-
-
-
     # session_state 初期化
     if "country_radio" not in st.session_state:
         st.session_state["country_radio"] = "ベルギー"
@@ -583,17 +580,13 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
 
     left_col, right_col = st.columns([3, 5], vertical_alignment="top")
 
-    # ===== 左：ビール画像 =====
+    # ===== 左：ビール画像のみ =====
     with left_col:
+        beer_img = r.beer_image_url or DEFAULT_BEER_IMG
         st.markdown(
             f"""
             <div style="display:flex;flex-direction:column;align-items:center;">
                 <img src="{beer_img}" style="height:170px;object-fit:contain" loading="lazy">
-                <a href="{untappd_url}" target="_blank"
-                   style="background:#FFD633;padding:4px 10px;border-radius:6px;
-                          text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
-                   UNTAPPD
-                </a>
             </div>
             """,
             unsafe_allow_html=True
