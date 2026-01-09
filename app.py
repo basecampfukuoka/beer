@@ -602,170 +602,48 @@ def remove_beer(beer_id):
 # --- カード描画関数（高速・安全版） ---
 def render_beer_card(r, beer_id_safe, brewery, idx):
 
-    # ---------- 変数定義（必ず col の外） ----------
-    brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
-    brewery_city = safe_str(r.city)
+    # --- 変数定義 ---
+    beer_img = r.beer_image_url or DEFAULT_BEER_IMG
+    untappd_url = r.untappd_url
     brewery_country = safe_str(r.country)
     flag_img = country_flag_url.get(brewery_country, "")
 
-    brewery_html = f"""
-    <img src="{brewery_img}" width="100" loading="lazy"><br>
-    <b>{r.brewery_local}</b><br>
-    {r.brewery_jp}<br>
-    {brewery_city}<br>
-    {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
-    """
+    left_col, right_col = st.columns([3, 5], vertical_alignment="top")
 
-    beer_img = r.beer_image_url or DEFAULT_BEER_IMG
-    untappd_url = r.untappd_url
-
-    image_html = f"""
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-        <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
-        <a href="{untappd_url}" target="_blank"
-           style="background:#FFD633;padding:4px 10px;border-radius:6px;
-                  text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
-           UNTAPPD
-        </a>
-    </div>
-    """
-
-    # ---------- レイアウト ----------
-
-    left_col, right_col = st.columns([4, 4], vertical_alignment="top")
+    # ===== 左：ビール画像 =====
     with left_col:
-        inner1, inner2 = st.columns([1, 1], gap="small")
-
-        # ---------- col1 左：醸造所・ビール画像 ----------
-        with inner1:
-            brewery_img = r.brewery_image_url or DEFAULT_BREWERY_IMG
-            brewery_city = safe_str(r.city)
-            brewery_country = safe_str(r.country)
-            flag_img = country_flag_url.get(brewery_country, "")
-
-            brewery_html = f"""
-            <img src="{brewery_img}" width="100" loading="lazy"><br>
-            <b>{r.brewery_local}</b><br>
-            {r.brewery_jp}<br>
-            {brewery_city}<br>
-            {"<img src='"+flag_img+"' width='20'> "+brewery_country if flag_img else brewery_country}
-            """
-            st.markdown(brewery_html, unsafe_allow_html=True)
-
-
-            # ▼ トグル（1つだけ開く）
-            if st.button("醸造所詳細を見る", key=f"brewery_btn_{brewery}_{beer_id_safe}_{idx}"):
-                if st.session_state.open_beer_id == beer_id_safe:
-                    st.session_state.open_beer_id = None   # もう一度押したら閉じる
-                else:
-                    st.session_state.open_beer_id = beer_id_safe  # 他は自動で閉じる
-
-
-        # ====== 旧 col2（ビール画像）=====
-        with inner2:
-            beer_img = r.beer_image_url or DEFAULT_BEER_IMG
-            untappd_url = r.untappd_url
-
-            image_html = f"""
+        st.markdown(
+            f"""
             <div style="display:flex;flex-direction:column;align-items:center;">
-                <img src="{beer_img}" style="height:150px;object-fit:contain" loading="lazy">
+                <img src="{beer_img}" style="height:170px;object-fit:contain" loading="lazy">
                 <a href="{untappd_url}" target="_blank"
                    style="background:#FFD633;padding:4px 10px;border-radius:6px;
                           text-decoration:none;color:#000;font-weight:600;margin-top:6px;">
                    UNTAPPD
                 </a>
             </div>
-            """
-            st.markdown(image_html, unsafe_allow_html=True)
-
-
-    # ---------- 醸造所詳細（そのまま） ----------
-    if st.session_state.open_beer_id == beer_id_safe:
-
-        brewery_beers_all = get_brewery_beers(
-            filtered_base,
-            brewery,
-            show_take_order,
-            show_no_stock
+            """,
+            unsafe_allow_html=True
         )
 
-        st.markdown("### この醸造所のビール一覧")
-
-        cards = ['<div class="brewery-beer-list"><div style="white-space: nowrap; overflow-x: auto;">']
-
-        for b in brewery_beers_all.itertuples(index=False):
-            abv = f"ABV {b.abv_num}%" if pd.notna(b.abv_num) else ""
-            vol = f"{int(b.volume_num)}ml" if pd.notna(b.volume_num) else ""
-            price = ""
-            if pd.notna(b.price_num):
-                price = "ASK" if b.price_num == 0 else f"¥{int(b.price_num)}"
-            vintage = str(b.vintage).strip() if pd.notna(b.vintage) and str(b.vintage).strip() else ""
-
-            name_local = (b.name_local or "").split("/", 1)[-1].strip()
-            name_jp = (b.name_jp or "").split("/", 1)[-1].strip()
-            specs = " | ".join(filter(None, [abv, vol, vintage, price]))
-
-            cards.append(
-                '<div class="detail-card" style="display:inline-block; margin-right:10px;text-align:center;">'
-                f'<img src="{b.beer_image_url or DEFAULT_BEER_IMG}" loading="lazy"><br>'
-                f'<div class="beer-name"><b>{name_local}</b></div>'
-                f'<div class="beer-name">{name_jp}</div>'
-                f'<div class="beer-spec">{specs}</div>'
-                '</div>'
-            )
-
-        cards.append("</div></div>")
-        st.markdown("".join(cards), unsafe_allow_html=True)
-
+    # ===== 右：情報 =====
     with right_col:
-        info_col, remove_col = st.columns([6, 1])
 
-        # ====== 旧 col3（ビール情報）=====
-        with info_col:
-            style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
-
-            info_arr = []
-            if pd.notna(r.abv_num): info_arr.append(f"ABV {r.abv_num}%")
-            if pd.notna(r.volume_num): info_arr.append(f"{int(r.volume_num)}ml")
-            if pd.notna(r.vintage) and str(r.vintage).strip():
-                info_arr.append(str(r.vintage).strip())
-            if pd.notna(r.price_num):
-                info_arr.append("ASK" if r.price_num == 0 else f"¥{int(r.price_num)}")
-
-            beer_info = " | ".join(info_arr)
-
+        if flag_img:
             st.markdown(
-                f"""
-                <b>{r.name_local}</b><br>
-                {r.name_jp}<br>
-                {style_line}<br>
-                {beer_info}<br>
-                {r.comment or ""}
-                """,
+                f"<img src='{flag_img}' width='18' style='margin-bottom:6px;'>",
                 unsafe_allow_html=True
             )
 
-
-        # ====== 詳細コメント（トグル：必ず Streamlit）=====
-        with info_col:
-            detail_key = f"show_comment_{beer_id_safe}"
-            if detail_key not in st.session_state:
-                st.session_state[detail_key] = False
-
-            if r.detailed_comment:
-                if st.button("詳細コメント", key=f"comment_btn_{beer_id_safe}"):
-                    st.session_state[detail_key] = not st.session_state[detail_key]
-
-                if st.session_state[detail_key]:
-                    st.markdown(
-                        f"<div class='detail-comment'>{r.detailed_comment}</div>",
-                        unsafe_allow_html=True
-                    )
-
-        # ====== 旧 col4（❌ボタン）=====
-        with remove_col:
-            if st.button("❌", key=f"remove_btn_{beer_id_safe}"):
-                remove_beer(beer_id_safe)
+        st.markdown(
+            f"""
+            <b>{r.brewery_local}</b><br>
+            <span style="color:#666;">{r.brewery_jp}</span><br><br>
+            <b style="font-size:1.15em;">{r.name_local}</b><br>
+            {r.name_jp}
+            """,
+            unsafe_allow_html=True
+        )
 
 
 # ---------- 表示モード判定 ----------
