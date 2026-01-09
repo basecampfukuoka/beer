@@ -605,6 +605,14 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
         brewery_country = safe_str(r.country)
         flag_img = country_flag_url.get(brewery_country, "")
 
+        brewery_name_html = f"""
+        <div style="margin-bottom:6px;">
+            {"<img src='"+flag_img+"' width='18' style='vertical-align:middle;margin-right:6px;'>" if flag_img else ""}
+            <b>{r.brewery_local}</b> / <span style="color:#666;">{r.brewery_jp}</span>
+        </div>
+        """
+        st.markdown(brewery_name_html, unsafe_allow_html=True)
+
 
         # ===== 旧 col3（ビール情報）ベース =====
         style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
