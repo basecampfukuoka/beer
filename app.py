@@ -321,28 +321,18 @@ st.markdown("""
     height: 100%;
 }
 
-.beer-card {
-    background: #fff5f5;           /* 薄い赤 */
-    border: 1px solid #f2c2c2;     /* ほんのり赤枠 */
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 14px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-}
-
-.beer-card:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.10);
-}
-
-    
-/* 1カード（1 beer）全体 */
+/* ビール1カード（columns 全体） */
 div[data-testid="stHorizontalBlock"] {
-    background: #fff5f5;
-    border: 1px solid #f2c2c2;
+    background: #f4f9ff;           /* 薄い青 */
+    border: 1px solid #cfe3f8;     /* 青寄りの薄枠 */
     border-radius: 12px;
     padding: 14px 16px;
     margin-bottom: 14px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+div[data-testid="stHorizontalBlock"]:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.10);
 }
 
 </style>
