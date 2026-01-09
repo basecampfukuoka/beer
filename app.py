@@ -179,9 +179,6 @@ def load_data(path=EXCEL_PATH):
     df["yomi"] = df["yomi"].astype(str).str.strip()
     df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
 
-    # debug print
-    print(df.columns.tolist())
-
     return df
 
 # --- load_data の外 ---
@@ -299,16 +296,7 @@ with st.expander("フィルター / 検索を表示", False):
             for key in ["search_text", "sort_option", "size_choice", "abv_slider", "price_slider", "country_radio"]:
                 st.session_state.pop(key, None)
          
-            # 3. 醸造所詳細・ビール詳細のキーも削除
-            for key in list(st.session_state.keys()):
-                if (
-                    key.startswith("show_detail_")
-                    or key.startswith("show_comment_")
-                    or key.startswith("comment_btn_")
-                ):
-                    del st.session_state[key]
-
-            # 4. 必要に応じて初期値をセット
+            # 3. 必要に応じて初期値をセット
             st.session_state["search_text"] = ""
             st.session_state["sort_option"] = "名前順"
             st.session_state["size_choice"] = "小瓶（≤500ml）"
@@ -552,29 +540,13 @@ def render_beer_card(r, beer_id_safe, idx):
 
         # ====== 詳細コメント（軽量版）=====
         if r.detailed_comment:
-            with st.expander("詳細コメント", expanded=False):
+            expander_key = f"detail_{beer_id_safe}_{hash(current_view_state)}"
+            with st.expander("詳細コメント",expanded=False,key=expander_key):
                 st.markdown(
                     f"<div class='detail-comment'>{r.detailed_comment}</div>",
                     unsafe_allow_html=True
                 )
         st.markdown('</div>', unsafe_allow_html=True)
-
-
-# ===== セッション状態の初期化（必須・1回だけ）=====
-
-# ---------- 表示条件が変わったら詳細系を閉じる ----------
-if "prev_view_state" not in st.session_state:
-    st.session_state["prev_view_state"] = current_view_state
-
-if st.session_state["prev_view_state"] != current_view_state:
-    # 詳細コメントを閉じる
-    for key in list(st.session_state.keys()):
-        if key.startswith("show_comment_"):
-            del st.session_state[key]
-
-st.session_state["prev_view_state"] = current_view_state
-
-
 
 # ---------- Render ----------
 if disable_grouping:
@@ -584,7 +556,6 @@ if disable_grouping:
         except (ValueError, TypeError):
             continue
 
-        # r._asdict() を外す → 属性アクセスのまま
         render_beer_card(r, beer_id_safe, idx=f"nogroup_{beer_id_safe}")
 
 else:
