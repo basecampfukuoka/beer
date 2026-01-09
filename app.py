@@ -585,7 +585,7 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
         beer_img = r.beer_image_url or DEFAULT_BEER_IMG
         st.markdown(
             f"""
-            <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="display:flex;justify-content:center;align-items:center;height:100%;">
                 <img src="{beer_img}" style="height:170px;object-fit:contain" loading="lazy">
             </div>
             """,
