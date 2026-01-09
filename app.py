@@ -434,7 +434,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 
      # 国リストを在庫フィルタに合わせて取得
-    countries = get_countries_for_filter(df_all, show_take_order, show_no_stock)
+    countries = get_countries_for_filter(df_all)
 
 
 
