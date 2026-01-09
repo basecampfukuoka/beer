@@ -576,6 +576,8 @@ def render_beer_card(r, beer_id_safe, brewery, idx):
     untappd_url = r.untappd_url
     brewery_country = safe_str(r.country)
     flag_img = country_flag_url.get(brewery_country, "")
+    style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
+
 
     st.markdown('<div class="beer-card">', unsafe_allow_html=True)
 
@@ -761,7 +763,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
 
 
 
