@@ -304,6 +304,12 @@ with st.expander("フィルター / 検索を表示", False):
             st.session_state["price_slider"] = (0, 20000)
             st.rerun()
 
+            # 4.詳細コメント state を全削除
+            for key in list(st.session_state.keys()):
+                if key.startswith("detail_"):
+                    del st.session_state[key]
+
+
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
     col_country, col_stock1, col_stock2 = st.columns([4,1,1])
 
@@ -538,9 +544,20 @@ def render_beer_card(r, beer_id_safe):
             unsafe_allow_html=True
         )
 
-        # ====== 詳細コメント ======
+        # ====== 詳細コメント（自前 toggle / 軽量）=====
         if r.detailed_comment:
-            with st.expander("詳細コメント", expanded=False):
+            detail_key = f"detail_{beer_id_safe}"
+
+            # 初期化
+            if detail_key not in st.session_state:
+                st.session_state[detail_key] = False
+
+            # トグルボタン（軽い）
+            if st.button("▶ 詳細コメント", key=f"btn_{beer_id_safe}"):
+                st.session_state[detail_key] = not st.session_state[detail_key]
+
+            # 表示
+            if st.session_state[detail_key]:
                 st.markdown(
                     f"<div class='detail-comment'>{r.detailed_comment}</div>",
                     unsafe_allow_html=True
