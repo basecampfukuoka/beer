@@ -468,7 +468,7 @@ display_df = filtered.head(st.session_state.show_limit)
 st.markdown("**表示件数：{} 件**".format(len(filtered)))
 
 # --- カード描画関数（高速・安全版） ---
-def render_beer_card(r, beer_id_safe, idx):
+def render_beer_card(r, beer_id_safe):
 
     # --- 変数定義 ---
     beer_img = r.beer_image_url or DEFAULT_BEER_IMG
@@ -554,7 +554,7 @@ for global_idx, r in enumerate(display_df.itertuples(index=False)):
     except (ValueError, TypeError):
         continue
 
-    render_beer_card(r,beer_id_safe,global_idx)
+    render_beer_card(r, beer_id_safe)
 
 # ---------- トップへ戻るボタン ----------
 st.markdown(
