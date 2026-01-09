@@ -550,24 +550,26 @@ def render_beer_card(r, beer_id_safe):
         )
 
         # ====== 詳細コメント（自前 toggle / 軽量）=====
-        if r.detailed_comment:
-            detail_key = f"detail_{beer_id_safe}"
+        detail_key = f"detail_{beer_id_safe}"
 
-            # 初期化
-            if detail_key not in st.session_state:
-                st.session_state[detail_key] = False
+        # 初期化
+        if detail_key not in st.session_state:
+            st.session_state[detail_key] = False
 
-            # トグルボタン（軽い）
-            if st.button("▶ 詳細コメント", key=f"btn_{beer_id_safe}"):
-                st.session_state[detail_key] = not st.session_state[detail_key]
+        # トグルボタン（軽い）
+        if st.button("詳細", key=f"btn_{beer_id_safe}"):
+            st.session_state[detail_key] = not st.session_state.get(detail_key, False)
 
-            # 表示
-            if st.session_state[detail_key]:
-                st.markdown(
-                    f"<div class='detail-comment'>{r.detailed_comment}</div>",
-                    unsafe_allow_html=True
-                )
-
+        # 表示
+        if st.session_state.get(detail_key):
+            st.markdown(
+                f"""
+                <div class="detail-comment">
+                  {r.detailed_comment}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 # ---------- Render（統一版） ----------
 for global_idx, r in enumerate(display_df.itertuples(index=False)):
@@ -605,7 +607,6 @@ if st.session_state.show_limit < len(filtered):
     with st.container():
         if st.button("🔽もっと見る🔽", use_container_width=True):
             st.session_state.show_limit += 10
-            st.rerun()
 else:
     # optional: show nothing or a small message
     pass
