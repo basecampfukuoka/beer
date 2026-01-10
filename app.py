@@ -560,7 +560,7 @@ def render_beer_card(r, beer_id_safe):
                 st.session_state[detail_key] = False
 
             # トグルボタン
-            if st.button("詳細", key=f"btn_{beer_id_safe}"):
+            if st.button("詳細コメント", key=f"btn_{beer_id_safe}"):
                 st.session_state[detail_key] = not st.session_state[detail_key]
 
             # 表示
