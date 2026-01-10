@@ -244,7 +244,7 @@ div[data-testid="stHorizontalBlock"]:hover {
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5 = st.columns([0.2, 2, 1, 1.5,1])
+    c1, c2, c3, c4, c5 = st.columns([0.8, 4, 0.8, 2,2])
 
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
@@ -259,7 +259,7 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     with c3:
-        st.markdown("並び替え", unsafe_allow_html=True)
+        st.markdown("⇅", unsafe_allow_html=True)
 
     with c4:
         sort_options = [
