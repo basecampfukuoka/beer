@@ -266,7 +266,7 @@ div[data-testid="stHorizontalBlock"]:hover {
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5 = st.columns([0.5,8,0.5,3.5,5])
+    c1, c2, c3, c4, c5, c6 = st.columns([0.5,5,5,0.5,3.5,5])
 
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
@@ -281,9 +281,32 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     with c3:
-        st.markdown("⇅", unsafe_allow_html=True)
+        countries = get_countries_for_filter(df_all)
+
+        if "country_radio" not in st.session_state:
+            st.session_state["country_radio"] = "すべて"
+
+        countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
+
+        country_choice_display = st.radio(
+            "国",
+            countries_display,
+            horizontal=True,
+            label_visibility="collapsed",
+            key="country_radio"
+        )
+
+        if country_choice_display == "すべて":
+            country_choice = "すべて"
+        else:
+            country_choice = {v: k for k, v in country_map.items()}.get(
+                country_choice_display, country_choice_display
+            )
 
     with c4:
+        st.markdown("⇅", unsafe_allow_html=True)
+
+    with c5:
         sort_options = [
             "名前順",
             "ABV（低）",
@@ -311,7 +334,7 @@ with st.expander("フィルター / 検索を表示", False):
         </style>
         """, unsafe_allow_html=True)
 
-    with c5:
+    with c6:
         # ---------- 修正：完全リセット ----------
         if st.button("🔄 リセット", help="すべて初期化"):
 
@@ -337,45 +360,7 @@ with st.expander("フィルター / 検索を表示", False):
                     del st.session_state[key]
 
 
-    # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country, col_stock1, col_stock2 = st.columns([4,1,1])
-
-    country_map = {
-        "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ", "United States": "アメリカ",
-        "United Kingdom": "イギリス", "Netherlands": "オランダ", "Czech Republic": "チェコ",
-        "France": "フランス", "Canada": "カナダ", "Australia": "オーストラリア",
-        "Italy": "イタリア", "Sweden": "スウェーデン",
-    }
-
-
-     # 国リストを在庫フィルタに合わせて取得
-    countries = get_countries_for_filter(df_all)
-
-    # session_state 初期化
-    if "country_radio" not in st.session_state:
-        st.session_state["country_radio"] = "ベルギー"
-
-    # 日本語表示用に変換
-    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
-
-
-    country_choice_display = col_country.radio(
-        "国",
-        countries_display,
-        horizontal=True,
-        key="country_radio"
-    )
-
-    # 日本語表示 → 内部用（英語）変換
-    if country_choice_display == "すべて":
-        country_choice = "すべて"
-    else:
-        country_choice = {v: k for k, v in country_map.items()}.get(
-            country_choice_display, country_choice_display
-        )
-
-
-    # ===== 3行目：サイズ・ABV・価格 =====
+    # ===== 2行目：サイズ・ABV・価格 =====
     col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
 
     with col_size:    
