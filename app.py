@@ -266,7 +266,7 @@ div[data-testid="stHorizontalBlock"]:hover {
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5, c6 = st.columns([0.5,5,10,0.5,3.5,5])
+    c1, c2, c3, c4, c5, c6, c7 = st.columns([0.5,5,0.5,10,0.5,3.5,5])
 
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
@@ -281,6 +281,9 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     with c3:
+        st.markdown("国", unsafe_allow_html=True)
+
+    with c4:
         countries = get_countries_for_filter(df_all)
 
         if "country_radio" not in st.session_state:
@@ -308,10 +311,10 @@ with st.expander("フィルター / 検索を表示", False):
                 country_choice_display
             )
 
-    with c4:
+    with c5:
         st.markdown("⇅", unsafe_allow_html=True)
 
-    with c5:
+    with c6:
         sort_options = [
             "名前順",
             "ABV（低）",
@@ -339,7 +342,7 @@ with st.expander("フィルター / 検索を表示", False):
         </style>
         """, unsafe_allow_html=True)
 
-    with c6:
+    with c7:
         # ---------- 修正：完全リセット ----------
         if st.button("🔄 リセット", help="すべて初期化"):
 
