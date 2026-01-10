@@ -71,7 +71,7 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-# ---------- Helpers ----------
+
 def get_countries_for_filter(df):
     return sorted(
         df[df["stock_status"] == "○"]["country"]
@@ -80,8 +80,6 @@ def get_countries_for_filter(df):
         .unique()
     )
 
-
-# ---------- Style candidates (cached) ----------
 @st.cache_data
 def get_style_candidates(df):
     return sorted(
@@ -109,16 +107,7 @@ def build_filtered_df(
     # --- フリー検索 ---
     if search_text and search_text.strip():
         kw = search_text.strip().lower()
-        text_cols = [
-            "name_local","name_jp","brewery_local","brewery_jp",
-            "style_main_jp","style_sub_jp","comment",
-            "detailed_comment","untappd_url","jan"
-        ]
-        temp = d[text_cols].fillna("").astype(str).apply(lambda c: c.str.lower())
-        mask = False
-        for c in temp.columns:
-            mask |= temp[c].str.contains(kw, na=False)
-        d = d[mask]
+        d = d[d["search_blob"].str.contains(kw, na=False)]
 
     # --- サイズ ---
     if size_choice == "小瓶（≤500ml）":
@@ -178,6 +167,21 @@ def load_data(path=EXCEL_PATH):
     # --- yomi 正規化 ---
     df["yomi"] = df["yomi"].astype(str).str.strip()
     df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
+
+    # --- フリー検索用結合列（軽量化） ---
+    search_cols = [
+        "name_local","name_jp","brewery_local","brewery_jp",
+        "style_main_jp","style_sub_jp","comment",
+        "detailed_comment","untappd_url","jan"
+    ]
+
+    df["search_blob"] = (
+        df[search_cols]
+        .fillna("")
+        .astype(str)
+        .agg(" ".join, axis=1)
+        .str.lower()
+    )
 
     return df
 
@@ -419,17 +423,6 @@ with style_ui_placeholder:
             if cols[i % len(cols)].checkbox(s, key=key):
                 selected_styles.append(s)
 
-# ---------- 表示条件スナップショット ----------
-current_view_state = (
-    tuple(sorted(selected_styles)),
-    st.session_state.get("sort_option"),
-    st.session_state.get("country_radio"),
-    st.session_state.get("search_text"),
-    st.session_state.get("size_choice"),
-    st.session_state.get("abv_slider"),
-    st.session_state.get("price_slider"),
-)
-
 # ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
 if selected_styles:
@@ -458,19 +451,6 @@ elif sort_option == "スタイル順":
 elif sort_option == "ランダム順":
     display_limit = st.session_state.show_limit
     filtered = filtered.sample(n=min(display_limit, len(filtered)))
-
-
-# ===== 表示処理用 sort flags =====
-is_price_sort = sort_option == "価格（低）"
-is_abv_low_sort = sort_option == "ABV（低）"
-is_abv_high_sort = sort_option == "ABV（高）"
-is_random_sort = sort_option == "ランダム順"
-
-disable_grouping = (
-    is_price_sort or is_abv_low_sort or is_abv_high_sort or is_random_sort
-)
-
-
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
 total_count = len(filtered)
