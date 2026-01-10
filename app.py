@@ -21,7 +21,7 @@ COUNTRY_INFO = {
     "Germany":{"jp":"ドイツ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_322/ntf_322.png",},
     "United States":{"jp":"アメリカ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_401/ntf_401.png",},
     "Netherlands":{"jp":"オランダ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_310/ntf_310.png",},
-    "Czech Republic":{"jp":"チェコ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_320/ntf_320.png",},
+    "Czech Republi":{"jp":"チェコ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_320/ntf_320.png",},
     "Italy":{"jp": "イタリア","flag": "https://freesozai.jp/sozai/nation_flag/ntf_306/ntf_306.png",},
     "Austria":{"jp":"オーストリア","flag":"https://freesozai.jp/sozai/nation_flag/ntf_309/ntf_309.svg",},
 }
@@ -107,9 +107,9 @@ def build_filtered_df(
         d = d[d["search_blob"].str.contains(kw, na=False)]
 
     # --- サイズ ---
-    if size_choice == "小瓶（≤500ml）":
+    if size_choice == "小瓶":
         d = d[d["volume_num"] <= 500]
-    elif size_choice == "大瓶（≥500ml）":
+    elif size_choice == "大瓶（750ml）":
         d = d[d["volume_num"] >= 500]
 
     # --- ABV ---
@@ -357,7 +357,7 @@ with st.expander("フィルター / 検索を表示", False):
             # 3. 必要に応じて初期値をセット
             st.session_state["search_text"] = ""
             st.session_state["sort_option"] = "名前順"
-            st.session_state["size_choice"] = "小瓶（≤500ml）"
+            st.session_state["size_choice"] = "小瓶"
             st.session_state["abv_slider"] = (0.0, 20.0)
             st.session_state["price_slider"] = (0, 20000)
             st.rerun()
@@ -373,7 +373,7 @@ with st.expander("フィルター / 検索を表示", False):
 
     with col_size:    
         if "size_choice" not in st.session_state :
-            st.session_state["size_choice"] = "小瓶（≤500ml）"
+            st.session_state["size_choice"] = "小瓶"
         size_choice = st.radio(
         "サイズ",
         ("すべて", "小瓶", "大瓶（≥750ml）"),
