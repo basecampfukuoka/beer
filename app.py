@@ -514,17 +514,16 @@ disable_grouping = (
 
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
-total_count = len(filtered)
-
-display_df = filtered.head(st.session_state.show_limit)
-st.markdown("**表示件数：{} 件**".format(len(filtered)))
-
 def render_beer_card(r, beer_id_safe):
+    """
+    ビールカード描画（columns 不使用、CSS flex 横並び、詳細コメントトグル付き）
+    """
 
     beer_img = r.beer_image_url or DEFAULT_BEER_IMG
     flag_img = country_flag_url.get(safe_str(r.country), "")
     style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
 
+    # ABV / volume / vintage / price 表示文字列
     info_arr = []
     if pd.notna(r.abv_num):
         info_arr.append(f"ABV {r.abv_num}%")
@@ -537,48 +536,62 @@ def render_beer_card(r, beer_id_safe):
 
     beer_info = " | ".join(info_arr)
 
-    st.markdown(
-        f"""
-        <div class="beer-card">
-          <div class="beer-row">
-            <div class="beer-left">
-              <img src="{beer_img}" loading="lazy">
-            </div>
+    # --- カード HTML ---
+    card_html = f"""
+    <div class="beer-card">
+      <div class="beer-row">
 
-            <div class="beer-right">
-              <div class="brewery-line">
-                {f"<img src='{flag_img}' width='18' style='vertical-align:middle;margin-right:6px;'>" if flag_img else ""}
-                <b>{r.brewery_local}</b> /
-                <span style="color:#666;">{r.brewery_jp}</span>
-              </div>
-
-              <a href="{r.untappd_url}" target="_blank"
-                 style="text-decoration:none;color:inherit;">
-                <b style="font-size:1.15em;">{r.name_local}</b><br>
-                <span style="font-size:0.95em;">{r.name_jp}</span>
-              </a><br>
-
-              <span style="color:#666;">{style_line}</span><br>
-              {beer_info}<br>
-              {r.comment or ""}
-            </div>
-          </div>
+        <!-- 左：ビール画像 -->
+        <div class="beer-left">
+          <img src="{beer_img}" loading="lazy">
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+
+        <!-- 右：情報 -->
+        <div class="beer-right">
+
+          <!-- 醸造所 -->
+          <div class="brewery-line">
+            {f"<img src='{flag_img}' width='18' style='vertical-align:middle;margin-right:6px;'>" if flag_img else ""}
+            <b>{r.brewery_local}</b> /
+            <span style="color:#666;">{r.brewery_jp}</span>
+          </div>
+
+          <!-- ビール名 -->
+          <a href="{r.untappd_url}" target="_blank" style="text-decoration:none;color:inherit;">
+            <b style="font-size:1.15em;">{r.name_local}</b><br>
+            <span style="font-size:0.95em;">{r.name_jp}</span>
+          </a><br>
+
+          <!-- スタイル -->
+          <span style="color:#666;">{style_line}</span><br>
+
+          <!-- ABV / 容量 / ヴィンテージ / 価格 -->
+          {beer_info}<br>
+
+          <!-- コメント -->
+          {r.comment or ""}
+        </div>
+      </div>
+    </div>
+    """
+
+    # 描画
+    st.markdown(card_html, unsafe_allow_html=True)
 
     # ====== 詳細コメント（自前 toggle / 軽量・条件付き）=====
     if r.detailed_comment and r.detailed_comment.strip():
 
         detail_key = f"detail_{beer_id_safe}"
 
+        # 初期化（カードごと）
         if detail_key not in st.session_state:
             st.session_state[detail_key] = False
 
+        # トグルボタンを表示
         if st.button("詳細コメント", key=f"btn_{beer_id_safe}"):
             st.session_state[detail_key] = not st.session_state[detail_key]
 
+        # 開いていれば詳細コメント表示
         if st.session_state[detail_key]:
             st.markdown(
                 f"""
