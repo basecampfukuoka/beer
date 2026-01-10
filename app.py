@@ -266,7 +266,7 @@ div[data-testid="stHorizontalBlock"]:hover {
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5 = st.columns([0.2, 4, 0.2,2,2])
+    c1, c2, c3, c4, c5 = st.columns([0.2,4,0.2,2.5,2.5])
 
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
@@ -614,4 +614,25 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
