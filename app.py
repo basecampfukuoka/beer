@@ -287,7 +287,7 @@ with st.expander("フィルター / 検索を表示", False):
         countries = get_countries_for_filter(df_all)
 
         if "country_radio" not in st.session_state:
-            st.session_state["country_radio"] = "すべて"
+            st.session_state["country_radio"] = "ベルギー"
 
         countries_display = ["すべて"] + [
             COUNTRY_INFO.get(c, {}).get("jp", c)
@@ -347,9 +347,9 @@ with st.expander("フィルター / 検索を表示", False):
         if st.button("🔄 リセット", help="すべて初期化"):
 
             # 1. スタイルチェックボックスなどプレフィックス付きキーを削除
-            for s in df["style_main_jp"].dropna().unique():
+            for s in df_all["style_main_jp"].dropna().unique():
                 st.session_state[f"style_{s}"] = False
-
+    
             # 2. その他のUI状態も初期化
             for key in ["search_text", "sort_option", "size_choice", "abv_slider", "price_slider", "country_radio"]:
                 st.session_state.pop(key, None)
@@ -376,7 +376,7 @@ with st.expander("フィルター / 検索を表示", False):
             st.session_state["size_choice"] = "小瓶（≤500ml）"
         size_choice = st.radio(
         "サイズ",
-        ("すべて", "小瓶（≤500ml）", "大瓶（≥500ml）"),
+        ("すべて", "小瓶", "大瓶（≥750ml）"),
         horizontal=True,
         key="size_choice"
         )
