@@ -1,6 +1,7 @@
 
 import streamlit as st
 import pandas as pd
+import random
 from pyuca import Collator  # <- import
 
 collator = Collator()  
@@ -188,6 +189,16 @@ def load_data(path=EXCEL_PATH):
 # --- load_data の外 ---
 df_all = load_data()
 df = df_all
+
+# ---------- ランダム順用 state 初期化 ----------
+import random
+
+if "prev_sort_option" not in st.session_state:
+    st.session_state.prev_sort_option = None
+
+if "random_seed" not in st.session_state:
+    st.session_state.random_seed = None
+
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
@@ -449,8 +460,17 @@ elif sort_option == "スタイル順":
         key=lambda x: x.map(locale_key)
     )
 elif sort_option == "ランダム順":
-    display_limit = st.session_state.show_limit
-    filtered = filtered.sample(n=min(display_limit, len(filtered)))
+
+    # ランダム順に「切り替わった瞬間」だけ seed 更新
+    if st.session_state.prev_sort_option != "ランダム順":
+        st.session_state.random_seed = random.randint(0, 10**9)
+
+    filtered = filtered.sample(
+        frac=1,
+        random_state=st.session_state.random_seed
+    )
+
+st.session_state.prev_sort_option = sort_option
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
 total_count = len(filtered)
@@ -530,7 +550,6 @@ def render_beer_card(r, beer_id_safe):
         )
 
         # ====== 詳細コメント（自前 toggle / 軽量）=====
-        # ====== 詳細コメント（自前 toggle / 軽量・条件付き）=====
         if r.detailed_comment and r.detailed_comment.strip():
 
             detail_key = f"detail_{beer_id_safe}"
