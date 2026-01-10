@@ -185,6 +185,11 @@ def load_data(path=EXCEL_PATH):
 df_all = load_data()
 df = df_all
 
+# ---------- 列名を安全化 ----------
+df.columns = [
+    c.strip().replace(" ", "_").replace("-", "_") for c in df.columns
+]
+
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
     st.session_state.show_limit = 10   # ▼ Step1: 初期表示件数（10件）
