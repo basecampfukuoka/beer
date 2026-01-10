@@ -511,8 +511,7 @@ def render_beer_card(r, beer_id_safe):
     # ===== 右：情報（国 → 醸造所 → ビール）=====
     with right_col:
         # --- 国旗 + 醸造所名（1列） ---
-        brewery_country = safe_str(r.country)
-        flag_img = country_flag_url.get(brewery_country, "")
+        flag_img = r.flag_url
 
         brewery_name_html = f"""
         <div>
