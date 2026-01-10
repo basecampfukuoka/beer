@@ -281,7 +281,7 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     with c3:
-        st.markdown("並び替え", unsafe_allow_html=True)
+        st.markdown("⇅", unsafe_allow_html=True)
 
     with c4:
         sort_options = [
@@ -614,25 +614,4 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
