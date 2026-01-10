@@ -302,8 +302,10 @@ with st.expander("フィルター / 検索を表示", False):
         if country_choice_display == "すべて":
             country_choice = "すべて"
         else:
-            country_choice = {v: k for k, v in country_map.items()}.get(
-                country_choice_display, country_choice_display
+            country_choice = next(
+                (k for k, v in COUNTRY_INFO.items()
+                if v.get("jp") == country_choice_display),
+                country_choice_display
             )
 
     with c4:
