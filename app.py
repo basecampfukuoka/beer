@@ -103,7 +103,7 @@ def build_filtered_df(
     price_min, price_max,
     country_choice,  
 ):
-    d = df[df["stock_status"] == "○"].copy()
+    d = df_instock.copy()
 
     # --- フリー検索 ---
     if search_text and search_text.strip():
@@ -185,10 +185,11 @@ def load_data(path=EXCEL_PATH):
     )
 
     return df
-
 # --- load_data の外 ---
 df_all = load_data()
-df = df_all
+
+# 在庫ありのみ（前処理）
+df_instock = df_all[df_all["stock_status"] == "○"]
 
 # ---------- ランダム順用 state 初期化 ----------
 import random
@@ -408,7 +409,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
-    df_all,
+    df_instock,
     search_text=search_text,
     size_choice=size_choice,
     abv_min=abv_min,
