@@ -200,6 +200,12 @@ if "prev_sort_option" not in st.session_state:
 if "random_seed" not in st.session_state:
     st.session_state.random_seed = None
 
+# ---------- style checkbox state 初期化 ----------
+if "style_state_init" not in st.session_state:
+    for s in df_all["style_main_jp"].dropna().unique():
+        st.session_state[f"style_{s}"] = False
+    st.session_state["style_state_init"] = True
+
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
@@ -429,9 +435,6 @@ with style_ui_placeholder:
         cols = st.columns(min(6, len(styles_available)))
         for i, s in enumerate(styles_available):
             key = f"style_{s}"
-            if key not in st.session_state:
-                st.session_state[key] = False
-
             if cols[i % len(cols)].checkbox(s, key=key):
                 selected_styles.append(s)
 
