@@ -14,21 +14,17 @@ EXCEL_PATH = "beer_data.xlsx"
 DEFAULT_BEER_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-beer-default.png"
 DEFAULT_BREWERY_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-brewery-default.png"
 
-# ---------- 国旗 URL マッピング (ここが「1」) ----------
-country_flag_url = {
-    "Japan": "https://freesozai.jp/sozai/nation_flag/ntf_131/ntf_131.png",
-    "Belgium": "https://freesozai.jp/sozai/nation_flag/ntf_330/ntf_330.png",
-    "Germany": "https://freesozai.jp/sozai/nation_flag/ntf_322/ntf_322.png",
-    "United States": "https://freesozai.jp/sozai/nation_flag/ntf_401/ntf_401.png",
-    "United Kingdom": "https://freesozai.jp/sozai/nation_flag/ntf_305/ntf_305.png",
-    "Netherlands": "https://freesozai.jp/sozai/nation_flag/ntf_310/ntf_310.png",
-    "Czech Republic": "https://freesozai.jp/sozai/nation_flag/ntf_320/ntf_320.png",
-    "France": "https://freesozai.jp/sozai/nation_flag/ntf_327/ntf_327.png",
-    "Canada": "https://freesozai.jp/sozai/nation_flag/ntf_404/ntf_404.png",
-    "Italy": "https://freesozai.jp/sozai/nation_flag/ntf_306/ntf_306.png",
-    "Sweden": "https://freesozai.jp/sozai/nation_flag/ntf_315/ntf_315.svg"
+# ---------- Country master ----------
+COUNTRY_INFO = {
+    "Japan":{"jp":"日本","flag":"https://freesozai.jp/sozai/nation_flag/ntf_131/ntf_131.png",},
+    "Belgium":{"jp":"ベルギー","flag":"https://freesozai.jp/sozai/nation_flag/ntf_330/ntf_330.png",},
+    "Germany":{"jp":"ドイツ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_322/ntf_322.png",},
+    "United States":{"jp":"アメリカ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_401/ntf_401.png",},
+    "Netherlands":{"jp":"オランダ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_310/ntf_310.png",},
+    "Czech Republic":{"jp":"チェコ","flag":"https://freesozai.jp/sozai/nation_flag/ntf_320/ntf_320.png",},
+    "Italy":{"jp": "イタリア","flag": "https://freesozai.jp/sozai/nation_flag/ntf_306/ntf_306.png",},
+    "Austria":{"jp":"オーストリア","flag":"https://freesozai.jp/sozai/nation_flag/ntf_309/ntf_309.svg",},
 }
-
 
 # ---------- Helpers ----------
 
@@ -163,6 +159,10 @@ def load_data(path=EXCEL_PATH):
 
     df["stock_status"] = df["in_stock"].apply(stock_status)
 
+    # --- 国旗URL付与 ---
+    df["flag_url"] = df["country"].map(
+        lambda c: COUNTRY_INFO.get(c, {}).get("flag", "")
+    )
 
 
     # --- yomi 正規化 ---
@@ -488,8 +488,7 @@ def render_beer_card(r, beer_id_safe):
     # --- 変数定義 ---
     beer_img = r.beer_image_url or DEFAULT_BEER_IMG
     untappd_url = r.untappd_url
-    brewery_country = safe_str(r.country)
-    flag_img = country_flag_url.get(brewery_country, "")
+    flag_img = r.flag_url
     style_line = " / ".join(filter(None, [r.style_main_jp, r.style_sub_jp]))
 
 
@@ -516,7 +515,7 @@ def render_beer_card(r, beer_id_safe):
         flag_img = country_flag_url.get(brewery_country, "")
 
         brewery_name_html = f"""
-        <div style="margin-bottom:6px;">
+        <div>
             {"<img src='"+flag_img+"' width='18' style='vertical-align:middle;margin-right:6px;'>" if flag_img else ""}
             <b>{r.brewery_local}</b> / <span style="color:#666;">{r.brewery_jp}</span>
         </div>
