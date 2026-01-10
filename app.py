@@ -185,10 +185,6 @@ def load_data(path=EXCEL_PATH):
 df_all = load_data()
 df = df_all
 
-# ---------- 列名を安全化 ----------
-df.columns = [
-    c.strip().replace(" ", "_").replace("-", "_") for c in df.columns
-]
 
 # ---------- Initialize show limit and filter signature ----------
 if "show_limit" not in st.session_state:
@@ -436,6 +432,12 @@ with st.expander("フィルター / 検索を表示", False):
     # ===== 4行目：スタイル（メイン） =====
     st.markdown("### スタイルで絞り込み")
     style_ui_placeholder = st.container()
+
+# ---------- 列名を安全化 ----------
+df.columns = [
+    c.strip().replace(" ", "_").replace("-", "_") for c in df.columns
+]
+
 
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
