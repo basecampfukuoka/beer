@@ -550,26 +550,29 @@ def render_beer_card(r, beer_id_safe):
         )
 
         # ====== 詳細コメント（自前 toggle / 軽量）=====
-        detail_key = f"detail_{beer_id_safe}"
+        # ====== 詳細コメント（自前 toggle / 軽量・条件付き）=====
+        if r.detailed_comment and r.detailed_comment.strip():
 
-        # 初期化
-        if detail_key not in st.session_state:
-            st.session_state[detail_key] = False
+            detail_key = f"detail_{beer_id_safe}"
 
-        # トグルボタン（軽い）
-        if st.button("詳細", key=f"btn_{beer_id_safe}"):
-            st.session_state[detail_key] = not st.session_state.get(detail_key, False)
+            # 初期化（必要なカードだけ）
+            if detail_key not in st.session_state:
+                st.session_state[detail_key] = False
 
-        # 表示
-        if st.session_state.get(detail_key):
-            st.markdown(
-                f"""
-                <div class="detail-comment">
-                  {r.detailed_comment}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            # トグルボタン
+            if st.button("詳細", key=f"btn_{beer_id_safe}"):
+                st.session_state[detail_key] = not st.session_state[detail_key]
+
+            # 表示
+            if st.session_state[detail_key]:
+                st.markdown(
+                    f"""
+                    <div class="detail-comment">
+                      {r.detailed_comment}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 # ---------- Render（統一版） ----------
 for global_idx, r in enumerate(display_df.itertuples(index=False)):
