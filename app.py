@@ -286,7 +286,10 @@ with st.expander("フィルター / 検索を表示", False):
         if "country_radio" not in st.session_state:
             st.session_state["country_radio"] = "すべて"
 
-        countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
+        countries_display = ["すべて"] + [
+            COUNTRY_INFO.get(c, {}).get("jp", c)
+            for c in countries
+        ]
 
         country_choice_display = st.radio(
             "国",
