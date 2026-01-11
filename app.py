@@ -348,8 +348,7 @@ with st.expander("フィルター / 検索を表示", False):
         st.session_state["country_radio"] = "ベルギー"
 
     # 日本語表示用に変換
-    countries_display = ["すべて"] + [country_map.get(c, c) for c in countries]
-
+    countries_display = ["すべて"] + [COUNTRY_INFO.get(c, {}).get("jp", c) for c in countries]
 
     country_choice_display = col_country.radio(
         "国",
