@@ -475,7 +475,12 @@ elif sort_option == "ランダム順":
 st.session_state.prev_sort_option = sort_option
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
-st.markdown(f"**表示件数：{len(display_df)} / {len(filtered)} 件**")
+display_df = filtered.head(st.session_state.show_limit)
+
+shown = len(display_df)
+total = len(filtered)
+
+st.markdown(f"**表示件数：{shown} / {total} 件**")
 
 # --- カード描画関数（高速・安全版） ---
 def render_beer_card(r, beer_id_safe):
