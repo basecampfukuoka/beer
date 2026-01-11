@@ -346,7 +346,7 @@ with st.expander("フィルター / 検索を表示", False):
             st.rerun()
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country = st.container()
+    col_country, col_stock1 = st.columns([4,0.1])
 
 
      # 国リストを在庫フィルタに合わせて取得
