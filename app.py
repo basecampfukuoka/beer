@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import random
+
 from pyuca import Collator  # <- import
 
 collator = Collator()  
@@ -191,8 +191,6 @@ df_all = load_data()
 df_instock = df_all[df_all["stock_status"] == "○"]
 
 # ---------- ランダム順用 state 初期化 ----------
-import random
-
 if "prev_sort_option" not in st.session_state:
     st.session_state.prev_sort_option = None
 
@@ -213,6 +211,17 @@ if "show_limit" not in st.session_state:
 # helper: compute a signature for current filters so we can reset show_limit when filters change
 def compute_filter_signature():
     # include keys that affect filtered result
+
+    # 国ラジオ（日本語） → country_choice（英語） に変換
+    country_radio = st.session_state.get("country_radio", "すべて")
+    if country_radio == "すべて":
+        country_choice = "すべて"
+    else:
+        country_choice = next(
+            (k for k, v in COUNTRY_INFO.items() if v.get("jp") == country_radio),
+            country_radio
+        )
+
     keys = [
         st.session_state.get("search_text",""),
         st.session_state.get("sort_option",""),
@@ -239,7 +248,6 @@ else:
             if key.startswith("detail_") or key == "open_detail":
                 del st.session_state[key]
 
-        st.session_state.prev_filter_sig = current_sig
 
 # ---------- Custom CSS ----------
 st.markdown("""
@@ -328,13 +336,14 @@ with st.expander("フィルター / 検索を表示", False):
             st.session_state["size_choice"] = "小瓶（≤500ml）"
             st.session_state["abv_slider"] = (0.0, 20.0)
             st.session_state["price_slider"] = (0, 20000)
-            st.rerun()
+            
 
             # 4.詳細コメント state を全削除
             for key in list(st.session_state.keys()):
                 if key.startswith("detail_"):
                     del st.session_state[key]
 
+            st.rerun()
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
     col_country = st.container()
@@ -445,14 +454,9 @@ elif sort_option == "ABV（低）":
 elif sort_option == "ABV（高）":
     filtered = filtered.sort_values(by="abv_num", ascending=False, na_position="last")
 elif sort_option == "価格（低）":
-    # price_num が 0（ASK）は極端に大きい値に置き換えて最後に回す
-    filtered = filtered.assign(price_sort=filtered["price_num"].replace(0, 10**9))
-elif sort_option == "醸造所順":
-    filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
-elif sort_option == "スタイル順":
-    filtered = filtered.sort_values(
-        by="style_main_jp",
-        key=lambda x: x.map(locale_key)
+    filtered = (filtered
+        .assign(price_sort=filtered["price_num"].replace(0, 10**9))
+        .sort_values(by="price_sort", ascending=True, na_position="last")
     )
 elif sort_option == "ランダム順":
 
