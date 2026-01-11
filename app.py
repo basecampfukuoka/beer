@@ -98,7 +98,7 @@ def build_filtered_df(
     price_min, price_max,
     country_choice,  
 ):
-    d = df_instock.copy()
+    d = df.copy()
 
     # --- フリー検索 ---
     if search_text and search_text.strip():
@@ -348,7 +348,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 
      # 国リストを在庫フィルタに合わせて取得
-    countries = get_countries_for_filter(df_all)
+    countries = get_countries_for_filter(df_instock)
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
@@ -453,8 +453,7 @@ elif sort_option == "ABV（高）":
     filtered = filtered.sort_values(by="abv_num", ascending=False, na_position="last")
 elif sort_option == "価格（低）":
     # price_num が 0（ASK）は極端に大きい値に置き換えて最後に回す
-    filtered["price_sort"] = filtered["price_num"].replace(0, 10**9)
-    filtered = filtered.sort_values(by="price_sort", ascending=True)
+    filtered = filtered.assign(price_sort=filtered["price_num"].replace(0, 10**9))
 elif sort_option == "醸造所順":
     filtered = filtered.sort_values(by="brewery_jp", key=lambda x: x.map(locale_key))
 elif sort_option == "スタイル順":
@@ -476,10 +475,7 @@ elif sort_option == "ランダム順":
 st.session_state.prev_sort_option = sort_option
 
 # ---------- Prepare display_df with limit (Step1: show_limit) ----------
-total_count = len(filtered)
-
-display_df = filtered.head(st.session_state.show_limit)
-st.markdown("**表示件数：{} 件**".format(len(filtered)))
+st.markdown(f"**表示件数：{len(display_df)} / {len(filtered)} 件**")
 
 # --- カード描画関数（高速・安全版） ---
 def render_beer_card(r, beer_id_safe):
