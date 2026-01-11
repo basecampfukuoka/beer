@@ -315,7 +315,7 @@ with st.expander("フィルター / 検索を表示", False):
         if st.button("🔄 リセット", help="すべて初期化"):
 
             # 1. スタイルチェックボックスなどプレフィックス付きキーを削除
-            for s in df["style_main_jp"].dropna().unique():
+            for s in df_all["style_main_jp"].dropna().unique():
                 st.session_state[f"style_{s}"] = False
 
             # 2. その他のUI状態も初期化
@@ -614,24 +614,5 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
