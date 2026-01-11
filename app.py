@@ -337,14 +337,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country, col_stock1, col_stock2 = st.columns([4,1,1])
-
-    country_map = {
-        "Japan": "日本", "Belgium": "ベルギー", "Germany": "ドイツ", "United States": "アメリカ",
-        "United Kingdom": "イギリス", "Netherlands": "オランダ", "Czech Republic": "チェコ",
-        "France": "フランス", "Canada": "カナダ", "Australia": "オーストラリア",
-        "Italy": "イタリア", "Sweden": "スウェーデン",
-    }
+    col_country = st.container()
 
 
      # 国リストを在庫フィルタに合わせて取得
