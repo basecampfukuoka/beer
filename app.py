@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import pandas as pd
 import random
@@ -267,7 +265,7 @@ div[data-testid="stHorizontalBlock"]:hover {
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
     st.markdown('<div id="search_bar"></div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5 = st.columns([0.5,6,0.5,2.5,4])
+    c1, c2, c3, c4, c5 = st.columns([0.5,8,0.5,3.5,5])
 
     with c1:
         st.markdown("🔎", unsafe_allow_html=True)
@@ -615,7 +613,6 @@ if st.session_state.show_limit < len(filtered):
 else:
     # optional: show nothing or a small message
     pass
-
 
 
 
