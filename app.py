@@ -162,6 +162,10 @@ def build_filtered_df(
 ):
     d = df.copy(deep=True)
 
+    # 🔒 念のため在庫フィルタ再適用（通常モードのみ）
+    if not is_admin:
+        d = d[d["stock_status"] == "○"]
+
     # --- フリー検索 ---
     if search_text and search_text.strip():
         kw = search_text.strip().lower()
