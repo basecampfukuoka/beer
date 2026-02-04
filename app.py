@@ -200,6 +200,18 @@ def build_filtered_df(
 
     return d
 
+@st.cache_resource
+def get_collator():
+    from pyuca import Collator
+    return Collator()
+
+def locale_key(x):
+    collator = get_collator()
+    s = "" if x is None else str(x).strip()
+    return collator.sort_key(s)
+
+
+
 # ---------- Load data ----------
 @st.cache_data
 def load_data(path=EXCEL_PATH):
