@@ -19,7 +19,7 @@ if is_admin:
 
     /* 背景をうっすら赤 */
     .stApp {
-        background-color: #fff5f5;
+        background-color: #ffe6e6;
     }
 
     /* 上部固定 管理バー */
@@ -27,7 +27,7 @@ if is_admin:
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 100vw;
         height: 44px;
         background: rgba(255, 120, 120, 0.18);
         border-bottom: 1px solid #ffcccc;
@@ -36,13 +36,23 @@ if is_admin:
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 10000;
+        z-index: 999999;
         backdrop-filter: blur(2px);
     }
 
-    /* 中身がバーに被らないように */
+    /* バーに被らないよう余白 */
     .block-container {
-        padding-top: 55px !important;
+        padding-top: 60px !important;
+    }
+
+    /* ❌ クローズUI完全無効化 */
+    .admin-top-bar button,
+    .admin-top-bar svg {
+        display: none !important;
+    }
+
+    button[title="Close"] {
+        display: none !important;
     }
 
     </style>
