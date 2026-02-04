@@ -8,11 +8,46 @@ import os
 # ---------- Page config ----------
 st.set_page_config(page_title="Craft Beer List", layout="wide")
 
+# ---------- 管理バー描画関数 ----------
+def render_admin_bar():
+    color = "#ff7878"  # 通常の赤
+    if st.session_state.get("save_success_flash", False):
+        color = "#78ff78"  # 保存成功時は緑
+
+    st.markdown(f"""
+    <style>
+    .admin-top-bar {{
+        background: {color};
+        border-bottom: 1px solid #ffcccc;
+        color: #7a0000;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        backdrop-filter: blur(2px);
+        height: 44px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+    }}
+    </style>
+    <div class="admin-top-bar">
+        🛠 管理モード（yakuzen_beer）
+    </div>
+    """, unsafe_allow_html=True)
+
+    # フラッシュフラグはページ描画後リセット
+    if st.session_state.get("save_success_flash", False):
+        st.session_state["save_success_flash"] = False
+
 
 # ---------- 管理者ページ ----------
 is_admin = "yakuzen_beer" in st.query_params
 
 if is_admin:
+    render_admin_bar()
 
     st.markdown("""
     <style>
@@ -263,32 +298,33 @@ def load_data(path=EXCEL_PATH):
     return df
 
 def update_row(beer_id, stock, price, comment, detailed_comment):
+    try:
+        df = load_data()
+        idx = df[df["id"] == beer_id].index
+        if len(idx) == 0:
+            st.error("IDが見つかりません")
+            return
 
-    df = load_data()
+        df.loc[idx, "in_stock"] = stock
+        df.loc[idx, "price"] = price
+        df.loc[idx, "comment"] = comment
+        df.loc[idx, "detailed_comment"] = detailed_comment
 
-    idx = df[df["id"] == beer_id].index
+        tmp_path = "beer_data_tmp.xlsx"
+        df.to_excel(tmp_path, index=False, engine="openpyxl")
+        os.replace(tmp_path, EXCEL_PATH)
 
-    if len(idx) == 0:
-        st.error("IDが見つかりません")
-        return
+        st.cache_data.clear()
+        st.session_state.edit_id = None
 
-    df.loc[idx, "in_stock"] = stock
-    df.loc[idx, "price"] = price
-    df.loc[idx, "comment"] = comment
-    df.loc[idx, "detailed_comment"] = detailed_comment
+        # ---------- 成功フラッシュをセット ----------
+        st.session_state["save_success_flash"] = True
 
-    tmp_path = "beer_data_tmp.xlsx"  
-    df.to_excel(tmp_path, index=False, engine="openpyxl")
+        st.success("保存しました")
+        st.rerun()
 
-    os.replace(tmp_path, EXCEL_PATH)
-
-    st.cache_data.clear()
-
-    st.session_state.edit_id = None
-
-    st.success("保存しました")
-    st.rerun()
-
+    except Exception as e:
+        st.error(f"保存中にエラーが発生しました: {e}")
 
 # --- load_data の外 ---
 df_all = load_data()
