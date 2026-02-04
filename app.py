@@ -134,7 +134,6 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-
 def get_countries_for_filter(df, admin=False):
 
     target = df if admin else df[df["stock_status"] == "○"]
@@ -249,7 +248,7 @@ def load_data(path=EXCEL_PATH):
 
     # --- yomi 正規化 ---
     df["yomi"] = df["yomi"].astype(str).str.strip()
-    df["yomi_sort"] = df["yomi"].apply(lambda x: collator.sort_key(x))
+    df["yomi_sort"] = df["yomi"].apply(locale_key)
 
     # --- フリー検索用結合列（軽量化） ---
     search_cols = [
