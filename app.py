@@ -3,6 +3,10 @@ import pandas as pd
 import random
 from pyuca import Collator  # <- import
 
+import os
+
+is_admin = st.query_params.get("admin") == "1"
+
 collator = Collator()  
 
 # ---------- Page config ----------
@@ -68,13 +72,17 @@ def locale_key(x):
     return collator.sort_key(s)
 
 
-def get_countries_for_filter(df):
+def get_countries_for_filter(df, admin=False):
+
+    target = df if admin else df[df["stock_status"] == "○"]
+
     return sorted(
-        df[df["stock_status"] == "○"]["country"]
+        target["country"]
         .replace("", pd.NA)
         .dropna()
         .unique()
     )
+
 
 @st.cache_data
 def get_style_candidates(df):
@@ -182,13 +190,43 @@ def load_data(path=EXCEL_PATH):
         .agg(" ".join, axis=1)
         .str.lower()
     )
-
     return df
+
+def update_row(beer_id, stock, price, comment, detailed_comment):
+
+    df = load_data()
+
+    idx = df[df["id"] == beer_id].index
+
+    if len(idx) == 0:
+        st.error("IDが見つかりません")
+        return
+
+    df.loc[idx, "in_stock"] = stock
+    df.loc[idx, "price"] = price
+    df.loc[idx, "comment"] = comment
+    df.loc[idx, "detailed_comment"] = detailed_comment
+
+    tmp_path = EXCEL_PATH + ".tmp"
+    df.to_excel(tmp_path, index=False)
+
+    os.replace(tmp_path, EXCEL_PATH)
+
+    st.cache_data.clear()
+
+    st.session_state.edit_id = None
+
+    st.success("保存しました")
+    st.rerun()
+
+
 # --- load_data の外 ---
 df_all = load_data()
 
-# 在庫ありのみ（前処理）
-df_instock = df_all[df_all["stock_status"] == "○"]
+if is_admin:
+    base_df = df_all
+else:
+    base_df = df_all[df_all["stock_status"] == "○"]
 
 # ---------- ランダム順用 state 初期化 ----------
 if "prev_sort_option" not in st.session_state:
@@ -196,6 +234,10 @@ if "prev_sort_option" not in st.session_state:
 
 if "random_seed" not in st.session_state:
     st.session_state.random_seed = None
+
+if "edit_id" not in st.session_state:
+    st.session_state.edit_id = None
+
 
 # ---------- style checkbox state 初期化 ----------
 if "style_state_init" not in st.session_state:
@@ -269,6 +311,17 @@ div[data-testid="stHorizontalBlock"]:hover {
 
 </style>
 """, unsafe_allow_html=True)
+
+# ---------- 管理者ログイン ----------
+if is_admin:
+
+    pwd = st.text_input("管理者パスワード", type="password")
+
+    if pwd != st.secrets["ADMIN_PASSWORD"]:
+        st.stop()
+
+    st.success("管理モード")
+
 
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
@@ -350,7 +403,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 
      # 国リストを在庫フィルタに合わせて取得
-    countries = get_countries_for_filter(df_instock)
+    countries = get_countries_for_filter(base_df, admin=is_admin)
 
     # session_state 初期化
     if "country_radio" not in st.session_state:
@@ -416,7 +469,7 @@ with st.expander("フィルター / 検索を表示", False):
 
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
-    df_instock,
+    base_df,
     search_text=search_text,
     size_choice=size_choice,
     abv_min=abv_min,
@@ -570,6 +623,57 @@ def render_beer_card(r, beer_id_safe):
                     """,
                     unsafe_allow_html=True
                 )
+
+        # ===== 管理モード 編集UI =====
+        if is_admin:
+
+            if st.button("✏ 編集", key=f"edit_{beer_id_safe}"):
+                st.session_state.edit_id = beer_id_safe
+
+            if st.session_state.edit_id == beer_id_safe:
+
+                new_stock = st.selectbox(
+                    "在庫",
+                    ["○","△","×"],
+                    index=["○","△","×"].index(r.stock_status),
+                    key=f"stock_{beer_id_safe}"
+                )
+
+                new_price = st.number_input(
+                    "価格",
+                    value=int(r.price_num) if r.price_num else 0,
+                    step=100,
+                    key=f"price_{beer_id_safe}"
+                )
+
+                new_comment = st.text_area(
+                    "コメント",
+                    value=r.comment,
+                    key=f"comment_{beer_id_safe}"
+                )
+
+                new_detailed_comment = st.text_area(
+                    "詳細コメント",
+                    value=r.detailed_comment,
+                    key=f"detailed_{beer_id_safe}"
+                )
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    if st.button("保存", key=f"save_{beer_id_safe}"):
+                        update_row(
+                            beer_id_safe,
+                            new_stock,
+                            new_price,
+                            new_comment,
+                            new_detailed_comment
+                        )
+
+                with col2:
+                    if st.button("キャンセル"):
+                        st.session_state.edit_id = None
+
 
 # ---------- Render（統一版） ----------
 for global_idx, r in enumerate(display_df.itertuples(index=False)):
