@@ -494,6 +494,11 @@ with st.expander("フィルター / 検索を表示", False):
             (k for k, v in COUNTRY_INFO.items() if v.get("jp") == country_choice_display),
             country_choice_display
         )
+    # ---- 取り寄せ表示 ----
+    show_take_order = col_stock1.checkbox(
+        "取り寄せを表示",
+        key="show_take_order"
+    )
 
 
     # ===== 3行目：サイズ・ABV・価格 =====
