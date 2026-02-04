@@ -5,7 +5,11 @@ from pyuca import Collator  # <- import
 
 import os
 
+# ---------- Page config ----------
+st.set_page_config(page_title="Craft Beer List", layout="wide")
 
+
+# ---------- 管理者ページ ----------
 is_admin = "yakuzen_beer" in st.query_params
 
 if is_admin:
@@ -49,8 +53,6 @@ if is_admin:
 
 collator = Collator()  
 
-# ---------- Page config ----------
-st.set_page_config(page_title="Craft Beer List", layout="wide")
 
 # ---------- Defaults ----------
 EXCEL_PATH = "beer_data.xlsx"
