@@ -130,10 +130,6 @@ def try_number(v):
     except:
         return None
 
-def locale_key(x):
-    s = "" if x is None else str(x).strip()
-    return collator.sort_key(s)
-
 def get_countries_for_filter(df, admin=False):
 
     target = df if admin else df[df["stock_status"] == "○"]
