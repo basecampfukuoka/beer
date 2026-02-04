@@ -277,8 +277,8 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
     df.loc[idx, "comment"] = comment
     df.loc[idx, "detailed_comment"] = detailed_comment
 
-    tmp_path = EXCEL_PATH + ".tmp"
-    df.to_excel(tmp_path, index=False)
+    tmp_path = EXCEL_PATH.replace(".xlsx", "_tmp.xlsx")  
+    df.to_excel(tmp_path, index=False, engine="openpyxl")
 
     os.replace(tmp_path, EXCEL_PATH)
 
