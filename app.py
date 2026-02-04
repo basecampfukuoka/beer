@@ -17,35 +17,37 @@ if is_admin:
     st.markdown("""
     <style>
 
-    /* ページ全体を薄赤に */
+    /* 背景をうっすら赤 */
     .stApp {
         background-color: #fff5f5;
     }
 
-    /* 固定ラベル */
-    .admin-banner-fixed {
+    /* 上部固定 管理バー */
+    .admin-top-bar {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        background-color: rgba(255, 120, 120, 0.15);
+        height: 44px;
+        background: rgba(255, 120, 120, 0.18);
         border-bottom: 1px solid #ffcccc;
         color: #7a0000;
-        padding: 8px 16px;
         font-weight: 600;
-        text-align: center;
-        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
         backdrop-filter: blur(2px);
     }
 
-    /* バナー分の余白 */
+    /* 中身がバーに被らないように */
     .block-container {
-        padding-top: 50px !important;
+        padding-top: 55px !important;
     }
 
     </style>
 
-    <div class="admin-banner-fixed">
+    <div class="admin-top-bar">
         🛠 管理モード（yakuzen_beer）
     </div>
     """, unsafe_allow_html=True)
