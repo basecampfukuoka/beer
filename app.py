@@ -5,7 +5,47 @@ from pyuca import Collator  # <- import
 
 import os
 
-is_admin = st.query_params.get("admin") == "1"
+
+is_admin = "yakuzen_beer" in st.query_params
+
+if is_admin:
+
+    st.markdown("""
+    <style>
+
+    /* ページ全体を薄赤に */
+    .stApp {
+        background-color: #fff5f5;
+    }
+
+    /* 固定ラベル */
+    .admin-banner-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(255, 120, 120, 0.15);
+        border-bottom: 1px solid #ffcccc;
+        color: #7a0000;
+        padding: 8px 16px;
+        font-weight: 600;
+        text-align: center;
+        z-index: 9999;
+        backdrop-filter: blur(2px);
+    }
+
+    /* バナー分の余白 */
+    .block-container {
+        padding-top: 50px !important;
+    }
+
+    </style>
+
+    <div class="admin-banner-fixed">
+        🛠 管理モード（yakuzen_beer）
+    </div>
+    """, unsafe_allow_html=True)
+
 
 collator = Collator()  
 
@@ -312,16 +352,9 @@ div[data-testid="stHorizontalBlock"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- 管理者ログイン ----------
+# ---------- 管理モード ----------
 if is_admin:
-
-    pwd = st.text_input("管理者パスワード", type="password")
-
-    if pwd != st.secrets["ADMIN_PASSWORD"]:
-        st.stop()
-
-    st.success("管理モード")
-
+    st.sidebar.success("管理モード")
 
 # ---------- Filters UI ----------
 with st.expander("フィルター / 検索を表示", False):
