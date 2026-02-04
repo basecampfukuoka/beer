@@ -150,7 +150,7 @@ def build_filtered_df(
     price_min, price_max,
     country_choice,  
 ):
-    d = df.copy()
+    d = df.copy(deep=True)
 
     # --- フリー検索 ---
     if search_text and search_text.strip():
