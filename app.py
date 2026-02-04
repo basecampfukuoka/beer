@@ -17,12 +17,12 @@ if is_admin:
     st.markdown("""
     <style>
 
-    /* 背景をうっすら赤 */
+    /* 背景 */
     .stApp {
         background-color: #ffe6e6;
     }
 
-    /* 上部固定 管理バー */
+    /* 上固定 管理バー */
     .admin-top-bar {
         position: fixed;
         top: 0;
@@ -40,12 +40,12 @@ if is_admin:
         backdrop-filter: blur(2px);
     }
 
-    /* バーに被らないよう余白 */
+    /* 上バー分の余白 */
     .block-container {
         padding-top: 60px !important;
     }
 
-    /* ❌ クローズUI完全無効化 */
+    /* ❌ バツ消す */
     .admin-top-bar button,
     .admin-top-bar svg {
         display: none !important;
@@ -55,15 +55,24 @@ if is_admin:
         display: none !important;
     }
 
+    /* ❌ 左サイドバー削除 */
+    section[data-testid="stSidebar"] {
+        display: none !important;
+    }
+
+    /* メイン横幅最大化 */
+    .main .block-container {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        max-width: 100% !important;
+    }
+
     </style>
 
     <div class="admin-top-bar">
         🛠 管理モード（yakuzen_beer）
     </div>
     """, unsafe_allow_html=True)
-
-
-collator = Collator()  
 
 
 # ---------- Defaults ----------
@@ -161,10 +170,6 @@ def build_filtered_df(
     country_choice,  
 ):
     d = df.copy(deep=True)
-
-    # 🔒 念のため在庫フィルタ再適用（通常モードのみ）
-    if not is_admin:
-        d = d[d["stock_status"] == "○"]
 
     # --- フリー検索 ---
     if search_text and search_text.strip():
@@ -450,7 +455,7 @@ with st.expander("フィルター / 検索を表示", False):
             st.rerun()
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country, col_stock1 = st.columns([4,0.1])
+    col_country, col_stock1 = st.columns([4,1.5])
 
 
      # 国リストを在庫フィルタに合わせて取得
