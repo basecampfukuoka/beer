@@ -627,18 +627,9 @@ filtered_base = build_filtered_df(
 
 # ===== 管理画面:醸造所 =====
 if is_admin:
-    # 醸造所の日本語名でリスト作成
-    breweries = filtered_base[["brewery_local", "brewery_jp"]].drop_duplicates()
-    breweries = breweries.sort_values("brewery_jp")  # 日本語順ソート
-    breweries_display = ["すべて"] + breweries["brewery_jp"].tolist()
-
-    brewery_choice_jp = st.selectbox(
-        "醸造所で絞り込み",
-        breweries_display,
-        key="brewery_filter"
-    )
-
-    # 選択が「すべて」以外なら元の英語IDでフィルター
+    breweries = filtered_base[["brewery_local","brewery_jp"]].drop_duplicates()
+    breweries_display = ["すべて"] + breweries["brewery_jp"].sort_values().tolist()
+    brewery_choice_jp = st.selectbox("醸造所で絞り込み", breweries_display)
     if brewery_choice_jp != "すべて":
         brewery_local_selected = breweries.loc[
             breweries["brewery_jp"] == brewery_choice_jp, "brewery_local"
@@ -660,11 +651,13 @@ else:
     selected_styles = []  # 管理モードでは空リストで定義
 
 # ----------style 選択を filtered に適用 ----------
-filtered = filtered_base
-if selected_styles:
-    filtered = filtered[
-        filtered["style_main_jp"].isin(selected_styles)
-    ]
+selected_styles = []
+if not is_admin:
+    styles_available = get_style_candidates(filtered_base)  # ← ここで確実に存在
+    for s in styles_available:
+        key = f"style_{s}"
+        if st.checkbox(s, key=key):
+            selected_styles.append(s)
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
