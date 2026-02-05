@@ -527,11 +527,8 @@ with st.expander("フィルター / 検索を表示", False):
     countries = get_countries_for_filter(base_df, admin=is_admin)
 
     # session_state 初期化
-    if "country_radio" not in st.session_state :
-        if is_admin:
-            st.session_state["country_radio"] = "すべて"
-        else:
-            st.session_state["country_radio"] = "ベルギー" 
+    if "country_radio" not in st.session_state:
+        st.session_state["country_radio"] = "すべて" if is_admin else "ベルギー"
     # 日本語表示用に変換
     countries_display = ["すべて"] + [COUNTRY_INFO.get(c, {}).get("jp", c) for c in countries]
 
@@ -562,10 +559,7 @@ with st.expander("フィルター / 検索を表示", False):
 
     with col_size:
         if "size_choice" not in st.session_state:
-            if is_admin:
-                st.session_state["country_radio"] = "すべて"
-            else:
-                st.session_state["country_radio"] = "ベルギー"
+            st.session_state["size_choice"] = "すべて" if is_admin else "小瓶（≤500ml）"
         size_choice = st.radio(
             "サイズ",
             ("すべて", "小瓶（≤500ml）", "大瓶（≥500ml）"),
