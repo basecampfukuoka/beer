@@ -622,7 +622,7 @@ filtered_base = build_filtered_df(
 )
 
 # ---------- 管理モード: 醸造所フィルター ----------
-brewery_choice = "すべて"  # 管理モード以外でも安全に参照できる
+brewery_choice = "すべて"  # 管理モード以外でも安全に参照
 if is_admin:
     breweries = sorted(base_df["brewery_local"].dropna().unique())
     breweries_display = ["すべて"] + breweries
