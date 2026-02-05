@@ -842,3 +842,49 @@ else:
     pass
 
 
+# ---------- 新規作成 ----------
+st.markdown("---")  # 区切り線
+
+if is_admin:
+
+    # 新規作成フォーム表示フラグの初期化
+    if "show_new_beer_form" not in st.session_state:
+        st.session_state.show_new_beer_form = False
+
+    # ボタン
+    if st.button("➕ 新規ビールを追加"):
+        st.session_state.show_new_beer_form = not st.session_state.show_new_beer_form
+
+    # フラグがTrueならフォームを表示
+    if st.session_state.show_new_beer_form:
+        with st.form("new_beer_form"):
+            st.markdown("### 新規ビール追加フォーム")
+
+            # 入力項目
+            name_jp = st.text_input("ビール名（日本語）")
+            name_local = st.text_input("ビール名（現地語）")
+            brewery_jp = st.text_input("醸造所名（日本語）")
+            brewery_local = st.text_input("醸造所名（現地語）")
+            country = st.selectbox("国", list(COUNTRY_INFO.keys()))
+            style_main_jp = st.text_input("スタイル（メイン）")
+            style_sub_jp = st.text_input("スタイル（サブ）")
+            abv = st.number_input("ABV (%)", min_value=0.0, max_value=100.0, step=0.1)
+            volume = st.number_input("容量 (ml)", min_value=0, step=50)
+            price = st.number_input("価格 (円)", min_value=0, step=100)
+            in_stock = st.selectbox("在庫", ["○","△","×"])
+            beer_image_url = st.text_input("ビール画像URL")
+            untappd_url = st.text_input("Untappd URL")
+            comment = st.text_area("コメント")
+            detailed_comment = st.text_area("詳細コメント")
+
+            submitted = st.form_submit_button("追加")
+
+            if submitted:
+                add_new_beer_simple(
+                    name_jp, name_local, brewery_jp, brewery_local,
+                    country, style_main_jp, style_sub_jp,
+                    abv, volume, price, in_stock,
+                    beer_image_url, untappd_url, comment, detailed_comment
+                )
+
+
