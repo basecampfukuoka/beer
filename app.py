@@ -527,8 +527,8 @@ with st.expander("フィルター / 検索を表示", False):
     countries = get_countries_for_filter(base_df, admin=is_admin)
 
     # session_state 初期化
-    if "country_radio" not in st.session_state:
-        st.session_state["country_radio"] = "ベルギー"
+    if "country_radio" not in st.session_state or is_admin:
+        st.session_state["country_radio"] = "すべて"  # 管理モードでは「すべて」デフォルト
 
     # 日本語表示用に変換
     countries_display = ["すべて"] + [COUNTRY_INFO.get(c, {}).get("jp", c) for c in countries]
@@ -559,13 +559,13 @@ with st.expander("フィルター / 検索を表示", False):
     col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
 
     with col_size:    
-        if "size_choice" not in st.session_state :
-            st.session_state["size_choice"] = "小瓶（≤500ml）"
+        if "size_choice" not in st.session_state or is_admin:
+            st.session_state["size_choice"] = "すべて"  # 管理モードでは「すべて」デフォルト
         size_choice = st.radio(
-        "サイズ",
-        ("すべて", "小瓶（≤500ml）", "大瓶（≥500ml）"),
-        horizontal=True,
-        key="size_choice"
+            "サイズ",
+            ("すべて", "小瓶（≤500ml）", "大瓶（≥500ml）"),
+            horizontal=True,
+            key="size_choice"
         )
 
     with col_abv:
@@ -593,6 +593,22 @@ with st.expander("フィルター / 検索を表示", False):
     st.markdown("### スタイルで絞り込み")
     style_ui_placeholder = st.container()
 
+    # ===== 管理画面:醸造所 =====
+    if is_admin:
+        # 醸造所リスト取得（重複削除＆ソート）
+        breweries = sorted(base_df["brewery_local"].dropna().unique())
+        breweries_display = ["すべて"] + breweries
+
+        brewery_choice = st.selectbox(
+            "醸造所で絞り込み",
+            breweries_display,
+            key="brewery_filter"
+        )
+
+    # 選択が「すべて」以外ならフィルターを適用
+    if brewery_choice != "すべて":
+        filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_choice]
+
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
     base_df,
@@ -606,17 +622,20 @@ filtered_base = build_filtered_df(
 )
 
 # ---------- Style UI（差し込み） ----------
-with style_ui_placeholder:
-    styles_available = get_style_candidates(filtered_base)
+if not is_admin:
+    with style_ui_placeholder:
+        styles_available = get_style_candidates(filtered_base)
+        selected_styles = []
 
-    selected_styles = []
+        if styles_available:
+            cols = st.columns(min(6, len(styles_available)))
+            for i, s in enumerate(styles_available):
+                key = f"style_{s}"
+                if cols[i % len(cols)].checkbox(s, key=key):
+                    selected_styles.append(s)
 
-    if styles_available:
-        cols = st.columns(min(6, len(styles_available)))
-        for i, s in enumerate(styles_available):
-            key = f"style_{s}"
-            if cols[i % len(cols)].checkbox(s, key=key):
-                selected_styles.append(s)
+    if selected_styles:
+        filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
 # ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
