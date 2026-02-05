@@ -1,9 +1,17 @@
 import streamlit as st
 import pandas as pd
 import random
-from pyuca import Collator  # <- import
-
+from pyuca import Collator  # <- 日本語ソート用
 import os
+
+# ---------- Google Sheets 用ライブラリ ----------
+import gspread
+from google.oauth2.service_account import Credentials
+
+# ---------- Google Sheets 設定 ----------
+SHEET_KEY = "17klQYxbleHKBxrxB_7DWlqGlfkcfxPlg"
+SHEET_NAME = "Sheet1"  # 読み書きするシート名
+
 
 # ---------- Page config ----------
 st.set_page_config(page_title="Craft Beer List", layout="wide")
