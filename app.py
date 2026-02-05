@@ -252,10 +252,17 @@ def locale_key(x):
 # ---------- Load data ----------
 @st.cache_data
 def load_data():
+
     # --- Google 認証 ---
-    creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+    info = st.secrets["gcp_service_account"]
+    SCOPES = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    creds = Credentials.from_service_account_info(info, scopes=SCOPES)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
+
     
     # --- 全データ取得 ---
     data = sheet.get_all_records()
