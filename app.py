@@ -628,8 +628,8 @@ filtered_base = build_filtered_df(
 # ===== 管理画面:醸造所 =====
 if is_admin:
     breweries = filtered_base[["brewery_local","brewery_jp"]].drop_duplicates()
-    breweries_display = ["すべて"] + breweries["brewery_jp"].sort_values().tolist()
-    brewery_choice_jp = st.selectbox("醸造所で絞り込み", breweries_display)
+    breweries_display = ["すべて"] + sorted(breweries["brewery_jp"].tolist())
+    brewery_choice_jp = st.selectbox("醸造所で絞り込み", breweries_display, key="brewery_filter")
     if brewery_choice_jp != "すべて":
         brewery_local_selected = breweries.loc[
             breweries["brewery_jp"] == brewery_choice_jp, "brewery_local"
@@ -637,19 +637,16 @@ if is_admin:
         filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_local_selected]
 
 # ---------- Style UI（差し込み） ----------
-if not is_admin:
-    with style_ui_placeholder:
-        styles_available = get_style_candidates(filtered_base)
-        selected_styles = []
-        if styles_available:
-            cols = st.columns(min(6, len(styles_available)))
-            for i, s in enumerate(styles_available):
-                key = f"style_{s}"
-                if cols[i % len(cols)].checkbox(s, key=key):
-                    selected_styles.append(s)
-else:
-    selected_styles = []  # 管理モードでは空リストで定義
+selected_styles = []  # ← ここで必ず初期化
 
+if not is_admin and filtered_base is not None:
+    styles_available = get_style_candidates(filtered_base)
+    if styles_available:
+        cols = st.columns(min(6, len(styles_available)))
+        for i, s in enumerate(styles_available):
+            key = f"style_{s}"
+            if cols[i % len(cols)].checkbox(s, key=key):
+                selected_styles.append(s)
 # ----------style 選択を filtered に適用 ----------
 selected_styles = []
 if not is_admin:
