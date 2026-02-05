@@ -590,7 +590,7 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     # ===== 4行目：スタイル（メイン） =====
-      if not is_admin:
+    if not is_admin:
         st.markdown("### スタイルで絞り込み")
     style_ui_placeholder = st.container()
 
