@@ -608,10 +608,7 @@ with st.expander("フィルター / 検索を表示", False):
     if selected_styles:
         filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
-# ----------style 選択を filtered に適用 ----------
-if selected_styles:
-    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
-# ---------- Filtering ----------
+# ---------- Filtering: 基本絞込 ----------
 filtered_base = build_filtered_df(
     base_df,
     search_text=st.session_state.get("search_text",""),
@@ -623,14 +620,20 @@ filtered_base = build_filtered_df(
     country_choice=country_choice
 )
 
-# ---------- 管理モード:醸造所絞り込み ----------
+# ---------- 管理モード: 醸造所絞込 ----------
 if is_admin:
+    # brewery_jp の日本語順でソート
     breweries = filtered_base[["brewery_local","brewery_jp"]].drop_duplicates()
     breweries = breweries.sort_values("brewery_jp")
     breweries_display = ["すべて"] + breweries["brewery_jp"].tolist()
 
-    brewery_choice_jp = st.selectbox("醸造所で絞り込み", breweries_display, key="brewery_filter")
+    brewery_choice_jp = st.selectbox(
+        "醸造所で絞り込み",
+        breweries_display,
+        key="brewery_filter"
+    )
 
+    # 「すべて」以外なら英語IDでフィルター
     if brewery_choice_jp != "すべて":
         brewery_local_selected = breweries.loc[
             breweries["brewery_jp"] == brewery_choice_jp, "brewery_local"
@@ -638,19 +641,22 @@ if is_admin:
         filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_local_selected]
 
 # ---------- スタイルUI（管理モードでは非表示） ----------
-selected_styles = []  # 必ず初期化
+selected_styles = []  # 初期化
+filtered = filtered_base.copy()  # 表示用DF
 
 if not is_admin:
     st.markdown("### スタイルで絞り込み")
-    with style_ui_placeholder:
-        if filtered_base is not None and not filtered_base.empty:
-            styles_available = get_style_candidates(filtered_base)
-            if styles_available:
-                cols = st.columns(min(6, len(styles_available)))
-                for i, s in enumerate(styles_available):
-                    key = f"style_{s}"
-                    if cols[i % len(cols)].checkbox(s, key=key):
-                        selected_styles.append(s)
+    styles_available = get_style_candidates(filtered_base)
+    if styles_available:
+        cols = st.columns(min(6, len(styles_available)))
+        for i, s in enumerate(styles_available):
+            key = f"style_{s}"
+            if cols[i % len(cols)].checkbox(s, key=key):
+                selected_styles.append(s)
+
+# ---------- 選択スタイルを表示用DFに適用 ----------
+if selected_styles:
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
 # ---------- 選択スタイルがあればフィルター ----------
 if selected_styles:
