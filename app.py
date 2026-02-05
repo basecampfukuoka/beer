@@ -612,26 +612,7 @@ with st.expander("フィルター / 検索を表示", False):
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
-    # ===== 管理画面:醸造所 =====
-    if is_admin:
-        # 醸造所の日本語名でリスト作成
-        breweries = filtered_base[["brewery_local", "brewery_jp"]].drop_duplicates()
-        breweries = breweries.sort_values("brewery_jp")  # 日本語順ソート
-        breweries_display = ["すべて"] + breweries["brewery_jp"].tolist()
-
-        brewery_choice_jp = st.selectbox(
-            "醸造所で絞り込み",
-            breweries_display,
-            key="brewery_filter"
-        )
-
-        # 選択が「すべて」以外なら元の英語IDでフィルター
-        if brewery_choice_jp != "すべて":
-            brewery_local_selected = breweries.loc[
-                breweries["brewery_jp"] == brewery_choice_jp, "brewery_local"
-            ].values[0]
-            filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_local_selected]
-
+    
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
     base_df,
@@ -643,6 +624,26 @@ filtered_base = build_filtered_df(
     price_max=price_max,
     country_choice=country_choice,
 )
+
+# ===== 管理画面:醸造所 =====
+if is_admin:
+    # 醸造所の日本語名でリスト作成
+    breweries = filtered_base[["brewery_local", "brewery_jp"]].drop_duplicates()
+    breweries = breweries.sort_values("brewery_jp")  # 日本語順ソート
+    breweries_display = ["すべて"] + breweries["brewery_jp"].tolist()
+
+    brewery_choice_jp = st.selectbox(
+        "醸造所で絞り込み",
+        breweries_display,
+        key="brewery_filter"
+    )
+
+    # 選択が「すべて」以外なら元の英語IDでフィルター
+    if brewery_choice_jp != "すべて":
+        brewery_local_selected = breweries.loc[
+            breweries["brewery_jp"] == brewery_choice_jp, "brewery_local"
+        ].values[0]
+        filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_local_selected]
 
 # ---------- Style UI（差し込み） ----------
 if not is_admin:
