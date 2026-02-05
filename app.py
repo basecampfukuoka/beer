@@ -590,24 +590,47 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     # ===== 4行目：スタイル（メイン） =====
-    st.markdown("### スタイルで絞り込み")
     style_ui_placeholder = st.container()
+
+    selected_styles = []  # どちらの場合も定義しておく
+
+    if not is_admin:
+        st.markdown("### スタイルで絞り込み")
+        with style_ui_placeholder:
+            styles_available = get_style_candidates(filtered_base)
+            if styles_available:
+                cols = st.columns(min(6, len(styles_available)))
+                for i, s in enumerate(styles_available):
+                    key = f"style_{s}"
+                    if cols[i % len(cols)].checkbox(s, key=key):
+                        selected_styles.append(s)
+
+    if selected_styles:
+        filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+
+# ----------style 選択を filtered に適用 ----------
+if selected_styles:
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
     # ===== 管理画面:醸造所 =====
     if is_admin:
-        # 醸造所リスト取得（重複削除＆ソート）
-        breweries = sorted(base_df["brewery_local"].dropna().unique())
-        breweries_display = ["すべて"] + breweries
+        # 醸造所の日本語名でリスト作成
+        breweries = filtered_base[["brewery_local", "brewery_jp"]].drop_duplicates()
+        breweries = breweries.sort_values("brewery_jp")  # 日本語順ソート
+        breweries_display = ["すべて"] + breweries["brewery_jp"].tolist()
 
-        brewery_choice = st.selectbox(
+        brewery_choice_jp = st.selectbox(
             "醸造所で絞り込み",
             breweries_display,
             key="brewery_filter"
         )
 
-    # 選択が「すべて」以外ならフィルターを適用
-    if brewery_choice != "すべて":
-        filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_choice]
+        # 選択が「すべて」以外なら元の英語IDでフィルター
+        if brewery_choice_jp != "すべて":
+            brewery_local_selected = breweries.loc[
+                breweries["brewery_jp"] == brewery_choice_jp, "brewery_local"
+            ].values[0]
+            filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_local_selected]
 
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
