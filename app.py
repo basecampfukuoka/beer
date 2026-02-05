@@ -611,41 +611,38 @@ with st.expander("フィルター / 検索を表示", False):
 # ----------style 選択を filtered に適用 ----------
 if selected_styles:
     filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
-
-    
-# ---------- Filtering（★1回だけ） ----------
+# ---------- Filtering ----------
 filtered_base = build_filtered_df(
     base_df,
-    search_text=search_text,
-    size_choice=size_choice,
-    abv_min=abv_min,
-    abv_max=abv_max,
-    price_min=price_min,
-    price_max=price_max,
-    country_choice=country_choice,
+    search_text=st.session_state.get("search_text",""),
+    size_choice=st.session_state.get("size_choice","すべて"),
+    abv_min=st.session_state.get("abv_slider",(0.0,20.0))[0],
+    abv_max=st.session_state.get("abv_slider",(0.0,20.0))[1],
+    price_min=st.session_state.get("price_slider",(0,20000))[0],
+    price_max=st.session_state.get("price_slider",(0,20000))[1],
+    country_choice=country_choice
 )
 
-# ===== 管理画面:醸造所 =====
+# ---------- 管理モード:醸造所絞り込み ----------
 if is_admin:
     breweries = filtered_base[["brewery_local","brewery_jp"]].drop_duplicates()
-    breweries_display = ["すべて"] + sorted(breweries["brewery_jp"].tolist())
+    breweries = breweries.sort_values("brewery_jp")
+    breweries_display = ["すべて"] + breweries["brewery_jp"].tolist()
+
     brewery_choice_jp = st.selectbox("醸造所で絞り込み", breweries_display, key="brewery_filter")
+
     if brewery_choice_jp != "すべて":
         brewery_local_selected = breweries.loc[
             breweries["brewery_jp"] == brewery_choice_jp, "brewery_local"
         ].values[0]
         filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_local_selected]
 
-# ---------- Style UI（差し込み） ----------
-# 管理モードの場合は Style UI を描画しない
-selected_styles = []  # どちらの場合も必ず初期化
+# ---------- スタイルUI（管理モードでは非表示） ----------
+selected_styles = []  # 必ず初期化
 
 if not is_admin:
     st.markdown("### スタイルで絞り込み")
-
-    # style_ui_placeholder 内に入るのも管理モードではスキップ
     with style_ui_placeholder:
-        # filtered_base が None や空でないことを確認
         if filtered_base is not None and not filtered_base.empty:
             styles_available = get_style_candidates(filtered_base)
             if styles_available:
@@ -655,7 +652,7 @@ if not is_admin:
                     if cols[i % len(cols)].checkbox(s, key=key):
                         selected_styles.append(s)
 
-# 選択されたスタイルがあればフィルタ
+# ---------- 選択スタイルがあればフィルター ----------
 if selected_styles:
     filtered_base = filtered_base[filtered_base["style_main_jp"].isin(selected_styles)]
 
