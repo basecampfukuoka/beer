@@ -9,7 +9,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 # ---------- Google Sheets 設定 ----------
-SHEET_KEY = "1h8Pzctpx_jSL0EMRBW4jZvn93FSJ8YEJ"
+SHEET_KEY = "12ZD5vFdtCPTDgEqT3meZyNTn-E7hpDs6"
 SHEET_NAME = "Sheet1"  # 読み書きするシート名
 
 
