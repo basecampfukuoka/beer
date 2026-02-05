@@ -119,7 +119,6 @@ if is_admin:
 
 
 # ---------- Defaults ----------
-EXCEL_PATH = "beer_data.xlsx"
 DEFAULT_BEER_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-beer-default.png"
 DEFAULT_BREWERY_IMG = "https://assets.untappd.com/site/assets/images/temp/badge-brewery-default.png"
 
@@ -252,8 +251,15 @@ def locale_key(x):
 
 # ---------- Load data ----------
 @st.cache_data
-def load_data(path=EXCEL_PATH):
-    df = pd.read_excel(path, engine="openpyxl")
+def load_data():
+    # --- Google 認証 ---
+    creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+    client = gspread.authorize(creds)
+    sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
+    
+    # --- 全データ取得 ---
+    data = sheet.get_all_records()
+    df = pd.DataFrame(data)
 
     expected = [
         "id","name_jp","name_local","yomi","brewery_local","brewery_jp","country","city",
@@ -318,16 +324,17 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
         df.loc[idx, "comment"] = comment
         df.loc[idx, "detailed_comment"] = detailed_comment
 
-        tmp_path = "beer_data_tmp.xlsx"
-        df.to_excel(tmp_path, index=False, engine="openpyxl")
-        os.replace(tmp_path, EXCEL_PATH)
+        # --- Google Sheets に書き込み ---
+        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
+
+        # 全データをリスト化して置き換え
+        sheet.update([df.columns.values.tolist()] + df.values.tolist())
 
         st.cache_data.clear()
         st.session_state.edit_id = None
-
-        # ---------- 成功フラッシュをセット ----------
         st.session_state["save_success_flash"] = True
-
         st.success("保存しました")
         st.rerun()
 
