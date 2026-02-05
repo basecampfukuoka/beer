@@ -590,20 +590,32 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     # ===== 4行目：スタイル（メイン） =====
-    st.markdown("### スタイルで絞り込み")
+      if not is_admin:
+        st.markdown("### スタイルで絞り込み")
     style_ui_placeholder = st.container()
 
     # ===== 管理画面:醸造所 =====
-    brewery_choice = "すべて"  # デフォルト値（管理モード以外でも安全）
+    brewery_choice = "すべて"  # デフォルト値
 
     if is_admin:
-        breweries = sorted(base_df["brewery_local"].dropna().unique())
-        breweries_display = ["すべて"] + breweries
-        brewery_choice = st.selectbox(
+        # 醸造所リスト取得（重複削除＆ソート）
+        breweries = sorted(base_df[["brewery_local","brewery_jp"]].drop_duplicates("brewery_local").values, key=lambda x: x[1])
+        # ["すべて"] + 日本語名リスト
+        breweries_display = ["すべて"] + [b[1] for b in breweries]
+
+        brewery_choice_display = st.selectbox(
             "醸造所で絞り込み",
             breweries_display,
             key="brewery_filter"
         )
+
+        # 日本語表示 → 内部用（brewery_local）変換
+        if brewery_choice_display == "すべて":
+            brewery_choice = "すべて"
+        else:
+            # brewery_local を取得
+            brewery_choice = next((b[0] for b in breweries if b[1] == brewery_choice_display), brewery_choice_display)
+
         
 # ---------- Filtering ----------
 filtered_base = build_filtered_df(
