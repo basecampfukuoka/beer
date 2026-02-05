@@ -626,16 +626,14 @@ if not is_admin:
     with style_ui_placeholder:
         styles_available = get_style_candidates(filtered_base)
         selected_styles = []
-
         if styles_available:
             cols = st.columns(min(6, len(styles_available)))
             for i, s in enumerate(styles_available):
                 key = f"style_{s}"
                 if cols[i % len(cols)].checkbox(s, key=key):
                     selected_styles.append(s)
-
-    if selected_styles:
-        filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
+else:
+    selected_styles = []  # 管理モードでは空リストで定義
 
 # ----------style 選択を filtered に適用 ----------
 filtered = filtered_base
