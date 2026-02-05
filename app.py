@@ -236,6 +236,23 @@ else:
             if key.startswith("detail_") or key=="open_detail":
                 del st.session_state[key]
 
+# ---------- Custom CSS ----------
+st.markdown("""
+<style>
+div.beer-card {
+    background: #f4f9ff;
+    border: 1px solid #cfe3f8;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+div.beer-card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ---------- フィルター構築 ----------
 search_text = st.session_state.get("search_text","")
 size_choice = st.session_state.get("size_choice","すべて")
@@ -283,9 +300,15 @@ def render_beer_card(r, beer_id_safe):
         beer_info = " | ".join(info_arr)
         st.markdown(f'<a href="{r.untappd_url}" target="_blank" style="text-decoration:none;color:inherit;"><b style="font-size:1.15em;">{r.name_local}</b><br><span style="font-size:0.95em;">{r.name_jp}</span></a><br><span style="color:#666;">{style_line}</span><br>{beer_info}<br>{r.comment or ""}', unsafe_allow_html=True)
 
-for r in display_df.itertuples(index=False):
-    try: beer_id_safe = int(float(r.id))
-    except: continue
+cards_container = st.container()  # ここに全カードをまとめて描画
+
+with cards_container:
+    for global_idx, r in enumerate(display_df.itertuples(index=False)):
+        try:
+            beer_id_safe = int(float(r.id))
+        except (ValueError, TypeError):
+            continue
+
     render_beer_card(r, beer_id_safe)
 
 # ---------- トップへ戻るボタン ----------
