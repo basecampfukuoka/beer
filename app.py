@@ -647,14 +647,6 @@ if not is_admin and filtered_base is not None:
             key = f"style_{s}"
             if cols[i % len(cols)].checkbox(s, key=key):
                 selected_styles.append(s)
-# ----------style 選択を filtered に適用 ----------
-selected_styles = []
-if not is_admin:
-    styles_available = get_style_candidates(filtered_base)  # ← ここで確実に存在
-    for s in styles_available:
-        key = f"style_{s}"
-        if st.checkbox(s, key=key):
-            selected_styles.append(s)
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
