@@ -594,20 +594,16 @@ with st.expander("フィルター / 検索を表示", False):
     style_ui_placeholder = st.container()
 
     # ===== 管理画面:醸造所 =====
+    brewery_choice = "すべて"  # デフォルト値（管理モード以外でも安全）
+
     if is_admin:
-        # 醸造所リスト取得（重複削除＆ソート）
         breweries = sorted(base_df["brewery_local"].dropna().unique())
         breweries_display = ["すべて"] + breweries
-
         brewery_choice = st.selectbox(
             "醸造所で絞り込み",
             breweries_display,
             key="brewery_filter"
         )
-
-    # 選択が「すべて」以外ならフィルターを適用
-    if brewery_choice != "すべて":
-        filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_choice]
         
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
@@ -620,22 +616,6 @@ filtered_base = build_filtered_df(
     price_max=price_max,
     country_choice=country_choice,
 )
-
-# ---------- 管理モード: 醸造所フィルター ----------
-brewery_choice = "すべて"  # デフォルト値（管理モード以外でも安全）
-
-if is_admin:
-    breweries = sorted(base_df["brewery_local"].dropna().unique())
-    breweries_display = ["すべて"] + breweries
-    brewery_choice = st.selectbox(
-        "醸造所で絞り込み",
-        breweries_display,
-        key="brewery_filter"
-    )
-
-# brewery_choice が必ず存在するので安全に参照可能
-if brewery_choice != "すべて":
-    filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_choice]
 
 # ---------- スタイルフィルター ----------
 selected_styles = []  # 管理モードでも未定義エラーを防ぐ
