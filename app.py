@@ -637,16 +637,19 @@ if is_admin:
         filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_local_selected]
 
 # ---------- Style UI（差し込み） ----------
-selected_styles = []  # ← ここで必ず初期化
+selected_styles = []  # 必ず初期化
 
-if not is_admin and filtered_base is not None:
-    styles_available = get_style_candidates(filtered_base)
-    if styles_available:
-        cols = st.columns(min(6, len(styles_available)))
-        for i, s in enumerate(styles_available):
-            key = f"style_{s}"
-            if cols[i % len(cols)].checkbox(s, key=key):
-                selected_styles.append(s)
+if not is_admin:
+    st.markdown("### スタイルで絞り込み")
+    with style_ui_placeholder:
+        if filtered_base is not None and not filtered_base.empty:
+            styles_available = get_style_candidates(filtered_base)
+            if styles_available:
+                cols = st.columns(min(6, len(styles_available)))
+                for i, s in enumerate(styles_available):
+                    key = f"style_{s}"
+                    if cols[i % len(cols)].checkbox(s, key=key):
+                        selected_styles.append(s)
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
