@@ -608,7 +608,7 @@ with st.expander("フィルター / 検索を表示", False):
     # 選択が「すべて」以外ならフィルターを適用
     if brewery_choice != "すべて":
         filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_choice]
-
+        
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
     base_df,
@@ -621,12 +621,26 @@ filtered_base = build_filtered_df(
     country_choice=country_choice,
 )
 
-# ---------- Style UI（差し込み） ----------
+# ---------- 管理モード: 醸造所フィルター ----------
+brewery_choice = "すべて"  # 管理モード以外でも安全に参照できる
+if is_admin:
+    breweries = sorted(base_df["brewery_local"].dropna().unique())
+    breweries_display = ["すべて"] + breweries
+    brewery_choice = st.selectbox(
+        "醸造所で絞り込み",
+        breweries_display,
+        key="brewery_filter"
+    )
+
+if brewery_choice != "すべて":
+    filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_choice]
+
+# ---------- スタイルフィルター ----------
+selected_styles = []  # 管理モードでも未定義エラーを防ぐ
+
 if not is_admin:
     with style_ui_placeholder:
         styles_available = get_style_candidates(filtered_base)
-        selected_styles = []
-
         if styles_available:
             cols = st.columns(min(6, len(styles_available)))
             for i, s in enumerate(styles_available):
@@ -634,15 +648,10 @@ if not is_admin:
                 if cols[i % len(cols)].checkbox(s, key=key):
                     selected_styles.append(s)
 
-    if selected_styles:
-        filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
-
-# ----------style 選択を filtered に適用 ----------
-filtered = filtered_base
+# ---------- style 選択を filtered に適用 ----------
+filtered = filtered_base.copy()
 if selected_styles:
-    filtered = filtered[
-        filtered["style_main_jp"].isin(selected_styles)
-    ]
+    filtered = filtered[filtered["style_main_jp"].isin(selected_styles)]
 
 # ---------- Sorting ----------
 if sort_option == "名前順":
