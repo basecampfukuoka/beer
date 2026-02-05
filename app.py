@@ -605,6 +605,25 @@ with st.expander("フィルター / 検索を表示", False):
             key="brewery_filter"
         )
         
+# ---------- Filtering ----------
+filtered_base = build_filtered_df(
+    base_df,
+    search_text=search_text,
+    size_choice=size_choice,
+    abv_min=abv_min,
+    abv_max=abv_max,
+    price_min=price_min,
+    price_max=price_max,
+    country_choice=country_choice,
+)
+
+# 管理モード以外は在庫ありだけ
+if not is_admin:
+    filtered_base = filtered_base[filtered_base["stock_status"] == "○"]
+
+# 管理モード: brewery_choice フィルター適用
+if brewery_choice != "すべて":
+    filtered_base = filtered_base[filtered_base["brewery_local"] == brewery_choice]
 # ---------- Filtering（★1回だけ） ----------
 filtered_base = build_filtered_df(
     base_df,
