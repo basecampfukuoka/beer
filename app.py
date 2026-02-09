@@ -930,7 +930,7 @@ if is_admin:
                 brewery_jp = ""          # or 後続処理で決める
                 brewery_local = ""
 
-           else:
+            else:
                 selected = next(
                     (b for b in brewery_master if b["brewery_jp"] == brewery_choice),
                     None
