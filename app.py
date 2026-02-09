@@ -32,7 +32,7 @@ def render_admin_bar():
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 999999;
+        z-index: 999999;m
         backdrop-filter: blur(2px);
         height: 44px;
         position: fixed;
@@ -914,9 +914,6 @@ if is_admin:
             st.markdown("### 新規ビール追加フォーム")
 
             # 入力項目
-            name_jp = st.text_input("ビール名（日本語）")
-            name_local = st.text_input("ビール名（現地語）")
-
             brewery_master = get_brewery_master(df_all)
 
             brewery_options = ["（新規入力）"] + [
@@ -930,21 +927,21 @@ if is_admin:
 
             if brewery_choice == "（新規入力）":
                 brewery_jp = st.text_input("醸造所名（日本語）")
-                brewery_local = st.text_input("醸造所名（現地語）")
+
+                # 🔑 必ず自動生成（空にしない）
+                brewery_local = brewery_jp
             else:
                 selected = next(
-                    b for b in brewery_master
-                    if b["brewery_jp"] == brewery_choice
+                    (b for b in brewery_master if b["brewery_jp"] == brewery_choice),
+                    None
                 )
+
+                if selected is None:
+                    st.error("選択された醸造所が見つかりません")
+                    st.stop()
 
                 brewery_jp = selected["brewery_jp"]
                 brewery_local = selected["brewery_local"]
-
-                st.text_input(
-                    "醸造所名（現地語）",
-                    value=brewery_local,
-                    disabled=True
-                )
 
             country = st.selectbox("国", list(COUNTRY_INFO.keys()))
             style_main_jp = st.text_input("スタイル（メイン）")
