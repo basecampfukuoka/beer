@@ -547,7 +547,7 @@ with st.expander("フィルター / 検索を表示", False):
             st.rerun()
 
     # ===== 2行目：国（Excel から自動取得・日本語化） =====
-    col_country_title, col_country, col_stock = st.columns([0.5,4,2])
+    col_country_title, col_country, col_stock1 = st.columns([0.2,4,1.5])
 
     # 国リストを在庫フィルタに合わせて取得
     countries = get_countries_for_filter(base_df, admin=is_admin)
@@ -571,8 +571,8 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
     # ---- 取り寄せ表示 ----
-    with col_stock:
-        show_take_order = col_stock.checkbox(
+    with col_stock1:
+        show_take_order = col_stock1.checkbox(
             "取り寄せを表示",
             key="show_take_order"
         )
