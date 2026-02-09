@@ -591,39 +591,6 @@ with st.expander("フィルター / 検索を表示", False):
         )
 
 
-
-
-     # 国リストを在庫フィルタに合わせて取得
-    countries = get_countries_for_filter(base_df, admin=is_admin)
-
-    # session_state 初期化
-    if "country_radio" not in st.session_state:
-        st.session_state["country_radio"] = "すべて" if is_admin else "ベルギー"
-    # 日本語表示用に変換
-    countries_display = ["すべて"] + [COUNTRY_INFO.get(c, {}).get("jp", c) for c in countries]
-
-    country_choice_display = col_country.radio(
-        "国",
-        countries_display,
-        horizontal=True,
-        key="country_radio"
-    )
-
-    # 日本語表示 → 内部用（英語）変換
-    if country_choice_display == "すべて":
-        country_choice = "すべて"
-    else:
-        country_choice = next(
-            (k for k, v in COUNTRY_INFO.items() if v.get("jp") == country_choice_display),
-            country_choice_display
-        )
-    # ---- 取り寄せ表示 ----
-    show_take_order = col_stock1.checkbox(
-        "取り寄せを表示",
-        key="show_take_order"
-    )
-
-
     # ===== 3行目：サイズ・ABV・価格 =====
     col_size, col_abv, col_price = st.columns([2.5, 1.5, 1.5])
 
