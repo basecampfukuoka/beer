@@ -994,7 +994,7 @@ if is_admin:
 
 
             abv = st.number_input("ABV (%)", min_value=0.0, max_value=100.0, step=0.1)
-            vintage = st.text_input("ヴィンテージ", placeholder="例：20○○ / OLD")
+            vintage = st.text_input("ヴィンテージ", placeholder="例：20○○ / OLD / 瓶・缶")
 
             volume = st.number_input("容量 (ml)", min_value=0, step=50)
             price = st.number_input("価格 (円)", min_value=0, step=100)
