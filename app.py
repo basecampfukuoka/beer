@@ -914,6 +914,11 @@ if is_admin:
             st.markdown("### 新規ビール追加フォーム")
 
             # 入力項目
+            name_jp = st.text_input("ビール名（日本語）")
+            name_local = st.text_input("ビール名（現地語）")
+
+            country = st.selectbox("国", list(COUNTRY_INFO.keys()))
+
             brewery_master = get_brewery_master(df_all)
 
             brewery_options = ["（新規入力）"] + [
@@ -943,7 +948,7 @@ if is_admin:
                 brewery_jp = selected["brewery_jp"]
                 brewery_local = selected["brewery_local"]
 
-            country = st.selectbox("国", list(COUNTRY_INFO.keys()))
+
             style_main_jp = st.text_input("スタイル（メイン）")
             style_sub_jp = st.text_input("スタイル（サブ）")
             abv = st.number_input("ABV (%)", min_value=0.0, max_value=100.0, step=0.1)
