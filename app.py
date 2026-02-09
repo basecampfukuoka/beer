@@ -919,10 +919,12 @@ if is_admin:
 
             brewery_master = get_brewery_master(df_all)
 
-            brewery_options = ["（新規入力）"] + [b[1] for b in brewery_master]
+            brewery_options = ["（新規入力）"] + [
+                b["brewery_jp"] for b in brewery_master
+            ]
 
             brewery_choice = st.selectbox(
-                "醸造所",
+                "醸造所（日本語）",
                 brewery_options
             )
 
@@ -930,10 +932,13 @@ if is_admin:
                 brewery_jp = st.text_input("醸造所名（日本語）")
                 brewery_local = st.text_input("醸造所名（現地語）")
             else:
-                brewery_jp = brewery_choice
-                brewery_local = next(
-                    b[0] for b in brewery_master if b[1] == brewery_choice
-                )
+                selected = next(
+                    b for b in brewery_master
+                    if b["brewery_jp"] == brewery_choice
+            )
+
+                brewery_jp = selected["brewery_jp"]
+                brewery_local = selected["brewery_local"]
 
                 st.text_input(
                     "醸造所名（現地語）",
