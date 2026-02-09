@@ -362,10 +362,10 @@ def get_brewery_master(df):
         df[
             (df["brewery_jp"] != "") &
             (df["brewery_local"] != "")
-        ][["brewery_local", "brewery_jp"]]
+        ][["brewery_jp", "brewery_local"]]
         .drop_duplicates()
         .sort_values("brewery_jp")
-        .values.tolist()
+        .to_dict("records")
     )
 
 
@@ -935,7 +935,7 @@ if is_admin:
                 selected = next(
                     b for b in brewery_master
                     if b["brewery_jp"] == brewery_choice
-            )
+                )
 
                 brewery_jp = selected["brewery_jp"]
                 brewery_local = selected["brewery_local"]
