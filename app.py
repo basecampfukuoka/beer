@@ -356,7 +356,7 @@ if is_admin:
 else:
     base_df = df_all[df_all["stock_status"] == "○"]
 
-# ---------- Brewery master ----------
+# ---------- 新規追加 master ----------
 def get_brewery_master(df):
     return (
         df[
@@ -367,6 +367,20 @@ def get_brewery_master(df):
         .sort_values("brewery_jp")
         .to_dict("records")
     )
+
+def get_style_master(df):
+    styles = (
+        df[["style_main_jp", "style_sub_jp"]]
+        .fillna("")
+    )
+
+    main = styles["style_main_jp"].unique().tolist()
+    sub  = styles["style_sub_jp"].unique().tolist()
+
+    main = sorted({s for s in main if s.strip()})
+    sub  = sorted({s for s in sub if s.strip()})
+
+    return main, sub
 
 
 # ---------- ランダム順用 state 初期化 ----------
@@ -949,8 +963,29 @@ if is_admin:
                 brewery_local = selected["brewery_local"]
 
 
-            style_main_jp = st.text_input("スタイル（メイン）")
-            style_sub_jp = st.text_input("スタイル（サブ）")
+            style_main_list, style_sub_list = get_style_master(df_all)
+
+            style_main_options = ["（未選択）"] + style_main_list
+            style_sub_options  = ["（未選択）"] + style_sub_list
+
+            style_main_jp = st.selectbox(
+                "スタイル（メイン）",
+                style_main_options
+            )
+
+            style_sub_jp = st.selectbox(
+                "スタイル（サブ）",
+                style_sub_options
+            )
+
+            # 未選択は空文字で保存
+            if style_main_jp == "（未選択）":
+                style_main_jp = ""
+
+            if style_sub_jp == "（未選択）":
+                style_sub_jp = ""
+
+
             abv = st.number_input("ABV (%)", min_value=0.0, max_value=100.0, step=0.1)
             volume = st.number_input("容量 (ml)", min_value=0, step=50)
             price = st.number_input("価格 (円)", min_value=0, step=100)
