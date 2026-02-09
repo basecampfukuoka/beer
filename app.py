@@ -572,7 +572,7 @@ with st.expander("フィルター / 検索を表示", False):
 
     # ---- 取り寄せ表示 ----
     with col_stock:
-        show_take_order = col_stock1.checkbox(
+        show_take_order = col_stock.checkbox(
             "取り寄せを表示",
             key="show_take_order"
         )
