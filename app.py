@@ -356,6 +356,19 @@ if is_admin:
 else:
     base_df = df_all[df_all["stock_status"] == "○"]
 
+# ---------- Brewery master ----------
+def get_brewery_master(df):
+    return (
+        df[
+            (df["brewery_jp"] != "") &
+            (df["brewery_local"] != "")
+        ][["brewery_local", "brewery_jp"]]
+        .drop_duplicates()
+        .sort_values("brewery_jp")
+        .values.tolist()
+    )
+
+
 # ---------- ランダム順用 state 初期化 ----------
 if "prev_sort_option" not in st.session_state:
     st.session_state.prev_sort_option = None
@@ -903,8 +916,31 @@ if is_admin:
             # 入力項目
             name_jp = st.text_input("ビール名（日本語）")
             name_local = st.text_input("ビール名（現地語）")
-            brewery_jp = st.text_input("醸造所名（日本語）")
-            brewery_local = st.text_input("醸造所名（現地語）")
+
+            brewery_master = get_brewery_master(df_all)
+
+            brewery_options = ["（新規入力）"] + [b[1] for b in brewery_master]
+
+            brewery_choice = st.selectbox(
+                "醸造所",
+                brewery_options
+            )
+
+            if brewery_choice == "（新規入力）":
+                brewery_jp = st.text_input("醸造所名（日本語）")
+                brewery_local = st.text_input("醸造所名（現地語）")
+            else:
+                brewery_jp = brewery_choice
+                brewery_local = next(
+                    b[0] for b in brewery_master if b[1] == brewery_choice
+                )
+
+                st.text_input(
+                    "醸造所名（現地語）",
+                    value=brewery_local,
+                    disabled=True
+                )
+
             country = st.selectbox("国", list(COUNTRY_INFO.keys()))
             style_main_jp = st.text_input("スタイル（メイン）")
             style_sub_jp = st.text_input("スタイル（サブ）")
