@@ -926,11 +926,11 @@ if is_admin:
             )
 
             if brewery_choice == "（新規入力）":
-                brewery_jp = st.text_input("醸造所名（日本語）")
+            # 新規だけど、入力は「別UI」でやらない
+                brewery_jp = ""          # or 後続処理で決める
+                brewery_local = ""
 
-                # 🔑 必ず自動生成（空にしない）
-                brewery_local = brewery_jp
-            else:
+           else:
                 selected = next(
                     (b for b in brewery_master if b["brewery_jp"] == brewery_choice),
                     None
