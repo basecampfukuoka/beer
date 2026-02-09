@@ -928,8 +928,8 @@ if is_admin:
             st.markdown("### 新規ビール追加フォーム")
 
             # 入力項目
-            name_jp = st.text_input("ビール名（日本語）")
-            name_local = st.text_input("ビール名（現地語）")
+            name_jp = st.text_input("ビール名（日）")
+            name_local = st.text_input("ビール名（英）")
 
             country = st.selectbox("国", list(COUNTRY_INFO.keys()))
 
@@ -940,7 +940,7 @@ if is_admin:
             ]
 
             brewery_choice = st.selectbox(
-                "醸造所（日本語）",
+                "醸造所（日）",
                 brewery_options
             )
 
@@ -987,6 +987,8 @@ if is_admin:
 
 
             abv = st.number_input("ABV (%)", min_value=0.0, max_value=100.0, step=0.1)
+            vintage = st.text_input("ヴィンテージ", placeholder="例：2022 / NV")
+
             volume = st.number_input("容量 (ml)", min_value=0, step=50)
             price = st.number_input("価格 (円)", min_value=0, step=100)
             in_stock = st.selectbox("在庫", ["○","△","×"])
