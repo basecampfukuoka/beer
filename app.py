@@ -567,7 +567,8 @@ with st.expander("フィルター / 検索を表示", False):
             "",
             countries_display,
             horizontal=True,
-            key="country_radio"
+            key="country_radio",
+            label_visibility="collapsed"
         )
 
     # ---- 取り寄せ表示 ----
@@ -1013,5 +1014,6 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
