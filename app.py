@@ -564,7 +564,7 @@ with st.expander("フィルター / 検索を表示", False):
 
     with col_country:
         country_choice_display = col_country.radio(
-            "",
+            "国",
             countries_display,
             horizontal=True,
             key="country_radio",
@@ -1014,6 +1014,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
