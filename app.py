@@ -1107,7 +1107,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
-
+                st.success("🍺 ビールを追加しました！")
 
 
 
