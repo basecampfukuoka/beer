@@ -340,10 +340,9 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
         df = df.fillna("")
 
         # list → 文字列化
-        df = df.applymap(
+        df = df.map(
             lambda x: ", ".join(map(str, x)) if isinstance(x, list) else x
         )
-
         # すべて文字列化（Sheets安全）
         df = df.astype(str)
 
@@ -1040,6 +1039,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
