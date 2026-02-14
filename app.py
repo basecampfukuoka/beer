@@ -321,21 +321,24 @@ def load_data():
 def update_row(beer_id, stock, price, comment, detailed_comment):
     try:
         df = load_data()
-        idx = df[df["id"] == beer_id].index
 
-        if len(idx) == 0:
+        # 該当行を1つに絞る
+        mask = df["id"] == beer_id
+
+        if not mask.any():
             st.error("IDが見つかりません")
             return
 
-        row_index = idx[0] 
-        
-        # --- データ更新 ---
-        df.at[idx, "in_stock"] = stock
-        df.at[idx, "price"] = price
-        df.at[idx, "comment"] = comment
-        df.at[idx, "detailed_comment"] = detailed_comment
+        # --- 単純代入（これが一番安全） ---
+        df.loc[mask, "in_stock"] = stock
+        df.loc[mask, "price"] = price
+        df.loc[mask, "comment"] = comment
+        df.loc[mask, "detailed_comment"] = detailed_comment
 
-        # --- Google 認証（★scopes付き） ---
+        # --- NaN対策 ---
+        df = df.fillna("")
+
+        # --- Google認証 ---
         SCOPES = [
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive"
@@ -349,12 +352,9 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
 
-        # --- シート全体を更新 ---
-        # NaNを空文字に変換
-        df = df.fillna("")
-        sheet.update([df.columns.values.tolist()] + df.values.tolist())
+        # --- 更新 ---
+        sheet.update([df.columns.tolist()] + df.values.tolist())
 
-        # --- キャッシュクリア ---
         st.cache_data.clear()
         st.session_state.edit_id = None
         st.session_state["save_success_flash"] = True
@@ -1031,6 +1031,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
