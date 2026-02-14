@@ -322,26 +322,39 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
     try:
         df = load_data()
         idx = df[df["id"] == beer_id].index
+
         if len(idx) == 0:
             st.error("IDが見つかりません")
             return
 
+        # --- データ更新 ---
         df.loc[idx, "in_stock"] = stock
         df.loc[idx, "price"] = price
         df.loc[idx, "comment"] = comment
         df.loc[idx, "detailed_comment"] = detailed_comment
 
-        # --- Google Sheets に書き込み ---
-        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+        # --- Google 認証（★scopes付き） ---
+        SCOPES = [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
+        ]
+
+        creds = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"],
+            scopes=SCOPES
+        )
+
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
 
-        # 全データをリスト化して置き換え
+        # --- シート全体を更新 ---
         sheet.update([df.columns.values.tolist()] + df.values.tolist())
 
+        # --- キャッシュクリア ---
         st.cache_data.clear()
         st.session_state.edit_id = None
         st.session_state["save_success_flash"] = True
+
         st.success("保存しました")
         st.rerun()
 
@@ -1014,6 +1027,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
