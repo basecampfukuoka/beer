@@ -348,6 +348,8 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
         sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
 
         # --- シート全体を更新 ---
+        # NaNを空文字に変換
+        df = df.fillna("")
         sheet.update([df.columns.values.tolist()] + df.values.tolist())
 
         # --- キャッシュクリア ---
@@ -1027,6 +1029,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
