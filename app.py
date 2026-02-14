@@ -247,6 +247,32 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
+def add_new_beer_simple(
+    name_jp, name_local, brewery_jp, brewery_local,
+    country, style_main_jp, style_sub_jp,
+    abv, volume, price, in_stock,
+    beer_image_url, untappd_url, comment, detailed_comment
+):
+    new_row = {
+        "name_jp": name_jp,
+        "name_local": name_local,
+        "brewery_jp": brewery_jp,
+        "brewery_local": brewery_local,
+        "country": country,
+        "style_main_jp": style_main_jp,
+        "style_sub_jp": style_sub_jp,
+        "abv": abv,
+        "volume": volume,
+        "price": price,
+        "in_stock": in_stock,
+        "beer_image_url": beer_image_url,
+        "untappd_url": untappd_url,
+        "comment": comment,
+        "detailed_comment": detailed_comment
+    }
+
+    append_row_to_sheet(new_row)  # ← あなたの保存関数に合わせて
+    st.success("ビールを追加しました！")
 
 
 # ---------- Load data ----------
@@ -1039,6 +1065,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
