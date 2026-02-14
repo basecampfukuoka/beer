@@ -327,6 +327,8 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
             st.error("IDが見つかりません")
             return
 
+        row_index = idx[0] 
+        
         # --- データ更新 ---
         df.loc[idx, "in_stock"] = stock
         df.loc[idx, "price"] = price
@@ -1029,6 +1031,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
