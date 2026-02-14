@@ -322,23 +322,33 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
     try:
         df = load_data()
 
-        # 該当行を1つに絞る
         mask = df["id"] == beer_id
-
         if not mask.any():
             st.error("IDが見つかりません")
             return
 
-        # --- 単純代入（これが一番安全） ---
+        # --- 単純代入 ---
         df.loc[mask, "in_stock"] = stock
         df.loc[mask, "price"] = price
         df.loc[mask, "comment"] = comment
         df.loc[mask, "detailed_comment"] = detailed_comment
 
-        # --- NaN対策 ---
+        # ==========================
+        # 🔥 ここから超重要
+        # ==========================
+
         df = df.fillna("")
 
-        # --- Google認証 ---
+        # list → 文字列化
+        df = df.applymap(
+            lambda x: ", ".join(map(str, x)) if isinstance(x, list) else x
+        )
+
+        # すべて文字列化（Sheets安全）
+        df = df.astype(str)
+
+        # ==========================
+
         SCOPES = [
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive"
@@ -352,7 +362,6 @@ def update_row(beer_id, stock, price, comment, detailed_comment):
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
 
-        # --- 更新 ---
         sheet.update([df.columns.tolist()] + df.values.tolist())
 
         st.cache_data.clear()
@@ -1031,6 +1040,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
