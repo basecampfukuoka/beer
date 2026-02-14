@@ -247,34 +247,6 @@ def locale_key(x):
     s = "" if x is None else str(x).strip()
     return collator.sort_key(s)
 
-def add_new_beer_simple(
-    name_jp, name_local, brewery_jp, brewery_local,
-    country, style_main_jp, style_sub_jp,
-    abv, volume, price, in_stock,
-    beer_image_url, untappd_url, comment, detailed_comment
-):
-    new_row = {
-        "name_jp": name_jp,
-        "name_local": name_local,
-        "brewery_jp": brewery_jp,
-        "brewery_local": brewery_local,
-        "country": country,
-        "style_main_jp": style_main_jp,
-        "style_sub_jp": style_sub_jp,
-        "abv": abv,
-        "volume": volume,
-        "price": price,
-        "in_stock": in_stock,
-        "beer_image_url": beer_image_url,
-        "untappd_url": untappd_url,
-        "comment": comment,
-        "detailed_comment": detailed_comment
-    }
-
-    append_row_to_sheet(new_row)  # ← あなたの保存関数に合わせて
-    st.success("ビールを追加しました！")
-
-
 # ---------- Load data ----------
 @st.cache_data
 def load_data():
@@ -432,6 +404,76 @@ def get_style_master(df):
     sub  = sorted({s for s in sub if s.strip()})
 
     return main, sub
+
+def add_new_beer_simple(
+    name_jp, name_local, brewery_jp, brewery_local,
+    country, style_main_jp, style_sub_jp,
+    abv, volume, price, in_stock,
+    beer_image_url, untappd_url, comment, detailed_comment
+):
+    try:
+        # --- 認証 ---
+        SCOPES = [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
+        ]
+
+        creds = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"],
+            scopes=SCOPES
+        )
+
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(SHEET_KEY).worksheet(SHEET_NAME)
+
+        # --- 既存データ取得（ID採番用） ---
+        df = load_data()
+
+        if "id" in df.columns and not df["id"].isna().all():
+            new_id = int(pd.to_numeric(df["id"], errors="coerce").max()) + 1
+        else:
+            new_id = 1
+
+        # --- 新規行 ---
+        new_row = {
+            "id": new_id,
+            "name_jp": name_jp,
+            "name_local": name_local,
+            "yomi": "",
+            "brewery_local": brewery_local,
+            "brewery_jp": brewery_jp,
+            "country": country,
+            "city": "",
+            "brewery_description": "",
+            "brewery_image_url": "",
+            "style_main": "",
+            "style_main_jp": style_main_jp,
+            "style_sub": "",
+            "style_sub_jp": style_sub_jp,
+            "abv": abv,
+            "volume": volume,
+            "vintage": "",
+            "price": price,
+            "comment": comment,
+            "detailed_comment": detailed_comment,
+            "in_stock": in_stock,
+            "untappd_url": untappd_url,
+            "jan": "",
+            "beer_image_url": beer_image_url,
+        }
+
+        # --- ヘッダー順に合わせる ---
+        headers = sheet.row_values(1)
+        row_data = [str(new_row.get(col, "")) for col in headers]
+
+        sheet.append_row(row_data)
+
+        st.cache_data.clear()
+        st.success("ビールを追加しました！")
+        st.rerun()
+
+    except Exception as e:
+        st.error(f"追加中にエラーが発生しました: {e}")
 
 
 # ---------- ランダム順用 state 初期化 ----------
@@ -1065,6 +1107,7 @@ if is_admin:
                     abv, volume, price, in_stock,
                     beer_image_url, untappd_url, comment, detailed_comment
                 )
+
 
 
 
